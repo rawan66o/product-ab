@@ -21,7 +21,7 @@ function Login() {
     try {
 
       const response = await axios.get(
-        "http://localhost:3001/users"
+        `${process.env.REACT_APP_API_URL}/users`
       );
 
       const users = response.data;
@@ -124,7 +124,7 @@ function Login() {
 
             <input
               type="password"
-              placeholder="123456"
+              placeholder="......"
               value={password}
               onChange={(e) =>
                 setPassword(e.target.value)

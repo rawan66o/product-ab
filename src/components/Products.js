@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
+import "./Products.css";
 function Products() {
 
   // =================================
@@ -72,7 +72,7 @@ function Products() {
 
 
       const response = await axios.get(
-        "http://localhost:3001/products"
+        `${process.env.REACT_APP_API_URL}/products`
       );
 
 
@@ -157,7 +157,7 @@ function Products() {
 
 
       await axios.post(
-        "http://localhost:3001/products",
+        `${process.env.REACT_APP_API_URL}/products`,
         newProduct
       );
 
@@ -203,7 +203,7 @@ function Products() {
     try {
 
       await axios.delete(
-        `http://localhost:3001/products/${id}`
+        `${process.env.REACT_APP_API_URL}/products/${id}`
       );
 
 
@@ -295,7 +295,7 @@ function Products() {
 
 
       await axios.put(
-        `http://localhost:3001/products/${editId}`,
+        `${process.env.REACT_APP_API_URL}/products/${editId}`,
         updatedProduct
       );
 
@@ -483,7 +483,7 @@ function Products() {
                 </th>
 
                 <th>
-                  السعر بالليرة
+              سعر صرف الدولار  
                 </th>
 
                 <th>
@@ -697,7 +697,8 @@ function Products() {
               <input
                 type="number"
                 name="price_syp"
-                placeholder="السعر بالليرة"
+                placeholder="سعر صرف الدولار   
+                 "
                 value={formData.price_syp}
                 onChange={handleChange}
               />
@@ -813,7 +814,7 @@ function Products() {
               <input
                 type="number"
                 name="price_syp"
-                placeholder="السعر بالليرة"
+                placeholder="سعر صرف الدولار "
                 value={formData.price_syp}
                 onChange={handleChange}
               />
