@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -18,11 +19,10 @@ function Products() {
 
   // =================================
   // Exchange Rate
+  // price_syp = سعر صرف الدولار
   // =================================
 
-  const [exchangeRate, setExchangeRate] = useState(
-    localStorage.getItem("exchangeRate") || ""
-  );
+  const [exchangeRate, setExchangeRate] = useState("");
 
 
   // =================================
@@ -82,37 +82,32 @@ function Products() {
         `${process.env.REACT_APP_API_URL}/products`
       );
 
-      setProducts(response.data);
+      const productsData = response.data;
+
+      setProducts(productsData);
 
       setError("");
 
 
-      // إذا ما كان في سعر صرف محفوظ
-      // نأخذ أول price_syp موجود كقيمة ابتدائية
+      // =================================
+      // أخذ سعر الصرف من price_syp
+      // =================================
 
-      const savedRate =
-        localStorage.getItem("exchangeRate");
+      if (productsData.length > 0) {
 
-      if (!savedRate && response.data.length > 0) {
-
-        const firstRate =
-          response.data.find(
+        const productWithRate =
+          productsData.find(
             (product) =>
               product.price_syp !== undefined &&
               product.price_syp !== null &&
-              product.price_syp !== ""
+              product.price_syp !== "" &&
+              Number(product.price_syp) > 0
           );
 
-        if (firstRate) {
+        if (productWithRate) {
 
-          const rate =
-            firstRate.price_syp;
-
-          setExchangeRate(rate);
-
-          localStorage.setItem(
-            "exchangeRate",
-            rate
+          setExchangeRate(
+            productWithRate.price_syp
           );
 
         }
@@ -144,19 +139,81 @@ function Products() {
 
 
   // =================================
-  // Exchange Rate Change
+  // تغيير سعر الصرف
   // =================================
 
-  const handleExchangeRateChange = (e) => {
+  const handleExchangeRateChange = async (e) => {
 
     const value = e.target.value;
 
     setExchangeRate(value);
 
-    localStorage.setItem(
-      "exchangeRate",
-      value
-    );
+  };
+
+
+  // =================================
+  // حفظ سعر الصرف
+  // price_syp = سعر الصرف
+  // =================================
+
+  const saveExchangeRate = async () => {
+
+    if (!exchangeRate || Number(exchangeRate) <= 0) {
+
+      alert("يرجى إدخال سعر صرف صحيح");
+
+      return;
+
+    }
+
+
+    try {
+
+      // نأخذ المنتجات الحالية
+      // ونحدث price_syp فيها
+
+      await Promise.all(
+
+        products.map((product) =>
+
+          axios.patch(
+            `${process.env.REACT_APP_API_URL}/products/${product.id}`,
+            {
+              price_syp: Number(exchangeRate),
+            }
+          )
+
+        )
+
+      );
+
+
+      // تحديث المنتجات محلياً
+
+      setProducts((prevProducts) =>
+
+        prevProducts.map((product) => ({
+
+          ...product,
+
+          price_syp: Number(exchangeRate),
+
+        }))
+
+      );
+
+
+      alert("تم تحديث سعر الصرف بنجاح");
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "حدث خطأ أثناء تحديث سعر الصرف"
+      );
+
+    }
 
   };
 
@@ -170,8 +227,11 @@ function Products() {
     const { name, value } = e.target;
 
     setFormData({
+
       ...formData,
+
       [name]: value,
+
     });
 
   };
@@ -200,8 +260,9 @@ function Products() {
         price_usd:
           Number(formData.price_usd),
 
-        // لم يعد سعر الصرف مرتبط بالمنتج
-        price_syp: 0,
+        // price_syp هو سعر الصرف
+        price_syp:
+          Number(exchangeRate || 0),
 
         quantity:
           Number(formData.quantity || 0),
@@ -210,8 +271,11 @@ function Products() {
 
 
       await axios.post(
+
         `${process.env.REACT_APP_API_URL}/products`,
+
         newProduct
+
       );
 
 
@@ -256,15 +320,21 @@ function Products() {
     try {
 
       await axios.delete(
+
         `${process.env.REACT_APP_API_URL}/products/${id}`
+
       );
 
 
       setProducts(
+
         products.filter(
+
           (product) =>
             product.id !== id
+
         )
+
       );
 
 
@@ -334,8 +404,9 @@ function Products() {
         price_usd:
           Number(formData.price_usd),
 
-        // سعر الصرف أصبح منفصل
-        price_syp: 0,
+        // نحافظ على سعر الصرف الحالي
+        price_syp:
+          Number(exchangeRate || 0),
 
         quantity:
           Number(formData.quantity || 0),
@@ -344,8 +415,11 @@ function Products() {
 
 
       await axios.put(
+
         `${process.env.REACT_APP_API_URL}/products/${editId}`,
+
         updatedProduct
+
       );
 
 
@@ -403,7 +477,6 @@ function Products() {
 
       <nav className="store-navbar">
 
-
         <div className="store-logo">
 
           متجري
@@ -447,7 +520,6 @@ function Products() {
 
 
         </div>
-
 
       </nav>
 
@@ -524,6 +596,17 @@ function Products() {
 
                 </span>
 
+
+                <button
+                  type="button"
+                  onClick={saveExchangeRate}
+                  className="save-rate-btn"
+                >
+
+                  حفظ
+
+                </button>
+
               </div>
 
             ) : (
@@ -556,7 +639,9 @@ function Products() {
         {user && (
 
           <button
+
             className="add-product-btn"
+
             onClick={() => {
 
               setFormData(emptyForm);
@@ -564,6 +649,7 @@ function Products() {
               setShowAddForm(true);
 
             }}
+
           >
 
             + إضافة منتج
@@ -698,10 +784,13 @@ function Products() {
 
 
                         <button
+
                           className="edit-btn"
+
                           onClick={() =>
                             handleEdit(product)
                           }
+
                         >
 
                           تعديل
@@ -710,12 +799,15 @@ function Products() {
 
 
                         <button
+
                           className="delete-btn"
+
                           onClick={() =>
                             handleDelete(
                               product.id
                             )
                           }
+
                         >
 
                           حذف
@@ -740,8 +832,11 @@ function Products() {
                 <tr>
 
                   <td
+
                     colSpan={user ? 7 : 6}
+
                     className="empty-products"
+
                   >
 
                     لا يوجد منتجات
@@ -775,10 +870,13 @@ function Products() {
 
 
             <button
+
               className="close-modal"
+
               onClick={() =>
                 setShowAddForm(false)
               }
+
             >
 
               ×
@@ -797,68 +895,113 @@ function Products() {
 
 
               <input
+
                 type="text"
+
                 name="name"
+
                 placeholder="اسم المنتج"
+
                 value={formData.name}
+
                 onChange={handleChange}
+
                 required
+
               />
 
 
               <input
+
                 type="text"
+
                 name="type"
+
                 placeholder="النوع"
+
                 value={formData.type}
+
                 onChange={handleChange}
+
                 required
+
               />
 
 
               <input
+
                 type="text"
+
                 name="size"
+
                 placeholder="القياس"
+
                 value={formData.size}
+
                 onChange={handleChange}
+
                 required
+
               />
 
 
               <input
+
                 type="text"
+
                 name="color"
+
                 placeholder="اللون"
+
                 value={formData.color}
+
                 onChange={handleChange}
+
                 required
+
               />
 
 
               <input
+
                 type="number"
+
                 step="0.01"
+
                 name="price_usd"
+
                 placeholder="السعر بالدولار"
+
                 value={formData.price_usd}
+
                 onChange={handleChange}
+
                 required
+
               />
 
 
               <input
+
                 type="number"
+
                 name="quantity"
+
                 placeholder="الكمية"
+
                 value={formData.quantity}
+
                 onChange={handleChange}
+
               />
 
 
               <button
+
                 type="submit"
+
                 className="save-btn"
+
               >
 
                 إضافة المنتج
@@ -888,10 +1031,13 @@ function Products() {
 
 
             <button
+
               className="close-modal"
+
               onClick={() =>
                 setEditId(null)
               }
+
             >
 
               ×
@@ -910,68 +1056,113 @@ function Products() {
 
 
               <input
+
                 type="text"
+
                 name="name"
+
                 placeholder="اسم المنتج"
+
                 value={formData.name}
+
                 onChange={handleChange}
+
                 required
+
               />
 
 
               <input
+
                 type="text"
+
                 name="type"
+
                 placeholder="النوع"
+
                 value={formData.type}
+
                 onChange={handleChange}
+
                 required
+
               />
 
 
               <input
+
                 type="text"
+
                 name="size"
+
                 placeholder="القياس"
+
                 value={formData.size}
+
                 onChange={handleChange}
+
                 required
+
               />
 
 
               <input
+
                 type="text"
+
                 name="color"
+
                 placeholder="اللون"
+
                 value={formData.color}
+
                 onChange={handleChange}
+
                 required
+
               />
 
 
               <input
+
                 type="number"
+
                 step="0.01"
+
                 name="price_usd"
+
                 placeholder="السعر بالدولار"
+
                 value={formData.price_usd}
+
                 onChange={handleChange}
+
                 required
+
               />
 
 
               <input
+
                 type="number"
+
                 name="quantity"
+
                 placeholder="الكمية"
+
                 value={formData.quantity}
+
                 onChange={handleChange}
+
               />
 
 
               <button
+
                 type="submit"
+
                 className="save-btn"
+
               >
 
                 حفظ التعديل
