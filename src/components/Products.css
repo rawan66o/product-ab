@@ -1408,3 +1408,850 @@ h1 {
     flex-direction: row;
   }
 }
+
+/* =========================
+   General
+========================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f1eb;
+  direction: rtl;
+  color: #333;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+
+/* =========================
+   Store Page
+========================= */
+
+.store-page {
+  min-height: 100vh;
+  background-color: #f5f1eb;
+}
+
+
+/* =========================
+   Navbar
+========================= */
+
+.store-navbar {
+  width: 100%;
+  min-height: 70px;
+  padding: 15px 5%;
+  background-color: #5c4033;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.store-logo {
+  color: white;
+  font-size: 25px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.store-links {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.store-links a {
+  text-decoration: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.store-links a:hover {
+  opacity: 0.8;
+}
+
+.admin-login-btn {
+  background-color: #d97706;
+  padding: 10px 18px;
+  border-radius: 8px;
+}
+
+
+/* =========================
+   Content
+========================= */
+
+.store-content {
+  width: 92%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+
+/* =========================
+   Title
+========================= */
+
+.store-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.store-title h1 {
+  color: #5c4033;
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+
+.store-title p {
+  color: #777;
+  font-size: 16px;
+}
+
+
+/* =========================
+   Error
+========================= */
+
+.products-error {
+  width: 100%;
+  background-color: #f8d7da;
+  color: #842029;
+
+  padding: 14px 18px;
+  border-radius: 8px;
+
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+
+/* =========================
+   Exchange Rate
+========================= */
+
+.exchange-rate-box {
+  width: 100%;
+  background-color: white;
+
+  border: 2px solid #d97706;
+  border-radius: 12px;
+
+  padding: 18px 25px;
+  margin-bottom: 25px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.exchange-rate-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 18px;
+}
+
+.exchange-rate-label {
+  color: #5c4033;
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.exchange-rate-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exchange-rate-edit input {
+  width: 180px;
+  height: 42px;
+
+  border: 1px solid #ccc;
+  border-radius: 8px;
+
+  padding: 0 12px;
+
+  font-size: 17px;
+  text-align: center;
+
+  outline: none;
+
+  transition: 0.3s;
+}
+
+.exchange-rate-edit input:focus {
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.12);
+}
+
+.exchange-rate-edit span {
+  color: #555;
+  font-weight: bold;
+}
+
+.exchange-rate-value {
+  min-width: 150px;
+
+  background-color: #f5f1eb;
+  color: #5c4033;
+
+  padding: 9px 18px;
+
+  border-radius: 8px;
+
+  text-align: center;
+
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.exchange-rate-value span {
+  margin-right: 6px;
+  font-size: 14px;
+  color: #777;
+}
+
+
+/* =========================
+   Add Product Button
+========================= */
+
+.add-product-btn {
+  display: block;
+
+  margin: 0 0 20px auto;
+
+  background-color: #d97706;
+  color: white;
+
+  border: none;
+  border-radius: 8px;
+
+  padding: 12px 22px;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.add-product-btn:hover {
+  background-color: #b85f04;
+  transform: translateY(-1px);
+}
+
+
+/* =========================
+   Products Table
+========================= */
+
+.products-table-container {
+  width: 100%;
+
+  overflow-x: auto;
+
+  background-color: white;
+
+  border-radius: 12px;
+
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.products-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  min-width: 750px;
+}
+
+.products-table thead {
+  background-color: #5c4033;
+}
+
+.products-table th {
+  color: white;
+
+  padding: 16px 12px;
+
+  font-size: 15px;
+  font-weight: bold;
+
+  text-align: center;
+
+  white-space: nowrap;
+}
+
+.products-table td {
+  padding: 14px 12px;
+
+  text-align: center;
+
+  border-bottom: 1px solid #eee;
+
+  font-size: 15px;
+
+  white-space: nowrap;
+}
+
+.products-table tbody tr {
+  transition: 0.2s;
+}
+
+.products-table tbody tr:hover {
+  background-color: #faf6f1;
+}
+
+.products-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* =========================
+   Price
+========================= */
+
+.price-cell {
+  color: #d97706;
+  font-weight: bold;
+}
+
+
+/* =========================
+   Table Actions
+========================= */
+
+.table-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+  border: none;
+
+  padding: 8px 14px;
+
+  border-radius: 6px;
+
+  color: white;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.edit-btn {
+  background-color: #5c4033;
+}
+
+.edit-btn:hover {
+  background-color: #432e25;
+}
+
+.delete-btn {
+  background-color: #c0392b;
+}
+
+.delete-btn:hover {
+  background-color: #a52f24;
+}
+
+
+/* =========================
+   Empty Products
+========================= */
+
+.empty-products {
+  padding: 35px !important;
+
+  color: #888;
+
+  font-size: 17px !important;
+}
+
+
+/* =========================
+   Loading
+========================= */
+
+.loading {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #f5f1eb;
+
+  color: #5c4033;
+
+  font-size: 22px;
+  font-weight: bold;
+}
+
+
+/* =========================
+   Modal Overlay
+========================= */
+
+.modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background-color: rgba(0, 0, 0, 0.55);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  z-index: 999;
+}
+
+
+/* =========================
+   Modal
+========================= */
+
+.modal {
+  position: relative;
+
+  width: 100%;
+  max-width: 500px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  background-color: white;
+
+  border-radius: 15px;
+
+  padding: 30px;
+
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.2);
+}
+
+.modal h2 {
+  color: #5c4033;
+
+  text-align: center;
+
+  margin-bottom: 25px;
+
+  font-size: 25px;
+}
+
+
+/* =========================
+   Close Button
+========================= */
+
+.close-modal {
+  position: absolute;
+
+  top: 12px;
+  left: 15px;
+
+  width: 35px;
+  height: 35px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background-color: #f1f1f1;
+
+  color: #555;
+
+  font-size: 25px;
+
+  cursor: pointer;
+
+  line-height: 30px;
+
+  transition: 0.3s;
+}
+
+.close-modal:hover {
+  background-color: #ddd;
+  color: #000;
+}
+
+
+/* =========================
+   Form
+========================= */
+
+.modal form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+.modal form input {
+  width: 100%;
+
+  height: 45px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 8px;
+
+  padding: 0 13px;
+
+  font-size: 15px;
+
+  outline: none;
+
+  background-color: #fafafa;
+
+  transition: 0.3s;
+}
+
+.modal form input:focus {
+  border-color: #d97706;
+
+  background-color: white;
+
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+}
+
+
+/* =========================
+   Save Button
+========================= */
+
+.save-btn {
+  width: 100%;
+
+  height: 45px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background-color: #d97706;
+
+  color: white;
+
+  font-size: 16px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  margin-top: 5px;
+
+  transition: 0.3s;
+}
+
+.save-btn:hover {
+  background-color: #b85f04;
+}
+
+
+/* =========================
+   Tablet
+========================= */
+
+@media (max-width: 992px) {
+
+  .store-content {
+    width: 94%;
+    padding: 30px 0;
+  }
+
+  .store-title h1 {
+    font-size: 30px;
+  }
+
+  .exchange-rate-box {
+    padding: 16px 20px;
+  }
+
+  .exchange-rate-label {
+    font-size: 17px;
+  }
+
+  .products-table {
+    min-width: 700px;
+  }
+
+  .products-table th,
+  .products-table td {
+    padding: 12px 9px;
+    font-size: 14px;
+  }
+
+}
+
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width: 768px) {
+
+  .store-navbar {
+    padding: 13px 4%;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    gap: 12px;
+  }
+
+  .store-logo {
+    font-size: 22px;
+  }
+
+  .store-links {
+    width: 100%;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+  }
+
+  .store-links a {
+    font-size: 14px;
+  }
+
+  .admin-login-btn {
+    padding: 8px 13px;
+  }
+
+
+  .store-content {
+    width: 94%;
+
+    padding: 25px 0;
+  }
+
+
+  .store-title {
+    margin-bottom: 22px;
+  }
+
+  .store-title h1 {
+    font-size: 26px;
+  }
+
+  .store-title p {
+    font-size: 14px;
+  }
+
+
+  /* Exchange Rate */
+
+  .exchange-rate-box {
+    padding: 15px;
+
+    margin-bottom: 20px;
+  }
+
+  .exchange-rate-content {
+    flex-direction: column;
+
+    gap: 12px;
+  }
+
+  .exchange-rate-label {
+    font-size: 17px;
+  }
+
+  .exchange-rate-edit {
+    width: 100%;
+
+    justify-content: center;
+  }
+
+  .exchange-rate-edit input {
+    width: 170px;
+  }
+
+  .exchange-rate-value {
+    width: 100%;
+
+    max-width: 220px;
+  }
+
+
+  /* Add Button */
+
+  .add-product-btn {
+    width: 100%;
+
+    margin-bottom: 15px;
+  }
+
+
+  /* Table */
+
+  .products-table-container {
+    border-radius: 10px;
+
+    overflow-x: auto;
+
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .products-table {
+    min-width: 700px;
+  }
+
+  .products-table th,
+  .products-table td {
+    padding: 11px 8px;
+
+    font-size: 13px;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    padding: 7px 10px;
+
+    font-size: 12px;
+  }
+
+
+  /* Modal */
+
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .modal {
+    max-width: 100%;
+
+    padding: 25px 18px;
+  }
+
+  .modal h2 {
+    font-size: 22px;
+  }
+
+}
+
+
+/* =========================
+   Small Mobile
+========================= */
+
+@media (max-width: 480px) {
+
+  .store-navbar {
+    min-height: auto;
+
+    padding: 12px 15px;
+  }
+
+  .store-logo {
+    font-size: 20px;
+  }
+
+  .store-links {
+    gap: 8px;
+  }
+
+  .store-links a {
+    font-size: 13px;
+  }
+
+  .admin-login-btn {
+    padding: 7px 10px;
+  }
+
+
+  .store-content {
+    width: 95%;
+
+    padding: 20px 0;
+  }
+
+
+  .store-title h1 {
+    font-size: 23px;
+  }
+
+  .store-title p {
+    font-size: 13px;
+  }
+
+
+  .exchange-rate-box {
+    padding: 14px 10px;
+  }
+
+  .exchange-rate-label {
+    font-size: 16px;
+  }
+
+  .exchange-rate-edit input {
+    width: 150px;
+
+    height: 40px;
+
+    font-size: 15px;
+  }
+
+  .exchange-rate-value {
+    font-size: 16px;
+  }
+
+
+  .products-table {
+    min-width: 680px;
+  }
+
+
+  .modal {
+    padding: 25px 15px;
+  }
+
+  .modal form input {
+    height: 43px;
+
+    font-size: 14px;
+  }
+
+  .save-btn {
+    height: 43px;
+
+    font-size: 15px;
+  }
+
+}

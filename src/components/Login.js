@@ -104,7 +104,7 @@ function Login() {
 
             <input
               type="email"
-              placeholder="admin@gmail.com"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) =>
                 setEmail(e.target.value)
@@ -124,7 +124,7 @@ function Login() {
 
             <input
               type="password"
-              placeholder="......"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) =>
                 setPassword(e.target.value)

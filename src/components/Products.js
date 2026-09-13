@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Products.css";
+
 function Products() {
 
   // =================================
@@ -13,6 +14,15 @@ function Products() {
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState("");
+
+
+  // =================================
+  // Exchange Rate
+  // =================================
+
+  const [exchangeRate, setExchangeRate] = useState(
+    localStorage.getItem("exchangeRate") || ""
+  );
 
 
   // =================================
@@ -42,8 +52,6 @@ function Products() {
 
     price_usd: "",
 
-    price_syp: "",
-
     quantity: "",
 
   };
@@ -61,7 +69,7 @@ function Products() {
 
 
   // =================================
-  // GET
+  // GET Products
   // =================================
 
   const getProducts = async () => {
@@ -70,16 +78,46 @@ function Products() {
 
       setLoading(true);
 
-
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/products`
       );
-
 
       setProducts(response.data);
 
       setError("");
 
+
+      // إذا ما كان في سعر صرف محفوظ
+      // نأخذ أول price_syp موجود كقيمة ابتدائية
+
+      const savedRate =
+        localStorage.getItem("exchangeRate");
+
+      if (!savedRate && response.data.length > 0) {
+
+        const firstRate =
+          response.data.find(
+            (product) =>
+              product.price_syp !== undefined &&
+              product.price_syp !== null &&
+              product.price_syp !== ""
+          );
+
+        if (firstRate) {
+
+          const rate =
+            firstRate.price_syp;
+
+          setExchangeRate(rate);
+
+          localStorage.setItem(
+            "exchangeRate",
+            rate
+          );
+
+        }
+
+      }
 
     } catch (error) {
 
@@ -88,7 +126,6 @@ function Products() {
       setError(
         "حدث خطأ أثناء جلب المنتجات"
       );
-
 
     } finally {
 
@@ -107,13 +144,30 @@ function Products() {
 
 
   // =================================
+  // Exchange Rate Change
+  // =================================
+
+  const handleExchangeRateChange = (e) => {
+
+    const value = e.target.value;
+
+    setExchangeRate(value);
+
+    localStorage.setItem(
+      "exchangeRate",
+      value
+    );
+
+  };
+
+
+  // =================================
   // Handle Input
   // =================================
 
   const handleChange = (e) => {
 
     const { name, value } = e.target;
-
 
     setFormData({
       ...formData,
@@ -131,7 +185,6 @@ function Products() {
 
     e.preventDefault();
 
-
     try {
 
       const newProduct = {
@@ -147,8 +200,8 @@ function Products() {
         price_usd:
           Number(formData.price_usd),
 
-        price_syp:
-          Number(formData.price_syp || 0),
+        // لم يعد سعر الصرف مرتبط بالمنتج
+        price_syp: 0,
 
         quantity:
           Number(formData.quantity || 0),
@@ -166,9 +219,7 @@ function Products() {
 
       setFormData(emptyForm);
 
-
       getProducts();
-
 
     } catch (error) {
 
@@ -196,7 +247,9 @@ function Products() {
 
 
     if (!confirmDelete) {
+
       return;
+
     }
 
 
@@ -250,9 +303,6 @@ function Products() {
       price_usd:
         product.price_usd ?? "",
 
-      price_syp:
-        product.price_syp ?? "",
-
       quantity:
         product.quantity ?? "",
 
@@ -269,7 +319,6 @@ function Products() {
 
     e.preventDefault();
 
-
     try {
 
       const updatedProduct = {
@@ -285,8 +334,8 @@ function Products() {
         price_usd:
           Number(formData.price_usd),
 
-        price_syp:
-          Number(formData.price_syp || 0),
+        // سعر الصرف أصبح منفصل
+        price_syp: 0,
 
         quantity:
           Number(formData.quantity || 0),
@@ -303,7 +352,6 @@ function Products() {
       setEditId(null);
 
       setFormData(emptyForm);
-
 
       getProducts();
 
@@ -357,7 +405,9 @@ function Products() {
 
 
         <div className="store-logo">
+
           متجري
+
         </div>
 
 
@@ -365,7 +415,9 @@ function Products() {
 
 
           <Link to="/products">
+
             المنتجات
+
           </Link>
 
 
@@ -375,7 +427,9 @@ function Products() {
               to="/dashboard"
               className="admin-login-btn"
             >
+
               لوحة التحكم
+
             </Link>
 
           ) : (
@@ -384,7 +438,9 @@ function Products() {
               to="/login"
               className="admin-login-btn"
             >
+
               🔐 تسجيل دخول الأدمن
+
             </Link>
 
           )}
@@ -406,25 +462,91 @@ function Products() {
         <div className="store-title">
 
           <h1>
+
             منتجاتنا
+
           </h1>
 
           <p>
+
             تصفح جميع المنتجات المتوفرة لدينا
+
           </p>
 
         </div>
 
 
-        {/* Error */}
+        {/* =================================
+            Error
+        ================================= */}
 
         {error && (
 
           <div className="products-error">
+
             {error}
+
           </div>
 
         )}
+
+
+        {/* =================================
+            Exchange Rate
+        ================================= */}
+
+        <div className="exchange-rate-box">
+
+          <div className="exchange-rate-content">
+
+            <span className="exchange-rate-label">
+
+              💵 سعر صرف الدولار
+
+            </span>
+
+
+            {user ? (
+
+              <div className="exchange-rate-edit">
+
+                <input
+                  type="number"
+                  value={exchangeRate}
+                  onChange={handleExchangeRateChange}
+                  placeholder="أدخل سعر الصرف"
+                  min="0"
+                />
+
+                <span>
+
+                  ل.س
+
+                </span>
+
+              </div>
+
+            ) : (
+
+              <div className="exchange-rate-value">
+
+                {exchangeRate
+                  ? Number(exchangeRate).toLocaleString()
+                  : "غير محدد"}
+
+                <span>
+
+                  ل.س
+
+                </span>
+
+              </div>
+
+            )}
+
+          </div>
+
+        </div>
 
 
         {/* =================================
@@ -443,7 +565,9 @@ function Products() {
 
             }}
           >
+
             + إضافة منتج
+
           </button>
 
         )}
@@ -463,38 +587,48 @@ function Products() {
               <tr>
 
                 <th>
+
                   الاسم
+
                 </th>
 
                 <th>
+
                   النوع
+
                 </th>
 
                 <th>
+
                   القياس
+
                 </th>
 
                 <th>
+
                   اللون
+
                 </th>
 
                 <th>
+
                   السعر بالدولار
+
                 </th>
 
                 <th>
-              سعر صرف الدولار  
-                </th>
 
-                <th>
                   الكمية
+
                 </th>
 
 
                 {user && (
 
                   <th>
+
                     الإجراءات
+
                   </th>
 
                 )}
@@ -506,43 +640,51 @@ function Products() {
 
             <tbody>
 
+
               {products.map((product) => (
 
                 <tr key={product.id}>
 
 
                   <td>
+
                     {product.name}
+
                   </td>
 
 
                   <td>
+
                     {product.type}
+
                   </td>
 
 
                   <td>
+
                     {product.size}
+
                   </td>
 
 
                   <td>
+
                     {product.color}
+
                   </td>
 
 
                   <td className="price-cell">
+
                     ${product.price_usd}
+
                   </td>
 
 
                   <td>
-                    {product.price_syp}
-                  </td>
 
-
-                  <td>
                     {product.quantity}
+
                   </td>
 
 
@@ -561,7 +703,9 @@ function Products() {
                             handleEdit(product)
                           }
                         >
+
                           تعديل
+
                         </button>
 
 
@@ -573,7 +717,9 @@ function Products() {
                             )
                           }
                         >
+
                           حذف
+
                         </button>
 
 
@@ -594,15 +740,18 @@ function Products() {
                 <tr>
 
                   <td
-                    colSpan={user ? 8 : 7}
+                    colSpan={user ? 7 : 6}
                     className="empty-products"
                   >
+
                     لا يوجد منتجات
+
                   </td>
 
                 </tr>
 
               )}
+
 
             </tbody>
 
@@ -631,12 +780,16 @@ function Products() {
                 setShowAddForm(false)
               }
             >
+
               ×
+
             </button>
 
 
             <h2>
+
               إضافة منتج
+
             </h2>
 
 
@@ -696,16 +849,6 @@ function Products() {
 
               <input
                 type="number"
-                name="price_syp"
-                placeholder="سعر صرف الدولار   
-                 "
-                value={formData.price_syp}
-                onChange={handleChange}
-              />
-
-
-              <input
-                type="number"
                 name="quantity"
                 placeholder="الكمية"
                 value={formData.quantity}
@@ -717,7 +860,9 @@ function Products() {
                 type="submit"
                 className="save-btn"
               >
+
                 إضافة المنتج
+
               </button>
 
 
@@ -748,12 +893,16 @@ function Products() {
                 setEditId(null)
               }
             >
+
               ×
+
             </button>
 
 
             <h2>
+
               تعديل المنتج
+
             </h2>
 
 
@@ -813,15 +962,6 @@ function Products() {
 
               <input
                 type="number"
-                name="price_syp"
-                placeholder="سعر صرف الدولار "
-                value={formData.price_syp}
-                onChange={handleChange}
-              />
-
-
-              <input
-                type="number"
                 name="quantity"
                 placeholder="الكمية"
                 value={formData.quantity}
@@ -833,7 +973,9 @@ function Products() {
                 type="submit"
                 className="save-btn"
               >
+
                 حفظ التعديل
+
               </button>
 
 
@@ -850,6 +992,7 @@ function Products() {
     </div>
 
   );
+
 }
 
 export default Products;
