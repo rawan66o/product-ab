@@ -1089,21 +1089,21 @@ h1 {
 
   /* السعر بالليرة */
 
-  .products-table tbody tr td:nth-child(6)::before {
+  /* .products-table tbody tr td:nth-child(6)::before {
     content: "سعر صرف الدولار  ";
   }
-
+ */
 
   /* الكمية */
 
-  .products-table tbody tr td:nth-child(7)::before {
+  .products-table tbody tr td:nth-child(6)::before {
     content: "الكمية";
   }
 
 
   /* الإجراءات */
 
-  .products-table tbody tr td:nth-child(8)::before {
+  .products-table tbody tr td:nth-child(7)::before {
     content: "الإجراءات";
   }
 
