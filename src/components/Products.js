@@ -156,67 +156,50 @@ function Products() {
   // price_syp = سعر الصرف
   // =================================
 
-  const saveExchangeRate = async () => {
+const saveExchangeRate = async () => {
+  if (!exchangeRate || Number(exchangeRate) <= 0) {
+    alert("يرجى إدخال سعر صرف صحيح");
+    return;
+  }
 
-    if (!exchangeRate || Number(exchangeRate) <= 0) {
+  try {
+    const rate = Number(exchangeRate);
 
-      alert("يرجى إدخال سعر صرف صحيح");
+    for (const product of products) {
+      console.log("Updating product:", product.id);
 
-      return;
+      const response = await axios.patch(
+        `${process.env.REACT_APP_API_URL}/products/${product.id}`,
+        {
+          price_syp: rate,
+        }
+      );
 
+      console.log("Updated:", response.data);
     }
 
+    setProducts((prevProducts) =>
+      prevProducts.map((product) => ({
+        ...product,
+        price_syp: rate,
+      }))
+    );
 
-    try {
+    alert("تم تحديث سعر الصرف بنجاح");
 
-      // نأخذ المنتجات الحالية
-      // ونحدث price_syp فيها
+  } catch (error) {
+    console.log("FULL ERROR:", error);
+    console.log("STATUS:", error.response?.status);
+    console.log("DATA:", error.response?.data);
+    console.log("URL:", error.config?.url);
 
-      await Promise.all(
-
-        products.map((product) =>
-
-          axios.patch(
-            `${process.env.REACT_APP_API_URL}/products/${product.id}`,
-            {
-              price_syp: Number(exchangeRate),
-            }
-          )
-
-        )
-
-      );
-
-
-      // تحديث المنتجات محلياً
-
-      setProducts((prevProducts) =>
-
-        prevProducts.map((product) => ({
-
-          ...product,
-
-          price_syp: Number(exchangeRate),
-
-        }))
-
-      );
-
-
-      alert("تم تحديث سعر الصرف بنجاح");
-
-    } catch (error) {
-
-      console.log(error);
-
-      alert(
-        "حدث خطأ أثناء تحديث سعر الصرف"
-      );
-
-    }
-
-  };
-
+    alert(
+      `فشل الحفظ ❌\nStatus: ${
+        error.response?.status || "غير معروف"
+      }`
+    );
+  }
+};
 
   // =================================
   // Handle Input

@@ -10,6 +10,7 @@ import Login from "./components/Login";
 import Products from "./components/Products";
 
 import "./App.css";
+import Checks from "./components/Checks";
 
 
 // ===============================
@@ -174,7 +175,7 @@ function Dashboard() {
             </p>
 
           </div>
-
+<Checks/>
 
         </div>
 
