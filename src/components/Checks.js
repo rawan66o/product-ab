@@ -1,98 +1,292 @@
-
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import "./Checks.css";
 
+// =================================
+// API
+// =================================
+
+const API_URL =
+  "https://abdbac2-4.onrender.com/checks";
+
+// =================================
+// Empty Form
+// =================================
+
+const emptyForm = {
+  checkNumber: "",
+  recipientName: "",
+  signer: "",
+  type: "شراء",
+  totalAmount: "",
+  productType: "",
+  specifications: "",
+  quantity: "",
+  price: "",
+  notes: "",
+};
+
+// =================================
+// Check Form
+// =================================
+
+function CheckForm({
+  formData,
+  handleChange,
+  onSubmit,
+  buttonText,
+}) {
+  return (
+    <form onSubmit={onSubmit}>
+
+      {/* رقم الكشف */}
+
+      <input
+        type="text"
+        name="checkNumber"
+        placeholder="رقم الكشف"
+        value={formData.checkNumber}
+        onChange={handleChange}
+        autoComplete="off"
+        required
+      />
+
+      {/* اسم المستلم */}
+
+      <input
+        type="text"
+        name="recipientName"
+        placeholder="اسم المستلم"
+        value={formData.recipientName}
+        onChange={handleChange}
+        autoComplete="off"
+        required
+      />
+
+      {/* الموقّع */}
+
+      <input
+        type="text"
+        name="signer"
+        placeholder="اسم الموقّع"
+        value={formData.signer}
+        onChange={handleChange}
+        autoComplete="off"
+        required
+      />
+
+      {/* نوع الكشف */}
+
+      <select
+        name="type"
+        value={formData.type}
+        onChange={handleChange}
+        required
+      >
+        <option value="شراء">
+          شراء
+        </option>
+
+        <option value="بيع">
+          بيع
+        </option>
+      </select>
+
+      {/* القيمة الإجمالية */}
+
+      <input
+        type="number"
+        name="totalAmount"
+        placeholder="القيمة الإجمالية"
+        value={formData.totalAmount}
+        onChange={handleChange}
+        min="0"
+        required
+      />
+
+      {/* نوع البضاعة */}
+
+      <input
+        type="text"
+        name="productType"
+        placeholder="نوع البضاعة"
+        value={formData.productType}
+        onChange={handleChange}
+        autoComplete="off"
+        required
+      />
+
+      {/* المواصفات */}
+
+      <input
+        type="text"
+        name="specifications"
+        placeholder="مواصفات البضاعة"
+        value={formData.specifications}
+        onChange={handleChange}
+        autoComplete="off"
+      />
+
+      {/* العدد */}
+
+      <input
+        type="number"
+        name="quantity"
+        placeholder="العدد"
+        value={formData.quantity}
+        onChange={handleChange}
+        min="0"
+        required
+      />
+
+      {/* السعر */}
+
+      <input
+        type="number"
+        step="0.01"
+        name="price"
+        placeholder="السعر"
+        value={formData.price}
+        onChange={handleChange}
+        min="0"
+        required
+      />
+
+      {/* الملاحظات */}
+
+      <textarea
+        name="notes"
+        placeholder="الملاحظات"
+        value={formData.notes}
+        onChange={handleChange}
+        rows="4"
+      />
+
+      {/* زر الحفظ */}
+
+      <button
+        type="submit"
+        className="save-check-btn"
+      >
+        {buttonText}
+      </button>
+
+    </form>
+  );
+}
+
+// =================================
+// Checks
+// =================================
+
 function Checks() {
-  const API_URL = "https://abdo-1-rrgy.onrender.com/checks";
 
   // =================================
   // User
   // =================================
 
-  const user = localStorage.getItem("user");
+  const user =
+    localStorage.getItem("user");
 
   // =================================
-  // Checks
+  // States
   // =================================
 
-  const [checks, setChecks] = useState([]);
+  const [checks, setChecks] =
+    useState([]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [error, setError] = useState("");
+  const [error, setError] =
+    useState("");
 
-  // =================================
-  // Filter
-  // =================================
+  /*
+    all       = كل الشيكات
+    purchase  = شيكات الشراء
+    sale      = شيكات البيع
+  */
 
-  const [filterType, setFilterType] = useState("all");
+  const [filterType, setFilterType] =
+    useState("all");
 
-  // =================================
-  // Modals
-  // =================================
+  const [showAddForm, setShowAddForm] =
+    useState(false);
 
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [editId, setEditId] =
+    useState(null);
 
-  const [editId, setEditId] = useState(null);
-
-  // =================================
-  // Form
-  // =================================
-
-  const emptyForm = {
-    type: "شراء",
-    totalAmount: "",
-    productType: "",
-    specifications: "",
-    quantity: "",
-    price: "",
-    notes: "",
-  };
-
-  const [formData, setFormData] = useState(emptyForm);
+  const [formData, setFormData] =
+    useState(emptyForm);
 
   // =================================
-  // GET Checks
+  // GET CHECKS
   // =================================
 
   const getChecks = async () => {
+
     try {
+
       setLoading(true);
 
-      const response = await axios.get(API_URL);
+      const response =
+        await axios.get(API_URL);
 
-      setChecks(response.data);
+      if (Array.isArray(response.data)) {
+
+        setChecks(response.data);
+
+      } else {
+
+        setChecks([]);
+
+      }
 
       setError("");
+
     } catch (error) {
+
       console.log(error);
 
-      setError("حدث خطأ أثناء جلب الشيكات");
+      setError(
+        "حدث خطأ أثناء جلب الكشف"
+      );
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
   // =================================
-  // Load
+  // LOAD
   // =================================
 
   useEffect(() => {
+
     getChecks();
+
   }, []);
 
   // =================================
-  // Handle Input
+  // HANDLE CHANGE
   // =================================
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
 
-    setFormData({
-      ...formData,
+    const {
+      name,
+      value,
+    } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
+
   };
 
   // =================================
@@ -100,39 +294,116 @@ function Checks() {
   // =================================
 
   const handleAdd = async (e) => {
+
     e.preventDefault();
 
     try {
+
+      // =================================
+      // FIND MAX ID
+      // =================================
+
+      const numericIds = checks
+        .map((check) =>
+          Number(check.id)
+        )
+        .filter((id) =>
+          Number.isFinite(id)
+        );
+
+      const maxId =
+        numericIds.length > 0
+          ? Math.max(...numericIds)
+          : 0;
+
+      const newId =
+        String(maxId + 1);
+
+      // =================================
+      // NEW CHECK
+      // =================================
+
       const newCheck = {
-        type: formData.type,
 
-        totalAmount: Number(formData.totalAmount || 0),
+        id: newId,
 
-        productType: formData.productType,
+        checkNumber:
+          formData.checkNumber.trim(),
 
-        specifications: formData.specifications,
+        recipientName:
+          formData.recipientName.trim(),
 
-        quantity: Number(formData.quantity || 0),
+        signer:
+          formData.signer.trim(),
 
-        price: Number(formData.price || 0),
+        type:
+          formData.type.trim(),
 
-        notes: formData.notes,
+        totalAmount:
+          Number(
+            formData.totalAmount || 0
+          ),
+
+        productType:
+          formData.productType.trim(),
+
+        specifications:
+          formData.specifications.trim(),
+
+        quantity:
+          Number(
+            formData.quantity || 0
+          ),
+
+        price:
+          Number(
+            formData.price || 0
+          ),
+
+        notes:
+          formData.notes.trim(),
+
       };
 
-      const response = await axios.post(API_URL, newCheck);
+      // =================================
+      // POST
+      // =================================
 
-      setChecks((prev) => [...prev, response.data]);
+      const response =
+        await axios.post(
+          API_URL,
+          newCheck
+        );
+
+      // =================================
+      // UPDATE UI
+      // =================================
+
+      setChecks((prev) => [
+        ...prev,
+        response.data,
+      ]);
 
       setShowAddForm(false);
 
-      setFormData(emptyForm);
+      setFormData(
+        emptyForm
+      );
 
-      alert("تم إضافة الشيك بنجاح");
+      alert(
+        "تم إضافة الكشف بنجاح"
+      );
+
     } catch (error) {
+
       console.log(error);
 
-      alert("حدث خطأ أثناء إضافة الشيك");
+      alert(
+        "حدث خطأ أثناء إضافة الكشف"
+      );
+
     }
+
   };
 
   // =================================
@@ -140,27 +411,44 @@ function Checks() {
   // =================================
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "هل أنت متأكد من حذف هذا الشيك؟"
-    );
+
+    const confirmDelete =
+      window.confirm(
+        "هل أنت متأكد من حذف هذا الكشف؟"
+      );
 
     if (!confirmDelete) {
       return;
     }
 
     try {
-      await axios.delete(`${API_URL}/${id}`);
 
-      setChecks((prev) =>
-        prev.filter((check) => check.id !== id)
+      await axios.delete(
+        `${API_URL}/${id}`
       );
 
-      alert("تم حذف الشيك بنجاح");
+      setChecks((prev) =>
+        prev.filter(
+          (check) =>
+            String(check.id) !==
+            String(id)
+        )
+      );
+
+      alert(
+        "تم حذف الكشف بنجاح"
+      );
+
     } catch (error) {
+
       console.log(error);
 
-      alert("حدث خطأ أثناء حذف الشيك");
+      alert(
+        "حدث خطأ أثناء حذف الكشف"
+      );
+
     }
+
   };
 
   // =================================
@@ -168,23 +456,45 @@ function Checks() {
   // =================================
 
   const handleEdit = (check) => {
-    setEditId(check.id);
+
+    setEditId(
+      check.id
+    );
 
     setFormData({
-      type: check.type || "شراء",
 
-      totalAmount: check.totalAmount ?? "",
+      checkNumber:
+        check.checkNumber || "",
 
-      productType: check.productType || "",
+      recipientName:
+        check.recipientName || "",
 
-      specifications: check.specifications || "",
+      signer:
+        check.signer || "",
 
-      quantity: check.quantity ?? "",
+      type:
+        check.type || "شراء",
 
-      price: check.price ?? "",
+      totalAmount:
+        check.totalAmount ?? "",
 
-      notes: check.notes || "",
+      productType:
+        check.productType || "",
+
+      specifications:
+        check.specifications || "",
+
+      quantity:
+        check.quantity ?? "",
+
+      price:
+        check.price ?? "",
+
+      notes:
+        check.notes || "",
+
     });
+
   };
 
   // =================================
@@ -192,524 +502,726 @@ function Checks() {
   // =================================
 
   const handleUpdate = async (e) => {
+
     e.preventDefault();
 
     try {
+
       const updatedCheck = {
-        type: formData.type,
 
-        totalAmount: Number(formData.totalAmount || 0),
+        id: editId,
 
-        productType: formData.productType,
+        checkNumber:
+          formData.checkNumber.trim(),
 
-        specifications: formData.specifications,
+        recipientName:
+          formData.recipientName.trim(),
 
-        quantity: Number(formData.quantity || 0),
+        signer:
+          formData.signer.trim(),
 
-        price: Number(formData.price || 0),
+        type:
+          formData.type.trim(),
 
-        notes: formData.notes,
+        totalAmount:
+          Number(
+            formData.totalAmount || 0
+          ),
+
+        productType:
+          formData.productType.trim(),
+
+        specifications:
+          formData.specifications.trim(),
+
+        quantity:
+          Number(
+            formData.quantity || 0
+          ),
+
+        price:
+          Number(
+            formData.price || 0
+          ),
+
+        notes:
+          formData.notes.trim(),
+
       };
 
-      const response = await axios.put(
-        `${API_URL}/${editId}`,
-        updatedCheck
-      );
+      // =================================
+      // PUT
+      // =================================
+
+      const response =
+        await axios.put(
+          `${API_URL}/${editId}`,
+          updatedCheck
+        );
+
+      // =================================
+      // UPDATE UI
+      // =================================
 
       setChecks((prev) =>
         prev.map((check) =>
-          check.id === editId ? response.data : check
+          String(check.id) ===
+          String(editId)
+            ? response.data
+            : check
         )
       );
 
       setEditId(null);
 
-      setFormData(emptyForm);
+      setFormData(
+        emptyForm
+      );
 
-      alert("تم تعديل الشيك بنجاح");
+      alert(
+        "تم تعديل الكشف بنجاح"
+      );
+
     } catch (error) {
+
       console.log(error);
 
-      alert("حدث خطأ أثناء تعديل الشيك");
+      alert(
+        "حدث خطأ أثناء تعديل الكشف"
+      );
+
     }
+
   };
 
   // =================================
-  // FILTER
+  // NORMALIZE API TYPE
   // =================================
 
-  const filteredChecks = checks.filter((check) => {
-    if (filterType === "all") {
-      return true;
+  const getCheckType = (type) => {
+
+    const value =
+      String(type || "")
+        .trim()
+        .toLowerCase();
+
+    // شراء
+    if (
+      value === "شراء" ||
+      value === "buy" ||
+      value === "purchase"
+    ) {
+      return "purchase";
     }
 
-    return check.type === filterType;
-  });
+    // بيع
+    if (
+      value === "بيع" ||
+      value === "sell" ||
+      value === "sale"
+    ) {
+      return "sale";
+    }
+
+    return "";
+
+  };
 
   // =================================
-  // Loading
+  // FILTER CHECKS
+  // =================================
+
+  const filteredChecks =
+    checks.filter((check) => {
+
+      // =================================
+      // ALL
+      // =================================
+
+      if (
+        filterType === "all"
+      ) {
+        return true;
+      }
+
+      // =================================
+      // PURCHASE
+      // =================================
+
+      if (
+        filterType === "purchase"
+      ) {
+
+        return (
+          getCheckType(
+            check.type
+          ) === "purchase"
+        );
+
+      }
+
+      // =================================
+      // SALE
+      // =================================
+
+      if (
+        filterType === "sale"
+      ) {
+
+        return (
+          getCheckType(
+            check.type
+          ) === "sale"
+        );
+
+      }
+
+      return true;
+
+    });
+
+  // =================================
+  // LOADING
   // =================================
 
   if (loading) {
+
     return (
       <div className="checks-loading">
-        جاري تحميل الشيكات...
+        جاري تحميل الكشف...
       </div>
     );
+
   }
 
   // =================================
-  // Return
+  // RETURN
   // =================================
 
   return (
+
     <div className="checks-page">
 
       {/* =================================
-          Header
+          NAVBAR
       ================================= */}
 
-      <div className="checks-header">
+      <nav className="store-navbar">
 
-        <div>
-          <h1>الشيكات</h1>
-
-          <p>
-            إدارة شيكات الشراء والبيع
-          </p>
+        <div className="store-logo">
+          متجري
         </div>
 
-        {user && (
-          <button
-            className="add-check-btn"
-            onClick={() => {
-              setFormData(emptyForm);
-              setShowAddForm(true);
-            }}
-          >
-            + إضافة شيك
-          </button>
+        <div className="store-links">
+
+          <Link to="/products">
+            المنتجات
+          </Link>
+
+          {user ? (
+
+            <Link
+              to="/dashboard"
+              className="admin-login-btn"
+            >
+              لوحة التحكم
+            </Link>
+
+          ) : (
+
+            <Link
+              to="/login"
+              className="admin-login-btn"
+            >
+              🔐 تسجيل دخول الأدمن
+            </Link>
+
+          )}
+
+        </div>
+
+      </nav>
+
+
+      {/* =================================
+          CONTENT
+      ================================= */}
+
+      <div className="checks-content">
+
+        {/* =================================
+            HEADER
+        ================================= */}
+
+        <div className="checks-header">
+
+          <div>
+
+            <h1>
+              الكشف
+            </h1>
+
+            <p>
+              إدارة الكشف
+            </p>
+
+          </div>
+
+          {user && (
+
+            <button
+              type="button"
+              className="add-check-btn"
+              onClick={() => {
+
+                setFormData(
+                  emptyForm
+                );
+
+                setShowAddForm(
+                  true
+                );
+
+              }}
+            >
+              + إضافة شيك
+            </button>
+
+          )}
+
+        </div>
+
+
+        {/* =================================
+            ERROR
+        ================================= */}
+
+        {error && (
+
+          <div className="checks-error">
+            {error}
+          </div>
+
         )}
 
-      </div>
 
-      {/* =================================
-          Error
-      ================================= */}
+        {/* =================================
+            FILTERS
+        ================================= */}
 
-      {error && (
-        <div className="checks-error">
-          {error}
+        <div className="checks-filters">
+
+          {/* الكل */}
+
+          <button
+            type="button"
+            className={
+              filterType === "all"
+                ? "filter-btn active"
+                : "filter-btn"
+            }
+            onClick={() =>
+              setFilterType("all")
+            }
+          >
+            كل الكشف
+          </button>
+
+
+          {/* شراء */}
+
+          <button
+            type="button"
+            className={
+              filterType === "purchase"
+                ? "filter-btn active"
+                : "filter-btn"
+            }
+            onClick={() =>
+              setFilterType("purchase")
+            }
+          >
+            شيكات الشراء
+          </button>
+
+
+          {/* بيع */}
+
+          <button
+            type="button"
+            className={
+              filterType === "sale"
+                ? "filter-btn active"
+                : "filter-btn"
+            }
+            onClick={() =>
+              setFilterType("sale")
+            }
+          >
+            شيكات البيع
+          </button>
+
         </div>
-      )}
 
-      {/* =================================
-          Filters
-      ================================= */}
 
-      <div className="checks-filters">
+        {/* =================================
+            TABLE
+        ================================= */}
 
-        <button
-          className={
-            filterType === "all"
-              ? "filter-btn active"
-              : "filter-btn"
-          }
-          onClick={() => setFilterType("all")}
-        >
-          كل الشيكات
-        </button>
+        <div className="checks-table-container">
 
-        <button
-          className={
-            filterType === "شراء"
-              ? "filter-btn active"
-              : "filter-btn"
-          }
-          onClick={() => setFilterType("شراء")}
-        >
-          شيكات الشراء
-        </button>
+          <table className="checks-table">
 
-        <button
-          className={
-            filterType === "بيع"
-              ? "filter-btn active"
-              : "filter-btn"
-          }
-          onClick={() => setFilterType("بيع")}
-        >
-          شيكات البيع
-        </button>
+            <thead>
 
-      </div>
+              <tr>
 
-      {/* =================================
-          Table
-      ================================= */}
+                <th>
+                  #
+                </th>
 
-      <div className="checks-table-container">
+                <th>
+                  رقم الكشف
+                </th>
 
-        <table className="checks-table">
+                <th>
+                  اسم المستلم
+                </th>
 
-          <thead>
+                <th>
+                  الموقّع
+                </th>
 
-            <tr>
+                <th>
+                  نوع الكشف
+                </th>
 
-              <th>رقم</th>
+                <th>
+                  القيمة الإجمالية
+                </th>
 
-              <th>نوع الشيك</th>
+                <th>
+                  نوع البضاعة
+                </th>
 
-              <th>القيمة الإجمالية</th>
+                <th>
+                  المواصفات
+                </th>
 
-              <th>نوع البضاعة</th>
+                <th>
+                  العدد
+                </th>
 
-              <th>المواصفات</th>
+                <th>
+                  السعر
+                </th>
 
-              <th>العدد</th>
-
-              <th>السعر</th>
-
-              <th>الملاحظات</th>
-
-              {user && (
-                <th>الإجراءات</th>
-              )}
-
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-            {filteredChecks.map((check) => (
-
-              <tr key={check.id}>
-
-                <td>
-                  #{check.id}
-                </td>
-
-                <td>
-
-                  <span
-                    className={
-                      check.type === "شراء"
-                        ? "check-type buy"
-                        : "check-type sell"
-                    }
-                  >
-                    {check.type}
-                  </span>
-
-                </td>
-
-                <td className="total-cell">
-                  {Number(
-                    check.totalAmount || 0
-                  ).toLocaleString()} ل.س
-                </td>
-
-                <td>
-                  {check.productType}
-                </td>
-
-                <td>
-                  {check.specifications || "-"}
-                </td>
-
-                <td>
-                  {Number(
-                    check.quantity || 0
-                  ).toLocaleString()}
-                </td>
-
-                <td>
-                  {check.price}
-                </td>
-
-                <td>
-                  {check.notes || "-"}
-                </td>
+                <th>
+                  الملاحظات
+                </th>
 
                 {user && (
-
-                  <td>
-
-                    <div className="check-actions">
-
-                      <button
-                        className="edit-check-btn"
-                        onClick={() =>
-                          handleEdit(check)
-                        }
-                      >
-                        تعديل
-                      </button>
-
-                      <button
-                        className="delete-check-btn"
-                        onClick={() =>
-                          handleDelete(check.id)
-                        }
-                      >
-                        حذف
-                      </button>
-
-                    </div>
-
-                  </td>
-
+                  <th>
+                    الإجراءات
+                  </th>
                 )}
 
               </tr>
 
-            ))}
+            </thead>
 
-            {filteredChecks.length === 0 && (
 
-              <tr>
+            <tbody>
 
-                <td
-                  colSpan={user ? 9 : 8}
-                  className="empty-checks"
-                >
-                  لا يوجد شيكات
-                </td>
+              {filteredChecks.map(
+                (check, index) => {
 
-              </tr>
+                  const checkType =
+                    getCheckType(
+                      check.type
+                    );
 
-            )}
+                  return (
 
-          </tbody>
+                    <tr
+                      key={check.id}
+                    >
 
-        </table>
+                      {/* # */}
+
+                      <td data-label="#">
+                        #{index + 1}
+                      </td>
+
+
+                      {/* رقم الكشف */}
+
+                      <td data-label="رقم الكشف">
+                        {check.checkNumber || "-"}
+                      </td>
+
+
+                      {/* اسم المستلم */}
+
+                      <td data-label="اسم المستلم">
+                        {check.recipientName || "-"}
+                      </td>
+
+
+                      {/* الموقّع */}
+
+                      <td data-label="الموقّع">
+                        {check.signer || "-"}
+                      </td>
+
+
+                      {/* نوع الكشف */}
+
+                      <td data-label="نوع الكشف">
+
+                        <span
+                          className={
+                            checkType === "purchase"
+                              ? "check-type buy"
+                              : checkType === "sale"
+                              ? "check-type sell"
+                              : "check-type"
+                          }
+                        >
+
+                          {checkType === "purchase"
+                            ? "شراء"
+                            : checkType === "sale"
+                            ? "بيع"
+                            : check.type || "-"}
+
+                        </span>
+
+                      </td>
+
+
+                      {/* القيمة الإجمالية */}
+
+                      <td
+                        data-label="القيمة الإجمالية"
+                        className="total-cell"
+                      >
+
+                        {Number(
+                          check.totalAmount || 0
+                        ).toLocaleString()}
+
+                        {" "}
+                        ل.س
+
+                      </td>
+
+
+                      {/* نوع البضاعة */}
+
+                      <td data-label="نوع البضاعة">
+                        {check.productType || "-"}
+                      </td>
+
+
+                      {/* المواصفات */}
+
+                      <td data-label="المواصفات">
+                        {check.specifications || "-"}
+                      </td>
+
+
+                      {/* العدد */}
+
+                      <td data-label="العدد">
+
+                        {Number(
+                          check.quantity || 0
+                        ).toLocaleString()}
+
+                      </td>
+
+
+                      {/* السعر */}
+
+                      <td data-label="السعر">
+                        {check.price ?? "-"}
+                      </td>
+
+
+                      {/* الملاحظات */}
+
+                      <td data-label="الملاحظات">
+                        {check.notes || "-"}
+                      </td>
+
+
+                      {/* الإجراءات */}
+
+                      {user && (
+
+                        <td data-label="الإجراءات">
+
+                          <div className="check-actions">
+
+                            <button
+                              type="button"
+                              className="edit-check-btn"
+                              onClick={() =>
+                                handleEdit(
+                                  check
+                                )
+                              }
+                            >
+                              تعديل
+                            </button>
+
+                            <button
+                              type="button"
+                              className="delete-check-btn"
+                              onClick={() =>
+                                handleDelete(
+                                  check.id
+                                )
+                              }
+                            >
+                              حذف
+                            </button>
+
+                          </div>
+
+                        </td>
+
+                      )}
+
+                    </tr>
+
+                  );
+
+                }
+              )}
+
+
+              {/* لا يوجد نتائج */}
+
+              {filteredChecks.length === 0 && (
+
+                <tr>
+
+                  <td
+                    colSpan={
+                      user ? 12 : 11
+                    }
+                    className="empty-checks"
+                  >
+                    لا يوجد شيكات من هذا النوع
+                  </td>
+
+                </tr>
+
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+
+        {/* =================================
+            ADD MODAL
+        ================================= */}
+
+        {showAddForm && user && (
+
+          <div className="check-modal-overlay">
+
+            <div className="check-modal">
+
+              <button
+                type="button"
+                className="close-check-modal"
+                onClick={() => {
+
+                  setShowAddForm(
+                    false
+                  );
+
+                  setFormData(
+                    emptyForm
+                  );
+
+                }}
+              >
+                ×
+              </button>
+
+              <h2>
+                إضافة شيك
+              </h2>
+
+              <CheckForm
+                formData={formData}
+                handleChange={handleChange}
+                onSubmit={handleAdd}
+                buttonText="إضافة الكشف"
+              />
+
+            </div>
+
+          </div>
+
+        )}
+
+
+        {/* =================================
+            EDIT MODAL
+        ================================= */}
+
+        {editId !== null && user && (
+
+          <div className="check-modal-overlay">
+
+            <div className="check-modal">
+
+              <button
+                type="button"
+                className="close-check-modal"
+                onClick={() => {
+
+                  setEditId(null);
+
+                  setFormData(
+                    emptyForm
+                  );
+
+                }}
+              >
+                ×
+              </button>
+
+              <h2>
+                تعديل الكشف
+              </h2>
+
+              <CheckForm
+                formData={formData}
+                handleChange={handleChange}
+                onSubmit={handleUpdate}
+                buttonText="حفظ التعديل"
+              />
+
+            </div>
+
+          </div>
+
+        )}
 
       </div>
 
-      {/* =================================
-          ADD MODAL
-      ================================= */}
-
-      {showAddForm && user && (
-
-        <div className="check-modal-overlay">
-
-          <div className="check-modal">
-
-            <button
-              className="close-check-modal"
-              onClick={() =>
-                setShowAddForm(false)
-              }
-            >
-              ×
-            </button>
-
-            <h2>
-              إضافة شيك
-            </h2>
-
-            <form onSubmit={handleAdd}>
-
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                required
-              >
-
-                <option value="شراء">
-                  شراء
-                </option>
-
-                <option value="بيع">
-                  بيع
-                </option>
-
-              </select>
-
-              <input
-                type="number"
-                name="totalAmount"
-                placeholder="القيمة الإجمالية"
-                value={formData.totalAmount}
-                onChange={handleChange}
-                required
-              />
-
-              <input
-                type="text"
-                name="productType"
-                placeholder="نوع البضاعة"
-                value={formData.productType}
-                onChange={handleChange}
-                required
-              />
-
-              <input
-                type="text"
-                name="specifications"
-                placeholder="مواصفات البضاعة"
-                value={formData.specifications}
-                onChange={handleChange}
-              />
-
-              <input
-                type="number"
-                name="quantity"
-                placeholder="العدد"
-                value={formData.quantity}
-                onChange={handleChange}
-                required
-              />
-
-              <input
-                type="number"
-                step="0.01"
-                name="price"
-                placeholder="السعر"
-                value={formData.price}
-                onChange={handleChange}
-                required
-              />
-
-              <textarea
-                name="notes"
-                placeholder="الملاحظات"
-                value={formData.notes}
-                onChange={handleChange}
-                rows="4"
-              />
-
-              <button
-                type="submit"
-                className="save-check-btn"
-              >
-                إضافة الشيك
-              </button>
-
-            </form>
-
-          </div>
-
-        </div>
-
-      )}
-
-      {/* =================================
-          EDIT MODAL
-      ================================= */}
-
-      {editId !== null && user && (
-
-        <div className="check-modal-overlay">
-
-          <div className="check-modal">
-
-            <button
-              className="close-check-modal"
-              onClick={() =>
-                setEditId(null)
-              }
-            >
-              ×
-            </button>
-
-            <h2>
-              تعديل الشيك
-            </h2>
-
-            <form onSubmit={handleUpdate}>
-
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                required
-              >
-
-                <option value="شراء">
-                  شراء
-                </option>
-
-                <option value="بيع">
-                  بيع
-                </option>
-
-              </select>
-
-              <input
-                type="number"
-                name="totalAmount"
-                placeholder="القيمة الإجمالية"
-                value={formData.totalAmount}
-                onChange={handleChange}
-                required
-              />
-
-              <input
-                type="text"
-                name="productType"
-                placeholder="نوع البضاعة"
-                value={formData.productType}
-                onChange={handleChange}
-                required
-              />
-
-              <input
-                type="text"
-                name="specifications"
-                placeholder="مواصفات البضاعة"
-                value={formData.specifications}
-                onChange={handleChange}
-              />
-
-              <input
-                type="number"
-                name="quantity"
-                placeholder="العدد"
-                value={formData.quantity}
-                onChange={handleChange}
-                required
-              />
-
-              <input
-                type="number"
-                step="0.01"
-                name="price"
-                placeholder="السعر"
-                value={formData.price}
-                onChange={handleChange}
-                required
-              />
-
-              <textarea
-                name="notes"
-                placeholder="الملاحظات"
-                value={formData.notes}
-                onChange={handleChange}
-                rows="4"
-              />
-
-              <button
-                type="submit"
-                className="save-check-btn"
-              >
-                حفظ التعديل
-              </button>
-
-            </form>
-
-          </div>
-
-        </div>
-
-      )}
-
     </div>
+
   );
 }
 
 export default Checks;
-

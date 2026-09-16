@@ -446,3 +446,120 @@
     font-size: 18px;
   }
 }
+/* =================================
+   Inputs Direction
+================================= */
+
+.check-modal input,
+.check-modal textarea,
+.check-modal select {
+  direction: rtl;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+/* النصوص العربية */
+.check-modal input[type="text"],
+.check-modal textarea,
+.check-modal select {
+  direction: rtl;
+  text-align: right;
+}
+
+/* الأرقام */
+.check-modal input[type="number"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* رقم الشيك ممكن يكون أرقام وحروف */
+.check-modal input[name="checkNumber"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Placeholder */
+.check-modal input::placeholder,
+.check-modal textarea::placeholder {
+  direction: rtl;
+  text-align: right;
+}
+
+/* =================================
+   Textarea
+================================= */
+
+.check-modal textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.7;
+}
+
+/* =================================
+   Select
+================================= */
+
+.check-modal select {
+  cursor: pointer;
+}
+
+/* =================================
+   Form
+================================= */
+
+.check-modal form {
+  direction: rtl;
+}
+
+.check-modal form input,
+.check-modal form select,
+.check-modal form textarea {
+  width: 100%;
+  font-family: inherit;
+  font-size: 15px;
+}
+
+/* لما يكون الحقل فيه أرقام */
+.check-modal input[type="number"]::placeholder {
+  direction: rtl;
+  text-align: right;
+}
+
+.check-modal {
+  direction: rtl;
+}
+
+.check-modal form {
+  direction: rtl;
+}
+
+.check-modal input,
+.check-modal select,
+.check-modal textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.check-modal input[type="text"],
+.check-modal textarea,
+.check-modal select {
+  direction: rtl;
+  text-align: right;
+}
+
+.check-modal input[type="number"] {
+  direction: ltr;
+  text-align: left;
+}
+
+.check-modal input[name="checkNumber"] {
+  direction: ltr;
+  text-align: left;
+}
+
+.check-modal input::placeholder,
+.check-modal textarea::placeholder {
+  direction: rtl;
+  text-align: right;
+}

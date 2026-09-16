@@ -1,565 +1,615 @@
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Products.css";
 
 function Products() {
+  // =====================================================
+  // API
+  // =====================================================
 
-  // =================================
+  const API_URL =
+    process.env.REACT_APP_API_URL ||
+    "https://abdbac2-2.onrender.com";
+
+  // =====================================================
   // Products
-  // =================================
+  // =====================================================
 
   const [products, setProducts] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
 
+  // =====================================================
+  // Sort
+  // =====================================================
 
-  // =================================
+  const [sortOrder, setSortOrder] = useState("default");
+
+  // =====================================================
   // Exchange Rate
-  // price_syp = سعر صرف الدولار
-  // =================================
+  // price_syp داخل DB هو سعر صرف الدولار
+  // =====================================================
 
   const [exchangeRate, setExchangeRate] = useState("");
+  const [savingRate, setSavingRate] = useState(false);
+  const [rateMessage, setRateMessage] = useState("");
 
+  // =====================================================
+  // Add / Edit
+  // =====================================================
 
-  // =================================
-  // Modal
-  // =================================
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editId, setEditId] = useState(null);
 
-  const [showAddForm, setShowAddForm] =
-    useState(false);
-
-  const [editId, setEditId] =
-    useState(null);
-
-
-  // =================================
+  // =====================================================
   // Form
-  // =================================
+  // =====================================================
 
   const emptyForm = {
-
     name: "",
-
     type: "",
-
     size: "",
-
     color: "",
-
     price_usd: "",
-
     quantity: "",
-
   };
 
+  const [formData, setFormData] = useState(emptyForm);
 
-  const [formData, setFormData] =
-    useState(emptyForm);
-
-
-  // =================================
+  // =====================================================
   // User
-  // =================================
+  // =====================================================
 
   const user = localStorage.getItem("user");
 
-
-  // =================================
-  // GET Products
-  // =================================
+  // =====================================================
+  // GET PRODUCTS
+  // =====================================================
 
   const getProducts = async () => {
-
     try {
-
       setLoading(true);
+      setError("");
 
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/products`
+        `${API_URL}/products`,
+        {
+          timeout: 20000,
+        }
       );
 
       const productsData = response.data;
 
       setProducts(productsData);
 
-      setError("");
+      // =================================================
+      // جلب سعر الصرف من DB
+      //
+      // نبحث عن أول منتج لديه price_syp
+      // =================================================
 
+      const productWithRate = productsData.find(
+        (product) =>
+          product.price_syp !== undefined &&
+          product.price_syp !== null &&
+          product.price_syp !== "" &&
+          Number(product.price_syp) > 0
+      );
 
-      // =================================
-      // أخذ سعر الصرف من price_syp
-      // =================================
-
-      if (productsData.length > 0) {
-
-        const productWithRate =
-          productsData.find(
-            (product) =>
-              product.price_syp !== undefined &&
-              product.price_syp !== null &&
-              product.price_syp !== "" &&
-              Number(product.price_syp) > 0
-          );
-
-        if (productWithRate) {
-
-          setExchangeRate(
-            productWithRate.price_syp
-          );
-
-        }
-
+      if (productWithRate) {
+        setExchangeRate(
+          Number(productWithRate.price_syp)
+        );
+      } else {
+        setExchangeRate("");
       }
 
     } catch (error) {
-
-      console.log(error);
+      console.log("GET PRODUCTS ERROR:", error);
 
       setError(
         "حدث خطأ أثناء جلب المنتجات"
       );
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
+  // =====================================================
+  // FIRST LOAD
+  // =====================================================
 
   useEffect(() => {
-
     getProducts();
-
   }, []);
 
+  // =====================================================
+  // SORT
+  // =====================================================
 
-  // =================================
-  // تغيير سعر الصرف
-  // =================================
+  const sortedProducts = [...products].sort(
+    (a, b) => {
+      const nameA = String(
+        a.name || ""
+      ).trim();
 
-  const handleExchangeRateChange = async (e) => {
+      const nameB = String(
+        b.name || ""
+      ).trim();
 
-    const value = e.target.value;
+      if (sortOrder === "asc") {
+        return nameA.localeCompare(
+          nameB,
+          "ar"
+        );
+      }
 
-    setExchangeRate(value);
+      if (sortOrder === "desc") {
+        return nameB.localeCompare(
+          nameA,
+          "ar"
+        );
+      }
 
+      return 0;
+    }
+  );
+
+  // =====================================================
+  // EXCHANGE RATE INPUT
+  // =====================================================
+
+  const handleExchangeRateChange = (e) => {
+    setExchangeRate(e.target.value);
+    setRateMessage("");
   };
 
+  // =====================================================
+  // SAVE EXCHANGE RATE TO DB
+  //
+  // مهم:
+  // لا LocalStorage
+  // لا settings
+  //
+  // نحفظ price_syp على منتج واحد في DB
+  // ومنه نقرأ سعر الصرف للموقع كله.
+  // =====================================================
 
-  // =================================
-  // حفظ سعر الصرف
-  // price_syp = سعر الصرف
-  // =================================
+  const saveExchangeRate = async () => {
+    if (
+      exchangeRate === "" ||
+      exchangeRate === null ||
+      Number(exchangeRate) <= 0
+    ) {
+      setRateMessage(
+        "يرجى إدخال سعر صرف صحيح"
+      );
 
-const saveExchangeRate = async () => {
-  if (!exchangeRate || Number(exchangeRate) <= 0) {
-    alert("يرجى إدخال سعر صرف صحيح");
-    return;
-  }
+      return;
+    }
 
-  try {
-    const rate = Number(exchangeRate);
+    if (products.length === 0) {
+      setRateMessage(
+        "لا يوجد منتجات في قاعدة البيانات"
+      );
 
-    for (const product of products) {
-      console.log("Updating product:", product.id);
+      return;
+    }
+
+    try {
+      setSavingRate(true);
+      setRateMessage("");
+
+      const rate = Number(exchangeRate);
+
+      // =================================================
+      // نختار أول منتج موجود في DB
+      // ونخزن سعر الصرف عليه
+      // =================================================
+
+      const rateProduct = products[0];
+
+      console.log(
+        "Saving exchange rate to DB..."
+      );
+
+      console.log(
+        "Product ID:",
+        rateProduct.id
+      );
+
+      console.log(
+        "New exchange rate:",
+        rate
+      );
 
       const response = await axios.patch(
-        `${process.env.REACT_APP_API_URL}/products/${product.id}`,
+        `${API_URL}/products/${rateProduct.id}`,
         {
           price_syp: rate,
+        },
+        {
+          timeout: 20000,
         }
       );
 
-      console.log("Updated:", response.data);
+      console.log(
+        "DATABASE RESPONSE:",
+        response.data
+      );
+
+      // =================================================
+      // تحديث الواجهة
+      // =================================================
+
+      setExchangeRate(rate);
+
+      setProducts((prevProducts) =>
+        prevProducts.map(
+          (product) =>
+            product.id === rateProduct.id
+              ? {
+                  ...product,
+                  price_syp: rate,
+                }
+              : product
+        )
+      );
+
+      setRateMessage(
+        "تم حفظ سعر الصرف في قاعدة البيانات بنجاح ✓"
+      );
+
+    } catch (error) {
+      console.log(
+        "SAVE EXCHANGE RATE ERROR:",
+        error
+      );
+
+      console.log(
+        "MESSAGE:",
+        error.message
+      );
+
+      console.log(
+        "STATUS:",
+        error.response?.status
+      );
+
+      console.log(
+        "DATA:",
+        error.response?.data
+      );
+
+      console.log(
+        "URL:",
+        error.config?.url
+      );
+
+      if (
+        error.code ===
+        "ECONNABORTED"
+      ) {
+        setRateMessage(
+          "السيرفر تأخر بالاستجابة ❌"
+        );
+      } else if (error.response) {
+        setRateMessage(
+          `فشل الحفظ ❌ (${error.response.status})`
+        );
+      } else {
+        setRateMessage(
+          "تعذر الاتصال بالسيرفر ❌"
+        );
+      }
+
+    } finally {
+      setSavingRate(false);
     }
-
-    setProducts((prevProducts) =>
-      prevProducts.map((product) => ({
-        ...product,
-        price_syp: rate,
-      }))
-    );
-
-    alert("تم تحديث سعر الصرف بنجاح");
-
-  } catch (error) {
-    console.log("FULL ERROR:", error);
-    console.log("STATUS:", error.response?.status);
-    console.log("DATA:", error.response?.data);
-    console.log("URL:", error.config?.url);
-
-    alert(
-      `فشل الحفظ ❌\nStatus: ${
-        error.response?.status || "غير معروف"
-      }`
-    );
-  }
-};
-
-  // =================================
-  // Handle Input
-  // =================================
-
-  const handleChange = (e) => {
-
-    const { name, value } = e.target;
-
-    setFormData({
-
-      ...formData,
-
-      [name]: value,
-
-    });
-
   };
 
+  // =====================================================
+  // FORM CHANGE
+  // =====================================================
 
-  // =================================
-  // POST
-  // =================================
+  const handleChange = (e) => {
+    const {
+      name,
+      value,
+    } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // =====================================================
+  // ADD PRODUCT
+  // =====================================================
 
   const handleAdd = async (e) => {
-
     e.preventDefault();
 
     try {
-
       const newProduct = {
-
         name: formData.name,
-
         type: formData.type,
-
         size: formData.size,
-
         color: formData.color,
 
-        price_usd:
-          Number(formData.price_usd),
+        price_usd: Number(
+          formData.price_usd
+        ),
 
-        // price_syp هو سعر الصرف
-        price_syp:
-          Number(exchangeRate || 0),
+        // سعر الصرف الحالي من DB
+        price_syp: Number(
+          exchangeRate || 0
+        ),
 
-        quantity:
-          Number(formData.quantity || 0),
-
+        quantity: Number(
+          formData.quantity || 0
+        ),
       };
 
+      console.log(
+        "NEW PRODUCT:",
+        newProduct
+      );
 
       await axios.post(
-
-        `${process.env.REACT_APP_API_URL}/products`,
-
-        newProduct
-
+        `${API_URL}/products`,
+        newProduct,
+        {
+          timeout: 20000,
+        }
       );
-
 
       setShowAddForm(false);
-
       setFormData(emptyForm);
 
-      getProducts();
-
-    } catch (error) {
-
-      console.log(error);
+      await getProducts();
 
       alert(
-        "حدث خطأ أثناء إضافة المنتج"
+        "تمت إضافة المنتج بنجاح ✓"
       );
 
-    }
+    } catch (error) {
+      console.log(
+        "ADD PRODUCT ERROR:",
+        error
+      );
 
+      alert(
+        "حدث خطأ أثناء إضافة المنتج ❌"
+      );
+    }
   };
 
-
-  // =================================
-  // DELETE
-  // =================================
+  // =====================================================
+  // DELETE PRODUCT
+  // =====================================================
 
   const handleDelete = async (id) => {
-
     const confirmDelete =
       window.confirm(
         "هل أنت متأكد من حذف هذا المنتج؟"
       );
 
-
-    if (!confirmDelete) {
-
-      return;
-
-    }
-
+    if (!confirmDelete) return;
 
     try {
-
       await axios.delete(
-
-        `${process.env.REACT_APP_API_URL}/products/${id}`
-
+        `${API_URL}/products/${id}`,
+        {
+          timeout: 20000,
+        }
       );
-
 
       setProducts(
-
-        products.filter(
-
-          (product) =>
-            product.id !== id
-
-        )
-
+        (prevProducts) =>
+          prevProducts.filter(
+            (product) =>
+              product.id !== id
+          )
       );
-
-
-    } catch (error) {
-
-      console.log(error);
 
       alert(
-        "حدث خطأ أثناء حذف المنتج"
+        "تم حذف المنتج بنجاح ✓"
       );
 
-    }
+    } catch (error) {
+      console.log(
+        "DELETE PRODUCT ERROR:",
+        error
+      );
 
+      alert(
+        "حدث خطأ أثناء حذف المنتج ❌"
+      );
+    }
   };
 
-
-  // =================================
-  // Open Edit
-  // =================================
+  // =====================================================
+  // EDIT PRODUCT
+  // =====================================================
 
   const handleEdit = (product) => {
-
     setEditId(product.id);
 
-
     setFormData({
-
       name: product.name || "",
-
       type: product.type || "",
-
       size: product.size || "",
-
       color: product.color || "",
 
       price_usd:
-        product.price_usd ?? "",
+        product.price_usd ??
+        "",
 
       quantity:
-        product.quantity ?? "",
-
+        product.quantity ??
+        "",
     });
-
   };
 
-
-  // =================================
-  // PUT
-  // =================================
+  // =====================================================
+  // UPDATE PRODUCT
+  // =====================================================
 
   const handleUpdate = async (e) => {
-
     e.preventDefault();
 
     try {
-
       const updatedProduct = {
-
         name: formData.name,
-
         type: formData.type,
-
         size: formData.size,
-
         color: formData.color,
 
-        price_usd:
-          Number(formData.price_usd),
+        price_usd: Number(
+          formData.price_usd
+        ),
 
-        // نحافظ على سعر الصرف الحالي
-        price_syp:
-          Number(exchangeRate || 0),
+        // سعر الصرف الحالي
+        price_syp: Number(
+          exchangeRate || 0
+        ),
 
-        quantity:
-          Number(formData.quantity || 0),
-
+        quantity: Number(
+          formData.quantity || 0
+        ),
       };
 
+      console.log(
+        "UPDATED PRODUCT:",
+        updatedProduct
+      );
 
       await axios.put(
-
-        `${process.env.REACT_APP_API_URL}/products/${editId}`,
-
-        updatedProduct
-
+        `${API_URL}/products/${editId}`,
+        updatedProduct,
+        {
+          timeout: 20000,
+        }
       );
-
 
       setEditId(null);
-
       setFormData(emptyForm);
 
-      getProducts();
-
-
-    } catch (error) {
-
-      console.log(error);
+      await getProducts();
 
       alert(
-        "حدث خطأ أثناء تعديل المنتج"
+        "تم تعديل المنتج بنجاح ✓"
       );
 
-    }
+    } catch (error) {
+      console.log(
+        "UPDATE PRODUCT ERROR:",
+        error
+      );
 
+      alert(
+        "حدث خطأ أثناء تعديل المنتج ❌"
+      );
+    }
   };
 
-
-  // =================================
-  // Loading
-  // =================================
+  // =====================================================
+  // LOADING
+  // =====================================================
 
   if (loading) {
-
     return (
-
       <div className="loading">
-
         جاري تحميل المنتجات...
-
       </div>
-
     );
-
   }
 
-
-  // =================================
-  // Return
-  // =================================
+  // =====================================================
+  // UI
+  // =====================================================
 
   return (
-
     <div className="store-page">
 
-
-      {/* =================================
-          Navbar
-      ================================= */}
+      {/* ==========================================
+          NAVBAR
+      =========================================== */}
 
       <nav className="store-navbar">
 
         <div className="store-logo">
-
           متجري
-
         </div>
-
 
         <div className="store-links">
 
-
           <Link to="/products">
-
             المنتجات
-
           </Link>
 
-
           {user ? (
-
             <Link
               to="/dashboard"
               className="admin-login-btn"
             >
-
               لوحة التحكم
-
             </Link>
-
           ) : (
-
             <Link
               to="/login"
               className="admin-login-btn"
             >
-
               🔐 تسجيل دخول الأدمن
-
             </Link>
-
           )}
-
 
         </div>
 
       </nav>
 
-
-      {/* =================================
-          Content
-      ================================= */}
+      {/* ==========================================
+          CONTENT
+      =========================================== */}
 
       <main className="store-content">
 
+        {/* TITLE */}
 
         <div className="store-title">
 
           <h1>
-
             منتجاتنا
-
           </h1>
 
           <p>
-
             تصفح جميع المنتجات المتوفرة لدينا
-
           </p>
 
         </div>
 
-
-        {/* =================================
-            Error
-        ================================= */}
+        {/* ERROR */}
 
         {error && (
-
           <div className="products-error">
-
             {error}
-
           </div>
-
         )}
 
-
-        {/* =================================
-            Exchange Rate
-        ================================= */}
+        {/* ==========================================
+            EXCHANGE RATE
+        =========================================== */}
 
         <div className="exchange-rate-box">
 
           <div className="exchange-rate-content">
 
             <span className="exchange-rate-label">
-
               💵 سعر صرف الدولار
-
             </span>
-
 
             {user ? (
 
@@ -567,28 +617,46 @@ const saveExchangeRate = async () => {
 
                 <input
                   type="number"
+                  min="1"
                   value={exchangeRate}
-                  onChange={handleExchangeRateChange}
+                  onChange={
+                    handleExchangeRateChange
+                  }
                   placeholder="أدخل سعر الصرف"
-                  min="0"
                 />
 
                 <span>
-
                   ل.س
-
                 </span>
-
 
                 <button
                   type="button"
-                  onClick={saveExchangeRate}
                   className="save-rate-btn"
+                  onClick={
+                    saveExchangeRate
+                  }
+                  disabled={
+                    savingRate
+                  }
                 >
-
-                  حفظ
-
+                  {savingRate
+                    ? "جاري الحفظ..."
+                    : "حفظ"}
                 </button>
+
+                {rateMessage && (
+                  <div
+                    className={
+                      rateMessage.includes(
+                        "بنجاح"
+                      )
+                        ? "rate-success"
+                        : "rate-error"
+                    }
+                  >
+                    {rateMessage}
+                  </div>
+                )}
 
               </div>
 
@@ -597,13 +665,13 @@ const saveExchangeRate = async () => {
               <div className="exchange-rate-value">
 
                 {exchangeRate
-                  ? Number(exchangeRate).toLocaleString()
+                  ? Number(
+                      exchangeRate
+                    ).toLocaleString()
                   : "غير محدد"}
 
                 <span>
-
                   ل.س
-
                 </span>
 
               </div>
@@ -614,222 +682,205 @@ const saveExchangeRate = async () => {
 
         </div>
 
-
-        {/* =================================
-            Add
-        ================================= */}
+        {/* ==========================================
+            ADD PRODUCT
+        =========================================== */}
 
         {user && (
-
           <button
-
             className="add-product-btn"
-
             onClick={() => {
+              setFormData(
+                emptyForm
+              );
 
-              setFormData(emptyForm);
-
-              setShowAddForm(true);
-
+              setShowAddForm(
+                true
+              );
             }}
-
           >
-
             + إضافة منتج
-
           </button>
-
         )}
 
+        {/* ==========================================
+            SORT
+        =========================================== */}
 
-        {/* =================================
-            Table
-        ================================= */}
+        <div className="products-sort">
+
+          <label htmlFor="sortProducts">
+            ترتيب المنتجات:
+          </label>
+
+          <select
+            id="sortProducts"
+            value={sortOrder}
+            onChange={(e) =>
+              setSortOrder(
+                e.target.value
+              )
+            }
+          >
+
+            <option value="default">
+              الترتيب الافتراضي
+            </option>
+
+            <option value="asc">
+              أبجدياً من أ → ي
+            </option>
+
+            <option value="desc">
+              أبجدياً من ي → أ
+            </option>
+
+          </select>
+
+        </div>
+
+        {/* ==========================================
+            PRODUCTS TABLE
+        =========================================== */}
 
         <div className="products-table-container">
 
           <table className="products-table">
-
 
             <thead>
 
               <tr>
 
                 <th>
-
                   الاسم
-
                 </th>
 
                 <th>
-
                   النوع
-
                 </th>
 
                 <th>
-
                   القياس
-
                 </th>
 
                 <th>
-
                   اللون
-
                 </th>
 
                 <th>
-
                   السعر بالدولار
-
                 </th>
 
                 <th>
-
                   الكمية
-
                 </th>
-
 
                 {user && (
-
                   <th>
-
                     الإجراءات
-
                   </th>
-
                 )}
 
               </tr>
 
             </thead>
 
-
             <tbody>
 
+              {sortedProducts.map(
+                (product) => (
 
-              {products.map((product) => (
-
-                <tr key={product.id}>
-
-
-                  <td>
-
-                    {product.name}
-
-                  </td>
-
-
-                  <td>
-
-                    {product.type}
-
-                  </td>
-
-
-                  <td>
-
-                    {product.size}
-
-                  </td>
-
-
-                  <td>
-
-                    {product.color}
-
-                  </td>
-
-
-                  <td className="price-cell">
-
-                    ${product.price_usd}
-
-                  </td>
-
-
-                  <td>
-
-                    {product.quantity}
-
-                  </td>
-
-
-                  {/* Actions للأدمن */}
-
-                  {user && (
+                  <tr
+                    key={
+                      product.id
+                    }
+                  >
 
                     <td>
-
-                      <div className="table-actions">
-
-
-                        <button
-
-                          className="edit-btn"
-
-                          onClick={() =>
-                            handleEdit(product)
-                          }
-
-                        >
-
-                          تعديل
-
-                        </button>
-
-
-                        <button
-
-                          className="delete-btn"
-
-                          onClick={() =>
-                            handleDelete(
-                              product.id
-                            )
-                          }
-
-                        >
-
-                          حذف
-
-                        </button>
-
-
-                      </div>
-
+                      {product.name}
                     </td>
 
-                  )}
+                    <td>
+                      {product.type}
+                    </td>
 
+                    <td>
+                      {product.size}
+                    </td>
 
-                </tr>
+                    <td>
+                      {product.color}
+                    </td>
 
-              ))}
+                    <td className="price-cell">
+                      $
+                      {
+                        product.price_usd
+                      }
+                    </td>
 
+                    <td>
+                      {
+                        product.quantity
+                      }
+                    </td>
 
-              {products.length === 0 && (
+                    {user && (
+                      <td>
+
+                        <div className="table-actions">
+
+                          <button
+                            className="edit-btn"
+                            onClick={() =>
+                              handleEdit(
+                                product
+                              )
+                            }
+                          >
+                            تعديل
+                          </button>
+
+                          <button
+                            className="delete-btn"
+                            onClick={() =>
+                              handleDelete(
+                                product.id
+                              )
+                            }
+                          >
+                            حذف
+                          </button>
+
+                        </div>
+
+                      </td>
+                    )}
+
+                  </tr>
+
+                )
+              )}
+
+              {sortedProducts.length ===
+                0 && (
 
                 <tr>
 
                   <td
-
-                    colSpan={user ? 7 : 6}
-
+                    colSpan={
+                      user
+                        ? 7
+                        : 6
+                    }
                     className="empty-products"
-
                   >
-
                     لا يوجد منتجات
-
                   </td>
 
                 </tr>
 
               )}
-
 
             </tbody>
 
@@ -837,13 +888,11 @@ const saveExchangeRate = async () => {
 
         </div>
 
-
       </main>
 
-
-      {/* =================================
-          ADD MODAL
-      ================================= */}
+      {/* ==========================================
+          ADD PRODUCT MODAL
+      =========================================== */}
 
       {showAddForm && user && (
 
@@ -851,310 +900,113 @@ const saveExchangeRate = async () => {
 
           <div className="modal">
 
-
             <button
-
               className="close-modal"
-
               onClick={() =>
-                setShowAddForm(false)
+                setShowAddForm(
+                  false
+                )
               }
-
             >
-
               ×
-
             </button>
 
-
             <h2>
-
               إضافة منتج
-
             </h2>
 
-
-            <form onSubmit={handleAdd}>
-
-
-              <input
-
-                type="text"
-
-                name="name"
-
-                placeholder="اسم المنتج"
-
-                value={formData.name}
-
-                onChange={handleChange}
-
-                required
-
-              />
-
-
-              <input
-
-                type="text"
-
-                name="type"
-
-                placeholder="النوع"
-
-                value={formData.type}
-
-                onChange={handleChange}
-
-                required
-
-              />
-
-
-              <input
-
-                type="text"
-
-                name="size"
-
-                placeholder="القياس"
-
-                value={formData.size}
-
-                onChange={handleChange}
-
-                required
-
-              />
-
-
-              <input
-
-                type="text"
-
-                name="color"
-
-                placeholder="اللون"
-
-                value={formData.color}
-
-                onChange={handleChange}
-
-                required
-
-              />
-
-
-              <input
-
-                type="number"
-
-                step="0.01"
-
-                name="price_usd"
-
-                placeholder="السعر بالدولار"
-
-                value={formData.price_usd}
-
-                onChange={handleChange}
-
-                required
-
-              />
-
-
-              <input
-
-                type="number"
-
-                name="quantity"
-
-                placeholder="الكمية"
-
-                value={formData.quantity}
-
-                onChange={handleChange}
-
-              />
-
-
-              <button
-
-                type="submit"
-
-                className="save-btn"
-
-              >
-
-                إضافة المنتج
-
-              </button>
-
-
-            </form>
-
-
-          </div>
-
-        </div>
-
-      )}
-
-
-      {/* =================================
-          EDIT MODAL
-      ================================= */}
-
-      {editId !== null && user && (
-
-        <div className="modal-overlay">
-
-          <div className="modal">
-
-
-            <button
-
-              className="close-modal"
-
-              onClick={() =>
-                setEditId(null)
+            <form
+              onSubmit={
+                handleAdd
               }
-
             >
 
-              ×
-
-            </button>
-
-
-            <h2>
-
-              تعديل المنتج
-
-            </h2>
-
-
-            <form onSubmit={handleUpdate}>
-
-
               <input
-
                 type="text"
-
                 name="name"
-
                 placeholder="اسم المنتج"
-
-                value={formData.name}
-
-                onChange={handleChange}
-
+                value={
+                  formData.name
+                }
+                onChange={
+                  handleChange
+                }
                 required
-
               />
 
-
               <input
-
                 type="text"
-
                 name="type"
-
                 placeholder="النوع"
-
-                value={formData.type}
-
-                onChange={handleChange}
-
+                value={
+                  formData.type
+                }
+                onChange={
+                  handleChange
+                }
                 required
-
               />
 
-
               <input
-
                 type="text"
-
                 name="size"
-
                 placeholder="القياس"
-
-                value={formData.size}
-
-                onChange={handleChange}
-
+                value={
+                  formData.size
+                }
+                onChange={
+                  handleChange
+                }
                 required
-
               />
 
-
               <input
-
                 type="text"
-
                 name="color"
-
                 placeholder="اللون"
-
-                value={formData.color}
-
-                onChange={handleChange}
-
+                value={
+                  formData.color
+                }
+                onChange={
+                  handleChange
+                }
                 required
-
               />
 
-
               <input
-
                 type="number"
-
                 step="0.01"
-
                 name="price_usd"
-
                 placeholder="السعر بالدولار"
-
-                value={formData.price_usd}
-
-                onChange={handleChange}
-
+                value={
+                  formData.price_usd
+                }
+                onChange={
+                  handleChange
+                }
                 required
-
               />
-
 
               <input
-
                 type="number"
-
                 name="quantity"
-
                 placeholder="الكمية"
-
-                value={formData.quantity}
-
-                onChange={handleChange}
-
+                value={
+                  formData.quantity
+                }
+                onChange={
+                  handleChange
+                }
               />
-
 
               <button
-
                 type="submit"
-
                 className="save-btn"
-
               >
-
-                حفظ التعديل
-
+                إضافة المنتج
               </button>
 
-
             </form>
-
 
           </div>
 
@@ -1162,11 +1014,137 @@ const saveExchangeRate = async () => {
 
       )}
 
+      {/* ==========================================
+          EDIT PRODUCT MODAL
+      =========================================== */}
+
+      {editId !== null &&
+        user && (
+
+          <div className="modal-overlay">
+
+            <div className="modal">
+
+              <button
+                className="close-modal"
+                onClick={() => {
+                  setEditId(
+                    null
+                  );
+
+                  setFormData(
+                    emptyForm
+                  );
+                }}
+              >
+                ×
+              </button>
+
+              <h2>
+                تعديل المنتج
+              </h2>
+
+              <form
+                onSubmit={
+                  handleUpdate
+                }
+              >
+
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="اسم المنتج"
+                  value={
+                    formData.name
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  required
+                />
+
+                <input
+                  type="text"
+                  name="type"
+                  placeholder="النوع"
+                  value={
+                    formData.type
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  required
+                />
+
+                <input
+                  type="text"
+                  name="size"
+                  placeholder="القياس"
+                  value={
+                    formData.size
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  required
+                />
+
+                <input
+                  type="text"
+                  name="color"
+                  placeholder="اللون"
+                  value={
+                    formData.color
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  required
+                />
+
+                <input
+                  type="number"
+                  step="0.01"
+                  name="price_usd"
+                  placeholder="السعر بالدولار"
+                  value={
+                    formData.price_usd
+                  }
+                  onChange={
+                    handleChange
+                  }
+                  required
+                />
+
+                <input
+                  type="number"
+                  name="quantity"
+                  placeholder="الكمية"
+                  value={
+                    formData.quantity
+                  }
+                  onChange={
+                    handleChange
+                  }
+                />
+
+                <button
+                  type="submit"
+                  className="save-btn"
+                >
+                  حفظ التعديل
+                </button>
+
+              </form>
+
+            </div>
+
+          </div>
+
+        )}
 
     </div>
-
   );
-
 }
 
 export default Products;

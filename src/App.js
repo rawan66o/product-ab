@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter,
   Routes,
@@ -8,17 +9,15 @@ import {
 
 import Login from "./components/Login";
 import Products from "./components/Products";
-
-import "./App.css";
 import Checks from "./components/Checks";
 
+import "./App.css";
 
 // ===============================
 // Protected Route
 // ===============================
 
 function ProtectedRoute({ children }) {
-
   const user = localStorage.getItem("user");
 
   if (!user) {
@@ -28,40 +27,27 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-
 // ===============================
 // Dashboard
 // ===============================
 
 function Dashboard() {
-
-  const user = JSON.parse(
-    localStorage.getItem("user")
-  );
-
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const logout = () => {
-
     localStorage.removeItem("user");
-
     window.location.href = "/products";
-
   };
 
-
   return (
-
     <div className="dashboard">
 
-
       {/* Sidebar */}
-
       <aside className="sidebar">
 
         <div className="logo">
           لوحة التحكم
         </div>
-
 
         <nav className="sidebar-nav">
 
@@ -72,7 +58,6 @@ function Dashboard() {
             🏠 الرئيسية
           </Link>
 
-
           <Link
             to="/products"
             className="sidebar-link"
@@ -80,8 +65,14 @@ function Dashboard() {
             📦 المنتجات
           </Link>
 
-        </nav>
+          <Link
+            to="/checks"
+            className="sidebar-link"
+          >
+            📊 الكشوف
+          </Link>
 
+        </nav>
 
         <button
           className="logout-btn"
@@ -92,9 +83,7 @@ function Dashboard() {
 
       </aside>
 
-
       {/* Main */}
-
       <main className="dashboard-main">
 
         <div className="dashboard-header">
@@ -109,12 +98,9 @@ function Dashboard() {
 
         </div>
 
-
         <div className="dashboard-cards">
 
-
           {/* Products */}
-
           <div className="dashboard-card">
 
             <div className="card-icon">
@@ -138,9 +124,7 @@ function Dashboard() {
 
           </div>
 
-
           {/* User */}
-
           <div className="dashboard-card">
 
             <div className="card-icon">
@@ -157,9 +141,7 @@ function Dashboard() {
 
           </div>
 
-
           {/* Dashboard */}
-
           <div className="dashboard-card">
 
             <div className="card-icon">
@@ -175,33 +157,26 @@ function Dashboard() {
             </p>
 
           </div>
-<Checks/>
 
         </div>
 
       </main>
 
     </div>
-
   );
 }
-
 
 // ===============================
 // App
 // ===============================
 
 function App() {
-
   return (
-
     <BrowserRouter>
 
       <Routes>
 
-
         {/* Home */}
-
         <Route
           path="/"
           element={
@@ -212,25 +187,19 @@ function App() {
           }
         />
 
-
-        {/* Products */}
-
+        {/* Products - Public */}
         <Route
           path="/products"
           element={<Products />}
         />
 
-
         {/* Login */}
-
         <Route
           path="/login"
           element={<Login />}
         />
 
-
-        {/* Dashboard */}
-
+        {/* Dashboard - Protected */}
         <Route
           path="/dashboard"
           element={
@@ -240,9 +209,17 @@ function App() {
           }
         />
 
+        {/* Checks - Protected */}
+        <Route
+          path="/checks"
+          element={
+            <ProtectedRoute>
+              <Checks />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Any wrong URL */}
-
         <Route
           path="*"
           element={
@@ -253,12 +230,11 @@ function App() {
           }
         />
 
-
       </Routes>
 
     </BrowserRouter>
-
   );
 }
 
 export default App;
+

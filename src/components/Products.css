@@ -2346,3 +2346,188 @@ input {
   }
 
 }
+
+.products-sort {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin: 20px 0;
+  direction: rtl;
+}
+
+.products-sort label {
+  font-weight: 700;
+  color: #5c4033;
+}
+
+.products-sort select {
+  min-width: 220px;
+  padding: 10px 14px;
+  border: 1px solid #d6c2b5;
+  border-radius: 8px;
+  background: #fff;
+  color: #333;
+  font-size: 15px;
+  cursor: pointer;
+  outline: none;
+}
+
+.products-sort select:focus {
+  border-color: #8b5e3c;
+  box-shadow: 0 0 0 2px rgba(139, 94, 60, 0.12);
+}
+/* =========================================
+   Exchange Rate
+========================================= */
+
+.exchange-rate-box {
+  width: 100%;
+  margin: 25px 0;
+  padding: 20px;
+  background: #f5e6d3;
+  border: 1px solid #d6bfa5;
+  border-radius: 14px;
+  box-sizing: border-box;
+}
+
+.exchange-rate-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.exchange-rate-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #5c4033;
+}
+
+.exchange-rate-edit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.exchange-rate-edit input {
+  width: 180px;
+  padding: 11px 14px;
+  border: 1px solid #c9aa8c;
+  border-radius: 8px;
+  outline: none;
+  font-size: 16px;
+  background: white;
+  direction: ltr;
+}
+
+.exchange-rate-edit input:focus {
+  border-color: #5c4033;
+}
+
+.exchange-rate-edit span {
+  font-weight: 700;
+  color: #5c4033;
+}
+
+.save-rate-btn {
+  border: none;
+  background: #5c4033;
+  color: white;
+  padding: 11px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  transition: 0.2s;
+}
+
+.save-rate-btn:hover {
+  background: #432e25;
+}
+
+.save-rate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.exchange-rate-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #5c4033;
+}
+
+.exchange-rate-value span {
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+.rate-success,
+.rate-error {
+  width: 100%;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rate-success {
+  color: #218838;
+}
+
+.rate-error {
+  color: #c62828;
+}
+
+
+/* =========================================
+   Responsive
+========================================= */
+
+@media (max-width: 768px) {
+
+  .exchange-rate-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .exchange-rate-label {
+    text-align: center;
+  }
+
+  .exchange-rate-edit {
+    justify-content: center;
+  }
+
+  .exchange-rate-edit input {
+    width: 160px;
+  }
+
+  .save-rate-btn {
+    padding: 10px 18px;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .exchange-rate-box {
+    padding: 15px;
+  }
+
+  .exchange-rate-edit {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .exchange-rate-edit input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .save-rate-btn {
+    width: 100%;
+  }
+
+}
