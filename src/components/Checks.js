@@ -27,6 +27,7 @@ const emptyForm = {
   residence: "",
   date: "",
   checkNumber: "",
+  bookNumber: "",
   type: "شراء",
   notes: "",
   items: [{ ...emptyItem }],
@@ -88,7 +89,7 @@ const toNumber = (value) => {
 };
 
 // =====================================================
-// حساب القيمة الإجمالية بالدولار
+// حساب الإجمالي بالدولار
 // =====================================================
 
 const calculateTotalUsd = (items) => {
@@ -101,7 +102,7 @@ const calculateTotalUsd = (items) => {
 };
 
 // =====================================================
-// حساب القيمة الإجمالية بالسوري
+// حساب الإجمالي بالسوري
 // =====================================================
 
 const calculateTotalSyp = (items) => {
@@ -134,6 +135,12 @@ const normalizeCheck = (check) => {
 
       residence:
         check.residence || "",
+
+      checkNumber:
+        check.checkNumber || "",
+
+      bookNumber:
+        check.bookNumber || "",
 
       items: check.items.map((item) => ({
         productType:
@@ -168,6 +175,12 @@ const normalizeCheck = (check) => {
     residence:
       check.residence || "",
 
+    checkNumber:
+      check.checkNumber || "",
+
+    bookNumber:
+      check.bookNumber || "",
+
     items: [
       {
         productType:
@@ -180,10 +193,12 @@ const normalizeCheck = (check) => {
           check.quantity ?? "",
 
         priceUsd:
-          check.price ?? "",
+          check.price ??
+          "",
 
         priceSyp:
-          check.priceSyp ?? "",
+          check.priceSyp ??
+          "",
       },
     ],
   };
@@ -204,17 +219,24 @@ function CheckForm({
   editMode,
   selectedCustomer,
 }) {
+  const totalUsd = calculateTotalUsd(
+    formData.items
+  );
+
   const totalSyp = calculateTotalSyp(
     formData.items
   );
 
   return (
     <div className="modal-overlay">
+
       <div className="modal check-form-modal">
 
         {/* Header */}
         <div className="modal-header">
+
           <div>
+
             <h2>
               {editMode
                 ? "تعديل الكشف"
@@ -223,11 +245,13 @@ function CheckForm({
                 : "إضافة كشف جديد"}
             </h2>
 
-            {!editMode && selectedCustomer && (
-              <small>
-                يمكنك إنشاء كشف جديد لنفس الزبون
-              </small>
-            )}
+            {!editMode &&
+              selectedCustomer && (
+                <small>
+                  يمكنك إنشاء كشف جديد لنفس الزبون
+                </small>
+              )}
+
           </div>
 
           <button
@@ -237,6 +261,7 @@ function CheckForm({
           >
             ×
           </button>
+
         </div>
 
         {/* Form */}
@@ -251,7 +276,10 @@ function CheckForm({
           </div>
 
           <div className="form-group">
-            <label>اسم الزبون</label>
+
+            <label>
+              اسم الزبون
+            </label>
 
             <input
               type="text"
@@ -261,13 +289,18 @@ function CheckForm({
               placeholder="أدخل اسم الزبون"
               required
               disabled={
-                !!selectedCustomer && !editMode
+                !!selectedCustomer &&
+                !editMode
               }
             />
+
           </div>
 
           <div className="form-group">
-            <label>مكان الإقامة</label>
+
+            <label>
+              مكان الإقامة
+            </label>
 
             <input
               type="text"
@@ -277,6 +310,7 @@ function CheckForm({
               placeholder="مثال: حلب - الحمدانية"
               required
             />
+
           </div>
 
           {/* بيانات الكشف */}
@@ -285,7 +319,10 @@ function CheckForm({
           </div>
 
           <div className="form-group">
-            <label>رقم الكشف</label>
+
+            <label>
+              رقم الكشف
+            </label>
 
             <input
               type="text"
@@ -295,10 +332,32 @@ function CheckForm({
               placeholder="أدخل رقم الكشف"
               required
             />
+
+          </div>
+
+          {/* رقم الدفتر */}
+          <div className="form-group">
+
+            <label>
+              رقم الدفتر
+            </label>
+
+            <input
+              type="text"
+              name="bookNumber"
+              value={formData.bookNumber}
+              onChange={handleChange}
+              placeholder="أدخل رقم الدفتر"
+              required
+            />
+
           </div>
 
           <div className="form-group">
-            <label>التاريخ</label>
+
+            <label>
+              التاريخ
+            </label>
 
             <input
               type="date"
@@ -307,16 +366,21 @@ function CheckForm({
               onChange={handleChange}
               required
             />
+
           </div>
 
           <div className="form-group">
-            <label>نوع الكشف</label>
+
+            <label>
+              نوع الكشف
+            </label>
 
             <select
               name="type"
               value={formData.type}
               onChange={handleChange}
             >
+
               <option value="شراء">
                 شراء
               </option>
@@ -324,12 +388,17 @@ function CheckForm({
               <option value="بيع">
                 بيع
               </option>
+
             </select>
+
           </div>
 
           {/* المواد */}
           <div className="form-section-title items-title">
-            <span>مواد الكشف</span>
+
+            <span>
+              مواد الكشف
+            </span>
 
             <button
               type="button"
@@ -338,6 +407,7 @@ function CheckForm({
             >
               + إضافة مادة
             </button>
+
           </div>
 
           <div className="items-container">
@@ -350,6 +420,7 @@ function CheckForm({
                 >
 
                   <div className="item-box-header">
+
                     <strong>
                       المادة {index + 1}
                     </strong>
@@ -365,12 +436,14 @@ function CheckForm({
                         حذف المادة
                       </button>
                     )}
+
                   </div>
 
                   <div className="item-grid">
 
                     {/* نوع البضاعة */}
                     <div className="form-group">
+
                       <label>
                         نوع البضاعة
                       </label>
@@ -390,10 +463,12 @@ function CheckForm({
                         placeholder="مثال: أكياس شيال"
                         required
                       />
+
                     </div>
 
                     {/* المواصفات */}
                     <div className="form-group">
+
                       <label>
                         المواصفات
                       </label>
@@ -412,10 +487,12 @@ function CheckForm({
                         }
                         placeholder="النوع - القياس - اللون"
                       />
+
                     </div>
 
                     {/* العدد */}
                     <div className="form-group">
+
                       <label>
                         العدد
                       </label>
@@ -436,10 +513,12 @@ function CheckForm({
                         placeholder="مثال: 1,000"
                         required
                       />
+
                     </div>
 
                     {/* السعر بالدولار */}
                     <div className="form-group">
+
                       <label>
                         السعر بالدولار
                       </label>
@@ -460,10 +539,12 @@ function CheckForm({
                         placeholder="مثال: 1.7"
                         required
                       />
+
                     </div>
 
                     {/* السعر بالسوري */}
                     <div className="form-group">
+
                       <label>
                         السعر بالسوري
                       </label>
@@ -484,27 +565,48 @@ function CheckForm({
                         placeholder="مثال: 13,333"
                         required
                       />
+
                     </div>
 
                   </div>
+
                 </div>
               )
             )}
 
           </div>
 
-          {/* القيمة الإجمالية بالسوري */}
+          {/* الإجماليات */}
           <div className="total-preview">
-            <span>
-              القيمة الإجمالية بالسوري
-            </span>
 
-            <strong>
-              {formatNumber(
-                totalSyp.toFixed(0)
-              )}{" "}
-              ل.س
-            </strong>
+            <div>
+              <span>
+                القيمة الإجمالية بالدولار
+              </span>
+
+              <strong>
+                $
+                {" "}
+                {formatNumber(
+                  totalUsd.toFixed(2)
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                القيمة الإجمالية بالسوري
+              </span>
+
+              <strong>
+                {formatNumber(
+                  totalSyp.toFixed(0)
+                )}
+                {" "}
+                ل.س
+              </strong>
+            </div>
+
           </div>
 
           {/* الملاحظات */}
@@ -513,6 +615,7 @@ function CheckForm({
           </div>
 
           <div className="form-group full-width">
+
             <label>
               الملاحظات
             </label>
@@ -523,6 +626,7 @@ function CheckForm({
               onChange={handleChange}
               placeholder="أدخل الملاحظات..."
             />
+
           </div>
 
           {/* الأزرار */}
@@ -548,7 +652,9 @@ function CheckForm({
           </div>
 
         </form>
+
       </div>
+
     </div>
   );
 }
@@ -591,7 +697,9 @@ function Checks() {
   // =====================================================
 
   const getChecks = async () => {
+
     try {
+
       setLoading(true);
       setError("");
 
@@ -608,7 +716,9 @@ function Checks() {
         setChecks(normalized);
 
       } else {
+
         setChecks([]);
+
       }
 
     } catch (err) {
@@ -620,7 +730,9 @@ function Checks() {
       );
 
     } finally {
+
       setLoading(false);
+
     }
   };
 
@@ -672,12 +784,14 @@ function Checks() {
         cleanValue.split(".");
 
       if (parts.length > 2) {
+
         cleanValue =
           parts[0] +
           "." +
           parts
             .slice(1)
             .join("");
+
       }
 
       cleanValue =
@@ -838,6 +952,11 @@ function Checks() {
 
     try {
 
+      const totalAmountUsd =
+        calculateTotalUsd(
+          formData.items
+        );
+
       const totalAmountSyp =
         calculateTotalSyp(
           formData.items
@@ -859,10 +978,17 @@ function Checks() {
         checkNumber:
           formData.checkNumber.trim(),
 
+        bookNumber:
+          formData.bookNumber.trim(),
+
         type:
           formData.type,
 
-        // الإجمالي بالسوري
+        totalAmountUsd:
+          Number(
+            totalAmountUsd.toFixed(2)
+          ),
+
         totalAmountSyp:
           Number(
             totalAmountSyp.toFixed(0)
@@ -871,6 +997,7 @@ function Checks() {
         items:
           formData.items.map(
             (item) => ({
+
               productType:
                 item.productType.trim(),
 
@@ -891,6 +1018,7 @@ function Checks() {
                 toNumber(
                   item.priceSyp
                 ),
+
             })
           ),
 
@@ -963,7 +1091,9 @@ function Checks() {
         String(openedCheck.id) ===
           String(id)
       ) {
+
         setOpenedCheck(null);
+
       }
 
       alert(
@@ -1010,6 +1140,9 @@ function Checks() {
 
       checkNumber:
         normalized.checkNumber || "",
+
+      bookNumber:
+        normalized.bookNumber || "",
 
       type:
         normalized.type || "شراء",
@@ -1066,6 +1199,11 @@ function Checks() {
 
     try {
 
+      const totalAmountUsd =
+        calculateTotalUsd(
+          formData.items
+        );
+
       const totalAmountSyp =
         calculateTotalSyp(
           formData.items
@@ -1085,10 +1223,17 @@ function Checks() {
         checkNumber:
           formData.checkNumber.trim(),
 
+        bookNumber:
+          formData.bookNumber.trim(),
+
         type:
           formData.type,
 
-        // الإجمالي بالسوري
+        totalAmountUsd:
+          Number(
+            totalAmountUsd.toFixed(2)
+          ),
+
         totalAmountSyp:
           Number(
             totalAmountSyp.toFixed(0)
@@ -1097,6 +1242,7 @@ function Checks() {
         items:
           formData.items.map(
             (item) => ({
+
               productType:
                 item.productType.trim(),
 
@@ -1117,6 +1263,7 @@ function Checks() {
                 toNumber(
                   item.priceSyp
                 ),
+
             })
           ),
 
@@ -1277,6 +1424,7 @@ function Checks() {
   // =====================================================
 
   return (
+
     <div className="checks-page">
 
       {/* Navbar */}
@@ -1492,7 +1640,11 @@ function Checks() {
                               check
                             );
 
-                          // حساب الإجمالي السوري
+                          const totalUsd =
+                            calculateTotalUsd(
+                              normalized.items || []
+                            );
+
                           const totalSyp =
                             calculateTotalSyp(
                               normalized.items || []
@@ -1517,9 +1669,18 @@ function Checks() {
                                   <strong>
                                     #
                                     {
-                                      check.checkNumber
+                                      check.checkNumber ||
+                                      "-"
                                     }
                                   </strong>
+
+                                  <small>
+                                    رقم الدفتر:{" "}
+                                    {
+                                      check.bookNumber ||
+                                      "-"
+                                    }
+                                  </small>
 
                                 </div>
 
@@ -1561,19 +1722,40 @@ function Checks() {
 
                               </div>
 
-                              {/* القيمة الإجمالية بالسوري */}
+                              {/* القيمة الإجمالية */}
                               <div className="check-amount">
 
-                                <span>
-                                  القيمة الإجمالية بالسوري
-                                </span>
+                                <div>
 
-                                <strong>
-                                  {formatNumber(
-                                    totalSyp
-                                  )}{" "}
-                                  ل.س
-                                </strong>
+                                  <span>
+                                    الإجمالي بالدولار
+                                  </span>
+
+                                  <strong>
+                                    $
+                                    {" "}
+                                    {formatNumber(
+                                      totalUsd.toFixed(2)
+                                    )}
+                                  </strong>
+
+                                </div>
+
+                                <div>
+
+                                  <span>
+                                    الإجمالي بالسوري
+                                  </span>
+
+                                  <strong>
+                                    {formatNumber(
+                                      totalSyp.toFixed(0)
+                                    )}
+                                    {" "}
+                                    ل.س
+                                  </strong>
+
+                                </div>
 
                               </div>
 
@@ -1666,6 +1848,7 @@ function Checks() {
                                     }{" "}
                                     مواد أخرى
                                   </small>
+
                                 )}
 
                               </div>
@@ -1790,7 +1973,8 @@ function Checks() {
                 <h2>
                   كشف رقم #
                   {
-                    openedCheck.checkNumber
+                    openedCheck.checkNumber ||
+                    "-"
                   }
                 </h2>
 
@@ -1864,6 +2048,22 @@ function Checks() {
 
               </div>
 
+              {/* رقم الدفتر */}
+              <div className="view-row">
+
+                <span>
+                  رقم الدفتر
+                </span>
+
+                <strong>
+                  {
+                    openedCheck.bookNumber ||
+                    "-"
+                  }
+                </strong>
+
+              </div>
+
               <div className="view-row">
 
                 <span>
@@ -1929,6 +2129,7 @@ function Checks() {
                       <div className="view-item-grid">
 
                         <div>
+
                           <span>
                             المواصفات
                           </span>
@@ -1939,9 +2140,11 @@ function Checks() {
                               "-"
                             }
                           </strong>
+
                         </div>
 
                         <div>
+
                           <span>
                             العدد
                           </span>
@@ -1954,15 +2157,18 @@ function Checks() {
                               "-"
                             }
                           </strong>
+
                         </div>
 
                         <div>
+
                           <span>
                             السعر بالدولار
                           </span>
 
                           <strong>
                             $
+                            {" "}
                             {
                               formatNumber(
                                 item.priceUsd
@@ -1970,9 +2176,11 @@ function Checks() {
                               "-"
                             }
                           </strong>
+
                         </div>
 
                         <div>
+
                           <span>
                             السعر بالسوري
                           </span>
@@ -1984,8 +2192,10 @@ function Checks() {
                               ) ||
                               "-"
                             }
-                            {" "}ل.س
+                            {" "}
+                            ل.س
                           </strong>
+
                         </div>
 
                       </div>
@@ -1997,23 +2207,44 @@ function Checks() {
 
               </div>
 
-              {/* القيمة الإجمالية بالسوري */}
+              {/* الإجماليات */}
               <div className="view-total">
 
-                <span>
-                  القيمة الإجمالية بالسوري
-                </span>
+                <div>
 
-                <strong>
-                  {
-                    formatNumber(
+                  <span>
+                    القيمة الإجمالية بالدولار
+                  </span>
+
+                  <strong>
+                    $
+                    {" "}
+                    {formatNumber(
+                      calculateTotalUsd(
+                        openedCheck.items || []
+                      ).toFixed(2)
+                    )}
+                  </strong>
+
+                </div>
+
+                <div>
+
+                  <span>
+                    القيمة الإجمالية بالسوري
+                  </span>
+
+                  <strong>
+                    {formatNumber(
                       calculateTotalSyp(
                         openedCheck.items || []
-                      )
-                    )
-                  }{" "}
-                  ل.س
-                </strong>
+                      ).toFixed(0)
+                    )}
+                    {" "}
+                    ل.س
+                  </strong>
+
+                </div>
 
               </div>
 
