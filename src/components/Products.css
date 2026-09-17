@@ -2531,3 +2531,216 @@ input {
   }
 
 }
+/* =========================================================
+   FINAL PRODUCTS TABLE FIX
+   منع الأعمدة الطويلة من توسيع الجدول
+========================================================= */
+
+.products-table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* الجدول */
+.products-table {
+  width: 100%;
+  min-width: 900px;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+/* رؤوس الأعمدة */
+.products-table th {
+  padding: 13px 8px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 14px;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* الخلايا */
+.products-table td {
+  padding: 12px 8px;
+  text-align: center;
+  vertical-align: middle;
+
+  /* مهم جداً */
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+
+  max-width: 0;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   تحديد عرض الأعمدة
+========================================================= */
+
+/* الاسم */
+.products-table th:nth-child(1),
+.products-table td:nth-child(1) {
+  width: 15%;
+}
+
+/* النوع */
+.products-table th:nth-child(2),
+.products-table td:nth-child(2) {
+  width: 13%;
+}
+
+/* القياس */
+.products-table th:nth-child(3),
+.products-table td:nth-child(3) {
+  width: 20%;
+}
+
+/* اللون */
+.products-table th:nth-child(4),
+.products-table td:nth-child(4) {
+  width: 14%;
+}
+
+/* السعر بالدولار */
+.products-table th:nth-child(5),
+.products-table td:nth-child(5) {
+  width: 11%;
+}
+
+/* الكمية */
+.products-table th:nth-child(6),
+.products-table td:nth-child(6) {
+  width: 9%;
+}
+
+/* الإجراءات */
+.products-table th:nth-child(7),
+.products-table td:nth-child(7) {
+  width: 18%;
+}
+
+
+/* =========================================================
+   القياسات الطويلة
+========================================================= */
+
+.products-table td:nth-child(3) {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.7;
+}
+
+
+/* =========================================================
+   اللون
+========================================================= */
+
+.products-table td:nth-child(4) {
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+
+/* =========================================================
+   الأسعار
+========================================================= */
+
+.products-table td:nth-child(5),
+.products-table .price-cell {
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+}
+
+
+/* =========================================================
+   أزرار الإجراءات
+========================================================= */
+
+.products-table td:nth-child(7) {
+  overflow: visible !important;
+}
+
+.table-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.edit-btn,
+.delete-btn {
+  white-space: nowrap !important;
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   الكمبيوتر والشاشات المتوسطة
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .products-table {
+    min-width: 850px;
+  }
+
+  .products-table th,
+  .products-table td {
+    padding: 10px 7px;
+    font-size: 13px;
+  }
+}
+
+
+/* =========================================================
+   الموبايل
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .products-table-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .products-table {
+    min-width: 700px;
+    table-layout: fixed;
+  }
+
+  .products-table th,
+  .products-table td {
+    padding: 9px 6px;
+    font-size: 12px;
+  }
+
+  .products-table td:nth-child(3) {
+    line-height: 1.6;
+  }
+}
+
+
+/* =========================================================
+   موبايل صغير
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .products-table {
+    min-width: 680px;
+  }
+
+  .products-table th,
+  .products-table td {
+    padding: 8px 5px;
+    font-size: 11px;
+  }
+}
