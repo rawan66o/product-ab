@@ -181,7 +181,6 @@ function Products() {
 
       const rate = Number(exchangeRate);
 
-      // المنتج الذي يحتوي على سعر الصرف
       const rateProduct =
         products.find(
           (product) =>
@@ -247,8 +246,30 @@ function Products() {
     const { name, value } = e.target;
 
     // ===================================================
+    // القياس
+    // يسمح بالأرقام والضرب × والشرطة -
+    //
+    // أمثلة:
+    // 25
+    // 25-30
+    // 25-30-35
+    // 10×20-12×20-15×20
+    // ===================================================
+
+    if (name === "size") {
+      const cleanedValue = value.replace(/[^\d×xX*-]/g, "");
+
+      setFormData((prev) => ({
+        ...prev,
+        size: cleanedValue,
+      }));
+
+      return;
+    }
+
+    // ===================================================
     // الكمية
-    // يسمح فقط بالأرقام والشرطة -
+    // يسمح بالأرقام والشرطة -
     //
     // أمثلة:
     // 10
@@ -395,7 +416,11 @@ function Products() {
     setFormData({
       name: product.name || "",
       type: product.type || "",
-      size: product.size || "",
+      size:
+        product.size !== undefined &&
+        product.size !== null
+          ? String(product.size)
+          : "",
       color: product.color || "",
       price_usd: product.price_usd ?? "",
 
@@ -915,10 +940,15 @@ function Products() {
                   required
                 />
 
+                {/* =================================================
+                    SIZE
+                    يسمح بأكثر من قياس باستخدام -
+                ================================================= */}
+
                 <input
                   type="text"
                   name="size"
-                  placeholder="القياس"
+                  placeholder="القياس مثال: 25-30-35"
                   value={
                     formData.size
                   }
@@ -927,6 +957,11 @@ function Products() {
                   }
                   required
                 />
+
+                <small className="input-hint">
+                  يمكنك إدخال أكثر من قياس باستخدام -
+                  مثل: 25-30-35 أو 10×20-12×20
+                </small>
 
                 <input
                   type="text"
@@ -996,3 +1031,4 @@ function Products() {
 }
 
 export default Products;
+
