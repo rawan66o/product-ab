@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -26,7 +27,6 @@ function Products() {
 
   // =====================================================
   // Exchange Rate
-  // price_syp داخل DB هو سعر صرف الدولار
   // =====================================================
 
   const [exchangeRate, setExchangeRate] = useState("");
@@ -70,12 +70,9 @@ function Products() {
       setLoading(true);
       setError("");
 
-      const response = await axios.get(
-        `${API_URL}/products`,
-        {
-          timeout: 20000,
-        }
-      );
+      const response = await axios.get(`${API_URL}/products`, {
+        timeout: 20000,
+      });
 
       console.log("PRODUCTS:", response.data);
 
@@ -91,7 +88,6 @@ function Products() {
 
       // =================================================
       // جلب سعر الصرف
-      // من price_syp لأول منتج يحتوي على سعر صرف
       // =================================================
 
       const productWithRate = productsData.find(
@@ -103,13 +99,10 @@ function Products() {
       );
 
       if (productWithRate) {
-        setExchangeRate(
-          Number(productWithRate.price_syp)
-        );
+        setExchangeRate(Number(productWithRate.price_syp));
       } else {
         setExchangeRate("");
       }
-
     } catch (error) {
       console.log("GET PRODUCTS ERROR:", error);
 
@@ -117,18 +110,11 @@ function Products() {
         setError(
           `حدث خطأ أثناء جلب المنتجات (${error.response.status})`
         );
-      } else if (
-        error.code === "ECONNABORTED"
-      ) {
-        setError(
-          "السيرفر تأخر بالاستجابة"
-        );
+      } else if (error.code === "ECONNABORTED") {
+        setError("السيرفر تأخر بالاستجابة");
       } else {
-        setError(
-          "تعذر الاتصال بالسيرفر"
-        );
+        setError("تعذر الاتصال بالسيرفر");
       }
-
     } finally {
       setLoading(false);
     }
@@ -146,33 +132,20 @@ function Products() {
   // SORT
   // =====================================================
 
-  const sortedProducts = [...products].sort(
-    (a, b) => {
-      const nameA = String(
-        a.name || ""
-      ).trim();
+  const sortedProducts = [...products].sort((a, b) => {
+    const nameA = String(a.name || "").trim();
+    const nameB = String(b.name || "").trim();
 
-      const nameB = String(
-        b.name || ""
-      ).trim();
-
-      if (sortOrder === "asc") {
-        return nameA.localeCompare(
-          nameB,
-          "ar"
-        );
-      }
-
-      if (sortOrder === "desc") {
-        return nameB.localeCompare(
-          nameA,
-          "ar"
-        );
-      }
-
-      return 0;
+    if (sortOrder === "asc") {
+      return nameA.localeCompare(nameB, "ar");
     }
-  );
+
+    if (sortOrder === "desc") {
+      return nameB.localeCompare(nameA, "ar");
+    }
+
+    return 0;
+  });
 
   // =====================================================
   // EXCHANGE RATE INPUT
@@ -193,18 +166,12 @@ function Products() {
       exchangeRate === null ||
       Number(exchangeRate) <= 0
     ) {
-      setRateMessage(
-        "يرجى إدخال سعر صرف صحيح"
-      );
-
+      setRateMessage("يرجى إدخال سعر صرف صحيح");
       return;
     }
 
     if (products.length === 0) {
-      setRateMessage(
-        "لا يوجد منتجات في قاعدة البيانات"
-      );
-
+      setRateMessage("لا يوجد منتجات في قاعدة البيانات");
       return;
     }
 
@@ -214,22 +181,18 @@ function Products() {
 
       const rate = Number(exchangeRate);
 
-      // أول منتج نخزن عليه سعر الصرف
-      const rateProduct = products[0];
+      // المنتج الذي يحتوي على سعر الصرف
+      const rateProduct =
+        products.find(
+          (product) =>
+            product.price_syp !== undefined &&
+            product.price_syp !== null &&
+            product.price_syp !== ""
+        ) || products[0];
 
-      console.log(
-        "Saving exchange rate..."
-      );
-
-      console.log(
-        "Product ID:",
-        rateProduct.id
-      );
-
-      console.log(
-        "Rate:",
-        rate
-      );
+      console.log("Saving exchange rate...");
+      console.log("Product ID:", rateProduct.id);
+      console.log("Rate:", rate);
 
       const response = await axios.patch(
         `${API_URL}/products/${rateProduct.id}`,
@@ -241,67 +204,36 @@ function Products() {
         }
       );
 
-      console.log(
-        "DATABASE RESPONSE:",
-        response.data
-      );
+      console.log("DATABASE RESPONSE:", response.data);
 
-      // تحديث السعر محلياً
       setExchangeRate(rate);
 
-      setProducts(
-        (prevProducts) =>
-          prevProducts.map(
-            (product) =>
-              String(product.id) ===
-              String(rateProduct.id)
-                ? {
-                    ...product,
-                    price_syp: rate,
-                  }
-                : product
-          )
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          String(product.id) === String(rateProduct.id)
+            ? {
+                ...product,
+                price_syp: rate,
+              }
+            : product
+        )
       );
 
       setRateMessage(
         "تم حفظ سعر الصرف في قاعدة البيانات بنجاح ✓"
       );
-
     } catch (error) {
-      console.log(
-        "SAVE EXCHANGE RATE ERROR:",
-        error
-      );
+      console.log("SAVE EXCHANGE RATE ERROR:", error);
 
-      console.log(
-        "STATUS:",
-        error.response?.status
-      );
-
-      console.log(
-        "DATA:",
-        error.response?.data
-      );
-
-      if (
-        error.code ===
-        "ECONNABORTED"
-      ) {
-        setRateMessage(
-          "السيرفر تأخر بالاستجابة ❌"
-        );
-      } else if (
-        error.response
-      ) {
+      if (error.code === "ECONNABORTED") {
+        setRateMessage("السيرفر تأخر بالاستجابة ❌");
+      } else if (error.response) {
         setRateMessage(
           `فشل الحفظ ❌ (${error.response.status})`
         );
       } else {
-        setRateMessage(
-          "تعذر الاتصال بالسيرفر ❌"
-        );
+        setRateMessage("تعذر الاتصال بالسيرفر ❌");
       }
-
     } finally {
       setSavingRate(false);
     }
@@ -312,17 +244,34 @@ function Products() {
   // =====================================================
 
   const handleChange = (e) => {
-    const {
-      name,
-      value,
-    } = e.target;
+    const { name, value } = e.target;
 
-    setFormData(
-      (prev) => ({
+    // ===================================================
+    // الكمية
+    // يسمح فقط بالأرقام والشرطة -
+    //
+    // أمثلة:
+    // 10
+    // 10-20
+    // 25-30
+    // 100-150
+    // ===================================================
+
+    if (name === "quantity") {
+      const cleanedValue = value.replace(/[^\d-]/g, "");
+
+      setFormData((prev) => ({
         ...prev,
-        [name]: value,
-      })
-    );
+        quantity: cleanedValue,
+      }));
+
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   // =====================================================
@@ -359,61 +308,39 @@ function Products() {
         size: formData.size,
         color: formData.color,
 
-        price_usd: Number(
-          formData.price_usd
-        ),
+        price_usd: Number(formData.price_usd),
 
         // سعر الصرف الحالي
-        price_syp: Number(
-          exchangeRate || 0
-        ),
+        price_syp: Number(exchangeRate || 0),
 
-        quantity: Number(
-          formData.quantity || 0
-        ),
+        // الكمية تبقى نص حتى تقبل -
+        quantity: formData.quantity,
       };
 
-      console.log(
-        "NEW PRODUCT:",
-        newProduct
+      console.log("NEW PRODUCT:", newProduct);
+
+      const response = await axios.post(
+        `${API_URL}/products`,
+        newProduct,
+        {
+          timeout: 20000,
+        }
       );
 
-      const response =
-        await axios.post(
-          `${API_URL}/products`,
-          newProduct,
-          {
-            timeout: 20000,
-          }
-        );
+      console.log("ADD RESPONSE:", response.data);
 
-      console.log(
-        "ADD RESPONSE:",
-        response.data
-      );
-
-      setProducts(
-        (prev) => [
-          ...prev,
-          response.data,
-        ]
-      );
+      setProducts((prev) => [
+        ...prev,
+        response.data,
+      ]);
 
       closeForm();
 
-      alert(
-        "تمت إضافة المنتج بنجاح ✓"
-      );
-
+      alert("تمت إضافة المنتج بنجاح ✓");
     } catch (error) {
-      console.log(
-        "ADD PRODUCT ERROR:",
-        error
-      );
+      console.log("ADD PRODUCT ERROR:", error);
 
-      alert(
-        "حدث خطأ أثناء إضافة المنتج ❌"
-      );
+      alert("حدث خطأ أثناء إضافة المنتج ❌");
     }
   };
 
@@ -422,10 +349,9 @@ function Products() {
   // =====================================================
 
   const handleDelete = async (id) => {
-    const confirmDelete =
-      window.confirm(
-        "هل أنت متأكد من حذف هذا المنتج؟"
-      );
+    const confirmDelete = window.confirm(
+      "هل أنت متأكد من حذف هذا المنتج؟"
+    );
 
     if (!confirmDelete) {
       return;
@@ -439,19 +365,14 @@ function Products() {
         }
       );
 
-      setProducts(
-        (prevProducts) =>
-          prevProducts.filter(
-            (product) =>
-              String(product.id) !==
-              String(id)
-          )
+      setProducts((prevProducts) =>
+        prevProducts.filter(
+          (product) =>
+            String(product.id) !== String(id)
+        )
       );
 
-      alert(
-        "تم حذف المنتج بنجاح ✓"
-      );
-
+      alert("تم حذف المنتج بنجاح ✓");
     } catch (error) {
       console.log(
         "DELETE PRODUCT ERROR:",
@@ -472,23 +393,18 @@ function Products() {
     setEditId(product.id);
 
     setFormData({
-      name:
-        product.name || "",
+      name: product.name || "",
+      type: product.type || "",
+      size: product.size || "",
+      color: product.color || "",
+      price_usd: product.price_usd ?? "",
 
-      type:
-        product.type || "",
-
-      size:
-        product.size || "",
-
-      color:
-        product.color || "",
-
-      price_usd:
-        product.price_usd ?? "",
-
+      // الكمية تبقى كما هي
       quantity:
-        product.quantity ?? "",
+        product.quantity !== undefined &&
+        product.quantity !== null
+          ? String(product.quantity)
+          : "",
     });
 
     setShowAddForm(true);
@@ -508,18 +424,13 @@ function Products() {
         size: formData.size,
         color: formData.color,
 
-        price_usd: Number(
-          formData.price_usd
-        ),
+        price_usd: Number(formData.price_usd),
 
         // الحفاظ على سعر الصرف
-        price_syp: Number(
-          exchangeRate || 0
-        ),
+        price_syp: Number(exchangeRate || 0),
 
-        quantity: Number(
-          formData.quantity || 0
-        ),
+        // الكمية تبقى نص حتى تقبل -
+        quantity: formData.quantity,
       };
 
       console.log(
@@ -527,37 +438,30 @@ function Products() {
         updatedProduct
       );
 
-      const response =
-        await axios.put(
-          `${API_URL}/products/${editId}`,
-          updatedProduct,
-          {
-            timeout: 20000,
-          }
-        );
+      const response = await axios.put(
+        `${API_URL}/products/${editId}`,
+        updatedProduct,
+        {
+          timeout: 20000,
+        }
+      );
 
       console.log(
         "UPDATE RESPONSE:",
         response.data
       );
 
-      setProducts(
-        (prevProducts) =>
-          prevProducts.map(
-            (product) =>
-              String(product.id) ===
-              String(editId)
-                ? response.data
-                : product
-          )
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          String(product.id) === String(editId)
+            ? response.data
+            : product
+        )
       );
 
       closeForm();
 
-      alert(
-        "تم تعديل المنتج بنجاح ✓"
-      );
-
+      alert("تم تعديل المنتج بنجاح ✓");
     } catch (error) {
       console.log(
         "UPDATE PRODUCT ERROR:",
@@ -589,9 +493,9 @@ function Products() {
   return (
     <div className="store-page">
 
-      {/* ==========================================
+      {/* =================================================
           NAVBAR
-      =========================================== */}
+      ================================================= */}
 
       <nav className="store-navbar">
 
@@ -608,6 +512,15 @@ function Products() {
           <Link to="/checks">
             الشيكات
           </Link>
+
+          <a
+            href="https://wa.me/963967227179"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="whatsapp-link"
+          >
+            💬 تواصل معنا
+          </a>
 
           {user ? (
             <Link
@@ -629,15 +542,15 @@ function Products() {
 
       </nav>
 
-      {/* ==========================================
+      {/* =================================================
           CONTENT
-      =========================================== */}
+      ================================================= */}
 
       <main className="store-content">
 
-        {/* ==========================================
+        {/* =================================================
             TITLE
-        =========================================== */}
+        ================================================= */}
 
         <div className="store-title">
 
@@ -651,9 +564,9 @@ function Products() {
 
         </div>
 
-        {/* ==========================================
+        {/* =================================================
             ERROR
-        =========================================== */}
+        ================================================= */}
 
         {error && (
           <div className="products-error">
@@ -661,9 +574,9 @@ function Products() {
           </div>
         )}
 
-        {/* ==========================================
+        {/* =================================================
             EXCHANGE RATE
-        =========================================== */}
+        ================================================= */}
 
         <div className="exchange-rate-box">
 
@@ -697,9 +610,7 @@ function Products() {
                   onClick={
                     saveExchangeRate
                   }
-                  disabled={
-                    savingRate
-                  }
+                  disabled={savingRate}
                 >
                   {savingRate
                     ? "جاري الحفظ..."
@@ -746,26 +657,22 @@ function Products() {
 
         </div>
 
-        {/* ==========================================
+        {/* =================================================
             ADD PRODUCT
-        =========================================== */}
+        ================================================= */}
 
         {user && (
-
           <button
             className="add-product-btn"
-            onClick={
-              openAddForm
-            }
+            onClick={openAddForm}
           >
             + إضافة منتج
           </button>
-
         )}
 
-        {/* ==========================================
+        {/* =================================================
             SORT
-        =========================================== */}
+        ================================================= */}
 
         <div className="products-sort">
 
@@ -799,9 +706,9 @@ function Products() {
 
         </div>
 
-        {/* ==========================================
+        {/* =================================================
             PRODUCTS TABLE
-        =========================================== */}
+        ================================================= */}
 
         <div className="products-table-container">
 
@@ -851,46 +758,32 @@ function Products() {
                 (product) => (
 
                   <tr
-                    key={
-                      product.id
-                    }
+                    key={product.id}
                   >
 
                     <td>
-                      {
-                        product.name
-                      }
+                      {product.name}
                     </td>
 
                     <td>
-                      {
-                        product.type
-                      }
+                      {product.type}
                     </td>
 
                     <td>
-                      {
-                        product.size
-                      }
+                      {product.size}
                     </td>
 
                     <td>
-                      {
-                        product.color
-                      }
+                      {product.color}
                     </td>
 
                     <td className="price-cell">
                       $
-                      {
-                        product.price_usd
-                      }
+                      {product.price_usd}
                     </td>
 
                     <td>
-                      {
-                        product.quantity
-                      }
+                      {product.quantity}
                     </td>
 
                     {user && (
@@ -938,9 +831,7 @@ function Products() {
 
                   <td
                     colSpan={
-                      user
-                        ? 7
-                        : 6
+                      user ? 7 : 6
                     }
                     className="empty-products"
                   >
@@ -959,9 +850,9 @@ function Products() {
 
       </main>
 
-      {/* ==========================================
+      {/* =================================================
           ADD / EDIT PRODUCT MODAL
-      =========================================== */}
+      ================================================= */}
 
       {(showAddForm || editId !== null) &&
         user && (
@@ -970,19 +861,17 @@ function Products() {
 
             <div className="modal">
 
-              {/* Close */}
+              {/* CLOSE */}
 
               <button
                 type="button"
                 className="close-modal"
-                onClick={
-                  closeForm
-                }
+                onClick={closeForm}
               >
                 ×
               </button>
 
-              {/* Title */}
+              {/* TITLE */}
 
               <h2>
                 {editId !== null
@@ -990,7 +879,7 @@ function Products() {
                   : "إضافة منتج"}
               </h2>
 
-              {/* Form */}
+              {/* FORM */}
 
               <form
                 onSubmit={
@@ -1055,6 +944,7 @@ function Products() {
                 <input
                   type="number"
                   step="0.01"
+                  min="0"
                   name="price_usd"
                   placeholder="السعر بالدولار"
                   value={
@@ -1066,10 +956,16 @@ function Products() {
                   required
                 />
 
+                {/* =================================================
+                    QUANTITY
+                    يسمح بالأرقام والشرطة -
+                ================================================= */}
+
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="text"
                   name="quantity"
-                  placeholder="الكمية"
+                  placeholder="الكمية مثال: 10-20"
                   value={
                     formData.quantity
                   }
