@@ -247,17 +247,33 @@ function Products() {
 
     // ===================================================
     // القياس
-    // يسمح بالأرقام والضرب × والشرطة -
     //
-    // أمثلة:
+    // يسمح بـ:
+    //
     // 25
     // 25-30
     // 25-30-35
-    // 10×20-12×20-15×20
+    // (25)-(30)
+    // (25-30)-(35-40)
+    // 10×20-12×20
+    // (10×20)-(12×20)-(15×20)
+    //
+    // المسموح:
+    // أرقام
+    // -
+    // (
+    // )
+    // ×
+    // x
+    // X
+    // *
     // ===================================================
 
     if (name === "size") {
-      const cleanedValue = value.replace(/[^\d×xX*-]/g, "");
+      const cleanedValue = value.replace(
+        /[^\d×xX*()\-]/g,
+        ""
+      );
 
       setFormData((prev) => ({
         ...prev,
@@ -269,9 +285,9 @@ function Products() {
 
     // ===================================================
     // الكمية
-    // يسمح بالأرقام والشرطة -
     //
-    // أمثلة:
+    // يسمح بـ:
+    //
     // 10
     // 10-20
     // 25-30
@@ -279,7 +295,10 @@ function Products() {
     // ===================================================
 
     if (name === "quantity") {
-      const cleanedValue = value.replace(/[^\d-]/g, "");
+      const cleanedValue = value.replace(
+        /[^\d-]/g,
+        ""
+      );
 
       setFormData((prev) => ({
         ...prev,
@@ -288,6 +307,10 @@ function Products() {
 
       return;
     }
+
+    // ===================================================
+    // باقي الحقول
+    // ===================================================
 
     setFormData((prev) => ({
       ...prev,
@@ -326,7 +349,10 @@ function Products() {
       const newProduct = {
         name: formData.name,
         type: formData.type,
+
+        // القياس يحفظ كنص كما تم إدخاله
         size: formData.size,
+
         color: formData.color,
 
         price_usd: Number(formData.price_usd),
@@ -416,13 +442,19 @@ function Products() {
     setFormData({
       name: product.name || "",
       type: product.type || "",
+
+      // تحويل القياس إلى نص للحفاظ عليه
+      // سواء كان قياس واحد أو عدة قياسات أو أقواس
       size:
         product.size !== undefined &&
         product.size !== null
           ? String(product.size)
           : "",
+
       color: product.color || "",
-      price_usd: product.price_usd ?? "",
+
+      price_usd:
+        product.price_usd ?? "",
 
       // الكمية تبقى كما هي
       quantity:
@@ -446,7 +478,10 @@ function Products() {
       const updatedProduct = {
         name: formData.name,
         type: formData.type,
+
+        // حفظ القياس كما هو
         size: formData.size,
+
         color: formData.color,
 
         price_usd: Number(formData.price_usd),
@@ -454,7 +489,7 @@ function Products() {
         // الحفاظ على سعر الصرف
         price_syp: Number(exchangeRate || 0),
 
-        // الكمية تبقى نص حتى تقبل -
+        // الكمية كنص
         quantity: formData.quantity,
       };
 
@@ -942,13 +977,12 @@ function Products() {
 
                 {/* =================================================
                     SIZE
-                    يسمح بأكثر من قياس باستخدام -
                 ================================================= */}
 
                 <input
                   type="text"
                   name="size"
-                  placeholder="القياس مثال: 25-30-35"
+                  placeholder="القياس مثال: 25-30 أو (25)-(30)"
                   value={
                     formData.size
                   }
@@ -960,7 +994,17 @@ function Products() {
 
                 <small className="input-hint">
                   يمكنك إدخال أكثر من قياس باستخدام -
-                  مثل: 25-30-35 أو 10×20-12×20
+                  أو الأقواس، مثل:
+                  {" "}
+                  25-30-35
+                  {" "}
+                  أو
+                  {" "}
+                  (25)-(30)
+                  {" "}
+                  أو
+                  {" "}
+                  (25-30)-(35-40)
                 </small>
 
                 <input
@@ -993,7 +1037,6 @@ function Products() {
 
                 {/* =================================================
                     QUANTITY
-                    يسمح بالأرقام والشرطة -
                 ================================================= */}
 
                 <input
