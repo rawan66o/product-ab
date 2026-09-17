@@ -1,22 +1,28 @@
-/* =========================================
-   الصفحة الرئيسية
-========================================= */
+/* =====================================================
+   GENERAL
+===================================================== */
+
+* {
+  box-sizing: border-box;
+}
 
 .checks-page {
-  min-height: 100vh;
-  background: #f7f1e8;
   direction: rtl;
-  color: #3f2f25;
+  min-height: 100vh;
+  background: #f7f3ef;
+  color: #333;
   font-family: Arial, sans-serif;
 }
 
-/* =========================================
-   Navbar
-========================================= */
+/* =====================================================
+   NAVBAR
+===================================================== */
 
 .store-navbar {
   width: 100%;
-  min-height: 70px;
+  min-height: 65px;
+  padding: 0 35px;
+
   background: #5c4033;
   color: white;
 
@@ -24,22 +30,20 @@
   align-items: center;
   justify-content: space-between;
 
-  padding: 0 40px;
-  box-sizing: border-box;
-
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .store-logo {
-  font-size: 25px;
-  font-weight: 800;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
   white-space: nowrap;
 }
 
 .store-links {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .store-links a {
@@ -47,31 +51,31 @@
   text-decoration: none;
 
   padding: 10px 18px;
-  border-radius: 10px;
+  border-radius: 6px;
 
   font-size: 15px;
-  font-weight: 600;
 
-  transition: 0.25s;
+  transition: 0.2s ease;
 }
 
 .store-links a:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
 }
 
-/* =========================================
-   Main Container
-========================================= */
+/* =====================================================
+   MAIN
+===================================================== */
 
 .checks-container {
-  width: min(1400px, 94%);
+  width: 100%;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 35px 0 60px;
+  padding: 30px;
 }
 
-/* =========================================
-   Header
-========================================= */
+/* =====================================================
+   HEADER
+===================================================== */
 
 .checks-header {
   display: flex;
@@ -79,513 +83,561 @@
   justify-content: space-between;
 
   gap: 20px;
-  margin-bottom: 25px;
+
+  background: white;
+  border: 1px solid #e2d8d0;
+  border-radius: 8px;
+
+  padding: 22px 25px;
+  margin-bottom: 20px;
 }
 
 .checks-header h1 {
-  margin: 0 0 8px;
+  margin: 0 0 7px;
 
-  font-size: 30px;
-  color: #4b3328;
+  color: #5c4033;
+  font-size: 28px;
 }
 
 .checks-header p {
   margin: 0;
-  color: #8a7668;
-  font-size: 15px;
+
+  color: #777;
+  font-size: 14px;
 }
 
-/* =========================================
-   Buttons
-========================================= */
+/* =====================================================
+   BUTTONS
+===================================================== */
 
 .btn {
   border: none;
+  border-radius: 6px;
+
+  padding: 10px 18px;
+
+  font-size: 14px;
+  font-family: inherit;
+
   cursor: pointer;
 
-  border-radius: 10px;
+  transition: 0.2s ease;
 
-  font-size: 15px;
-  font-weight: 700;
-
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s,
-    background 0.2s;
+  color: white;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
+
+/* إضافة كشف */
 
 .btn-add {
   background: #5c4033;
   color: white;
-
-  padding: 13px 23px;
-
-  box-shadow: 0 5px 15px rgba(92, 64, 51, 0.2);
+  font-weight: bold;
 }
 
 .btn-add:hover {
-  background: #463025;
+  background: #493126;
 }
 
-/* =========================================
-   Filter
-========================================= */
+/* حفظ */
+
+.btn-save {
+  background: #5c4033;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #493126;
+}
+
+/* إلغاء */
+
+.btn-cancel {
+  background: #6b625d;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: #554e49;
+}
+
+/* تعديل */
+
+.btn-edit {
+  background: #a87824;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #8d641d;
+}
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.error-message {
+  background: #fce8e8;
+
+  border: 1px solid #e5aaaa;
+
+  color: #a22d2d;
+
+  padding: 12px 15px;
+
+  border-radius: 6px;
+
+  margin-bottom: 20px;
+}
+
+/* =====================================================
+   FILTER
+===================================================== */
 
 .checks-filter {
   background: white;
 
-  border: 1px solid #eadfd3;
-  border-radius: 15px;
+  border: 1px solid #e2d8d0;
 
-  padding: 14px 18px;
+  border-radius: 8px;
+
+  padding: 12px 15px;
+
+  margin-bottom: 25px;
 
   display: flex;
+
   align-items: center;
-  gap: 10px;
 
-  margin-bottom: 28px;
+  gap: 8px;
 
-  box-shadow: 0 3px 12px rgba(92, 64, 51, 0.06);
+  flex-wrap: wrap;
 }
 
 .checks-filter > span {
-  font-weight: 700;
   color: #5c4033;
+
+  font-weight: bold;
 
   margin-left: 5px;
 }
 
 .filter-btn {
-  border: 1px solid #dccbbe;
+  border: 1px solid #5c4033;
 
-  background: #faf7f2;
-  color: #5c4033;
+  background: #5c4033;
+
+  color: white;
 
   padding: 8px 18px;
 
-  border-radius: 9px;
+  border-radius: 5px;
 
   cursor: pointer;
 
-  font-weight: 600;
+  font-family: inherit;
 
-  transition: 0.2s;
+  transition: 0.2s ease;
 }
 
 .filter-btn:hover {
-  background: #eee3d7;
+  background: #493126;
 }
 
 .filter-btn.active {
-  background: #5c4033;
+  background: #3f2b22;
+
+  border-color: #3f2b22;
+
   color: white;
-  border-color: #5c4033;
 }
 
-/* =========================================
-   Error
-========================================= */
-
-.error-message {
-  background: #fff0f0;
-  border: 1px solid #e7b8b8;
-
-  color: #a33a3a;
-
-  padding: 14px 18px;
-  border-radius: 10px;
-
-  margin-bottom: 20px;
-
-  font-weight: 600;
-}
-
-/* =========================================
-   Loading
-========================================= */
+/* =====================================================
+   LOADING
+===================================================== */
 
 .loading {
   background: white;
 
-  padding: 60px 20px;
+  border: 1px solid #e2d8d0;
 
-  border-radius: 18px;
+  border-radius: 8px;
+
+  padding: 50px;
 
   text-align: center;
 
-  color: #7d6b5e;
-
-  font-size: 18px;
+  color: #666;
 }
 
-/* =========================================
-   Empty State
-========================================= */
+/* =====================================================
+   EMPTY
+===================================================== */
 
 .empty-state {
   background: white;
 
-  border: 1px dashed #d7c5b6;
+  border: 1px solid #e2d8d0;
 
-  border-radius: 20px;
+  border-radius: 8px;
 
-  padding: 70px 20px;
+  padding: 60px 20px;
 
   text-align: center;
 }
 
 .empty-state-icon {
-  font-size: 55px;
-  margin-bottom: 15px;
+  font-size: 45px;
+
+  margin-bottom: 10px;
 }
 
 .empty-state h3 {
   margin: 0 0 8px;
 
-  color: #4d372c;
-  font-size: 22px;
+  color: #5c4033;
 }
 
 .empty-state p {
   margin: 0;
 
-  color: #8a7668;
+  color: #888;
 }
 
-/* =========================================
-   Customer Section
-========================================= */
+/* =====================================================
+   CUSTOMER
+===================================================== */
 
 .customer-section {
   background: white;
 
-  border: 1px solid #eadfd3;
+  border: 1px solid #ded3cb;
 
-  border-radius: 20px;
+  border-radius: 8px;
 
-  margin-bottom: 28px;
+  margin-bottom: 25px;
 
   overflow: hidden;
-
-  box-shadow: 0 6px 20px rgba(92, 64, 51, 0.07);
 }
 
-/* =========================================
-   Customer Header
-========================================= */
-
 .customer-section-header {
-  background: #fbf7f2;
+  background: #f3ebe5;
 
-  border-bottom: 1px solid #eadfd3;
-
-  padding: 18px 22px;
+  padding: 17px 20px;
 
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
+
+  border-bottom: 1px solid #ded3cb;
 }
 
 .customer-info {
   display: flex;
+
   align-items: center;
-  gap: 13px;
+
+  gap: 12px;
 }
 
 .customer-icon {
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #5c4033;
+
+  color: white;
 
   border-radius: 50%;
 
-  background: #eadfd3;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 23px;
+  font-size: 20px;
 }
 
 .customer-info h2 {
   margin: 0 0 4px;
 
+  color: #5c4033;
+
   font-size: 19px;
-  color: #4b3328;
 }
 
 .customer-info span {
-  color: #8d796b;
+  color: #888;
+
   font-size: 13px;
 }
 
-/* =========================================
-   زر +
-========================================= */
+.customer-residence {
+  margin: 0 0 4px;
+
+  color: #777;
+
+  font-size: 13px;
+}
+
+/* =====================================================
+   ADD CHECK SMALL
+===================================================== */
 
 .add-check-small {
-  width: 43px;
-  height: 43px;
-
-  border-radius: 50%;
+  width: 38px;
+  height: 38px;
 
   border: none;
 
+  border-radius: 6px;
+
   background: #5c4033;
+
   color: white;
 
-  font-size: 28px;
+  font-size: 25px;
+
   line-height: 1;
 
   cursor: pointer;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  transition: 0.25s;
-
-  box-shadow: 0 5px 12px rgba(92, 64, 51, 0.2);
+  transition: 0.2s ease;
 }
 
 .add-check-small:hover {
-  background: #463025;
-  transform: rotate(90deg) scale(1.05);
+  background: #493126;
 }
 
-/* =========================================
-   Checks Grid
-========================================= */
+/* =====================================================
+   CHECK GRID
+===================================================== */
 
 .customer-checks-grid {
-  padding: 22px;
+  padding: 20px;
 
   display: grid;
 
   grid-template-columns:
-    repeat(auto-fill, minmax(310px, 1fr));
+    repeat(3, minmax(0, 1fr));
 
-  gap: 18px;
+  gap: 15px;
 }
 
-/* =========================================
-   Check Card
-========================================= */
+/* =====================================================
+   CHECK CARD
+===================================================== */
 
 .check-card {
-  background: #fff;
+  border: 1px solid #ded3cb;
 
-  border: 1px solid #e6d9ce;
+  border-radius: 7px;
 
-  border-radius: 17px;
+  background: white;
 
-  padding: 18px;
+  padding: 16px;
 
-  position: relative;
-
-  transition:
-    transform 0.25s,
-    box-shadow 0.25s,
-    border-color 0.25s;
-
-  overflow: hidden;
-}
-
-.check-card::before {
-  content: "";
-
-  position: absolute;
-
-  top: 0;
-  right: 0;
-
-  width: 5px;
-  height: 100%;
-
-  background: #5c4033;
+  transition: 0.2s ease;
 }
 
 .check-card:hover {
-  transform: translateY(-4px);
-
-  border-color: #cdb9a8;
+  border-color: #bca99d;
 
   box-shadow:
-    0 10px 25px rgba(92, 64, 51, 0.12);
+    0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* =========================================
-   Card Top
-========================================= */
+/* =====================================================
+   CHECK CARD TOP
+===================================================== */
 
 .check-card-top {
   display: flex;
-  align-items: flex-start;
+
+  align-items: center;
+
   justify-content: space-between;
 
   gap: 10px;
 
-  padding-bottom: 14px;
+  padding-bottom: 12px;
 
-  border-bottom: 1px solid #eee5dd;
+  margin-bottom: 12px;
+
+  border-bottom: 1px solid #eee5df;
 }
+
+/* =====================================================
+   CHECK NUMBER
+   هذا هو رقم الكشف الظاهر على البطاقة
+===================================================== */
 
 .check-number {
   display: flex;
+
   flex-direction: column;
 
-  gap: 4px;
+  gap: 3px;
+
+  background: #5c4033;
+
+  padding: 8px 12px;
+
+  border-radius: 6px;
+
+  min-width: 95px;
+
+  text-align: right;
 }
 
 .check-number span {
-  color: #918074;
+  color: white;
+
   font-size: 12px;
+
+  font-weight: bold;
 }
 
 .check-number strong {
-  font-size: 20px;
-  color: #4d362b;
+  color: white;
+
+  font-size: 17px;
+
+  font-weight: bold;
+
+  direction: ltr;
+
+  text-align: right;
 }
 
-/* =========================================
-   Check Type
-========================================= */
+/* =====================================================
+   CHECK TYPE
+===================================================== */
 
 .check-type {
   padding: 6px 12px;
 
-  border-radius: 20px;
+  border-radius: 5px;
 
   font-size: 12px;
-  font-weight: 800;
+
+  font-weight: bold;
+}
+
+.check-type.purchase {
+  background: #28733b;
+
+  color: white;
+}
+
+.check-type.sale {
+  background: #a65b00;
+
+  color: white;
+}
+
+/* =====================================================
+   DATE
+===================================================== */
+
+.check-card-extra {
+  margin-bottom: 15px;
+}
+
+.check-card-extra > div {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.check-card-extra span {
+  color: #888;
+
+  font-size: 13px;
+}
+
+.check-card-extra strong {
+  color: #444;
+
+  font-size: 13px;
+}
+
+/* =====================================================
+   AMOUNT
+===================================================== */
+
+.check-amount {
+  background: #f7f3ef;
+
+  border: 1px solid #e8ddd5;
+
+  padding: 12px;
+
+  border-radius: 6px;
+
+  margin-bottom: 12px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+.check-amount span {
+  color: #777;
+
+  font-size: 13px;
+}
+
+.check-amount strong {
+  color: #5c4033;
+
+  font-size: 18px;
+
+  direction: ltr;
 
   white-space: nowrap;
 }
 
-.check-type.purchase {
-  background: #f1e5d9;
-  color: #704b34;
-}
-
-.check-type.sale {
-  background: #e7efe7;
-  color: #426247;
-}
-
-/* =========================================
-   Date + Notebook
-========================================= */
-
-.check-card-extra {
-  display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
-  gap: 10px;
-
-  margin-top: 14px;
-}
-
-.check-card-extra > div {
-  background: #faf7f3;
-
-  border-radius: 10px;
-
-  padding: 10px;
-
-  border: 1px solid #eee4da;
-}
-
-.check-card-extra span {
-  display: block;
-
-  color: #918074;
-
-  font-size: 11px;
-
-  margin-bottom: 5px;
-}
-
-.check-card-extra strong {
-  display: block;
-
-  color: #554036;
-
-  font-size: 13px;
-
-  word-break: break-word;
-}
-
-/* =========================================
-   Amount
-========================================= */
-
-.check-amount {
-  background: #f5ece3;
-
-  border-radius: 12px;
-
-  padding: 14px;
-
-  margin-top: 14px;
-
-  text-align: center;
-}
-
-.check-amount span {
-  display: block;
-
-  color: #806b5d;
-
-  font-size: 12px;
-
-  margin-bottom: 6px;
-}
-
-.check-amount strong {
-  display: block;
-
-  color: #4d3428;
-
-  font-size: 23px;
-
-  font-weight: 800;
-}
-
-/* =========================================
-   Details
-========================================= */
+/* =====================================================
+   DETAILS
+===================================================== */
 
 .check-details {
   display: grid;
 
   grid-template-columns: 1fr 1fr;
 
-  gap: 9px;
+  gap: 8px;
 
-  margin-top: 14px;
+  margin-bottom: 12px;
 }
 
 .check-details > div {
+  border: 1px solid #eee5df;
+
   padding: 9px;
 
-  background: #fcfaf8;
-
-  border-radius: 9px;
-
-  border: 1px solid #eee7e0;
-
-  min-width: 0;
+  border-radius: 5px;
 }
 
 .check-details span {
   display: block;
 
-  color: #958276;
+  color: #888;
 
   font-size: 11px;
 
@@ -595,98 +647,178 @@
 .check-details strong {
   display: block;
 
-  color: #594338;
+  color: #444;
+
+  font-size: 12px;
+
+  overflow-wrap: anywhere;
+}
+
+/* =====================================================
+   PRODUCTS
+===================================================== */
+
+.card-products {
+  border-top: 1px solid #eee5df;
+
+  padding-top: 10px;
+
+  margin-top: 5px;
+
+  margin-bottom: 15px;
+}
+
+.card-product-row {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 7px 0;
+
+  border-bottom: 1px solid #f1ebe7;
+}
+
+.card-product-row:last-of-type {
+  border-bottom: none;
+}
+
+.card-product-row strong {
+  color: #555;
 
   font-size: 13px;
 
-  overflow: hidden;
+  overflow-wrap: anywhere;
+}
 
-  text-overflow: ellipsis;
+.card-product-row span {
+  color: #888;
+
+  font-size: 12px;
 
   white-space: nowrap;
 }
 
-/* =========================================
-   Card Actions
-========================================= */
+.card-products > small {
+  display: block;
+
+  color: #8a6b5a;
+
+  margin-top: 7px;
+}
+
+/* =====================================================
+   CARD ACTIONS
+===================================================== */
 
 .check-card-actions {
   display: grid;
 
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns:
+    1fr 1fr 1fr;
 
-  gap: 7px;
+  gap: 6px;
 
-  margin-top: 16px;
+  padding-top: 12px;
 
-  padding-top: 14px;
-
-  border-top: 1px solid #eee5dd;
+  border-top: 1px solid #eee5df;
 }
 
-.check-card-actions button {
+/* عرض */
+
+.view-btn {
   border: none;
 
-  padding: 9px 6px;
+  background: #626b73;
 
-  border-radius: 8px;
+  color: white;
+
+  padding: 8px 5px;
+
+  border-radius: 5px;
 
   cursor: pointer;
+
+  font-family: inherit;
 
   font-size: 12px;
 
-  font-weight: 700;
-
-  transition: 0.2s;
-}
-
-.check-card-actions button:hover {
-  transform: translateY(-2px);
-}
-
-.view-btn {
-  background: #eee8e1;
-  color: #594238;
+  transition: 0.2s ease;
 }
 
 .view-btn:hover {
-  background: #e1d7ce;
+  background: #4e565d;
 }
 
+/* تعديل */
+
 .edit-btn {
-  background: #f1e4d4;
-  color: #805426;
+  border: none;
+
+  background: #a87824;
+
+  color: white;
+
+  padding: 8px 5px;
+
+  border-radius: 5px;
+
+  cursor: pointer;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  transition: 0.2s ease;
 }
 
 .edit-btn:hover {
-  background: #e7d6c0;
+  background: #8d641d;
 }
 
+/* حذف */
+
 .delete-btn {
-  background: #f8e3e3;
-  color: #a23e3e;
+  border: none;
+
+  background: #a94442;
+
+  color: white;
+
+  padding: 8px 5px;
+
+  border-radius: 5px;
+
+  cursor: pointer;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  transition: 0.2s ease;
 }
 
 .delete-btn:hover {
-  background: #f2cccc;
+  background: #873535;
 }
 
-/* =========================================
-   New Check Card
-========================================= */
+/* =====================================================
+   NEW CHECK
+===================================================== */
 
 .new-check-card {
-  min-height: 320px;
+  min-height: 270px;
 
-  border-radius: 17px;
+  border: 2px dashed #cdbdb1;
 
-  border: 2px dashed #cdb9a8;
+  border-radius: 7px;
 
-  background: #fdfbf8;
+  background: #faf7f4;
 
-  color: #684a3a;
-
-  cursor: pointer;
+  color: #5c4033;
 
   display: flex;
 
@@ -698,122 +830,104 @@
 
   gap: 8px;
 
-  transition: 0.25s;
+  cursor: pointer;
 
-  padding: 25px;
+  font-family: inherit;
+
+  transition: 0.2s ease;
 }
 
 .new-check-card:hover {
-  background: #f7efe7;
+  background: #f3ebe5;
 
-  border-color: #8d6a55;
-
-  transform: translateY(-4px);
+  border-color: #9e8879;
 }
 
 .new-check-card span {
-  width: 60px;
-  height: 60px;
-
-  border-radius: 50%;
-
-  background: #5c4033;
-  color: white;
+  width: 48px;
+  height: 48px;
 
   display: flex;
 
   align-items: center;
+
   justify-content: center;
 
-  font-size: 38px;
+  border-radius: 50%;
 
-  font-weight: 300;
+  background: #5c4033;
 
-  transition: 0.25s;
-}
+  color: white;
 
-.new-check-card:hover span {
-  transform: rotate(90deg);
+  font-size: 30px;
 }
 
 .new-check-card strong {
-  font-size: 17px;
+  font-size: 16px;
+
+  color: #5c4033;
 }
 
 .new-check-card small {
-  color: #9a887b;
+  color: #888;
+
   font-size: 12px;
 }
 
-/* =========================================
-   Modal Overlay
-========================================= */
+/* =====================================================
+   MODAL OVERLAY
+===================================================== */
 
 .modal-overlay {
   position: fixed;
 
   inset: 0;
 
-  background: rgba(42, 29, 23, 0.62);
-
-  backdrop-filter: blur(4px);
-
   z-index: 9999;
+
+  background: rgba(0, 0, 0, 0.55);
 
   display: flex;
 
   align-items: center;
+
   justify-content: center;
 
   padding: 20px;
-
-  overflow-y: auto;
 }
 
-/* =========================================
-   Modal
-========================================= */
+/* =====================================================
+   MODAL
+===================================================== */
 
 .modal {
-  width: min(720px, 100%);
+  width: 100%;
+
+  max-width: 900px;
 
   max-height: 92vh;
 
   overflow-y: auto;
 
-  background: #fff;
+  background: white;
 
-  border-radius: 20px;
+  border-radius: 9px;
 
   box-shadow:
-    0 25px 70px rgba(0, 0, 0, 0.25);
-
-  animation: modalOpen 0.22s ease;
+    0 15px 50px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes modalOpen {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.98);
-  }
+/* =====================================================
+   MODAL HEADER
+===================================================== */
+.modal h2 {
+  margin: 0;
 
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  color: #f9f9f9;
+
+  font-size: 22px;
 }
-
-/* =========================================
-   Modal Header
-========================================= */
-
 .modal-header {
-  position: sticky;
-
-  top: 0;
-
-  z-index: 2;
-
   background: #5c4033;
 
   color: white;
@@ -826,78 +940,106 @@
 
   justify-content: space-between;
 
-  gap: 15px;
+  position: sticky;
+
+  top: 0;
+
+  z-index: 5;
 }
 
 .modal-header h2 {
   margin: 0;
 
-  font-size: 21px;
+  color: white;
 
-  line-height: 1.5;
+  font-size: 20px;
 }
 
-.close-modal {
-  width: 38px;
-  height: 38px;
+.modal-header small {
+  display: block;
 
-  border: none;
-
-  border-radius: 50%;
-
-  background: rgba(255, 255, 255, 0.13);
+  margin-top: 5px;
 
   color: white;
 
-  font-size: 28px;
+  font-size: 12px;
+}
+
+.modal-header > div > span {
+  display: inline-block;
+
+  margin-top: 6px;
+
+  color: white;
+
+  font-size: 13px;
+}
+
+/* =====================================================
+   CLOSE
+===================================================== */
+
+.close-modal {
+  width: 35px;
+  height: 35px;
+
+  border: none;
+
+  border-radius: 5px;
+
+  background: rgba(255, 255, 255, 0.12);
+
+  color: white;
+
+  font-size: 24px;
 
   line-height: 1;
 
   cursor: pointer;
-
-  transition: 0.2s;
-
-  flex-shrink: 0;
 }
 
 .close-modal:hover {
-  background: rgba(255, 255, 255, 0.25);
-
-  transform: rotate(90deg);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* =========================================
-   Check Form
-========================================= */
+/* =====================================================
+   FORM
+===================================================== */
 
 .check-form {
   padding: 25px;
+}
 
-  display: grid;
+.form-section-title {
+  color: #5c4033;
 
-  grid-template-columns: 1fr 1fr;
+  font-size: 17px;
 
-  gap: 17px;
+  font-weight: bold;
+
+  padding-bottom: 8px;
+
+  margin-top: 5px;
+
+  margin-bottom: 15px;
+
+  border-bottom: 1px solid #e4d9d2;
 }
 
 .form-group {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 7px;
-}
-
-.form-group.full-width {
-  grid-column: 1 / -1;
+  margin-bottom: 15px;
 }
 
 .form-group label {
+  display: block;
+
+  color: #555;
+
   font-size: 13px;
 
-  font-weight: 700;
+  font-weight: bold;
 
-  color: #594238;
+  margin-bottom: 6px;
 }
 
 .form-group input,
@@ -905,43 +1047,38 @@
 .form-group textarea {
   width: 100%;
 
-  box-sizing: border-box;
+  border: 1px solid #d8cbc2;
 
-  border: 1px solid #d9cabc;
+  border-radius: 5px;
 
-  background: #fff;
+  background: white;
 
-  color: #44332b;
+  padding: 10px 12px;
 
-  border-radius: 10px;
-
-  padding: 12px 13px;
+  font-family: inherit;
 
   font-size: 14px;
 
+  color: #333;
+
   outline: none;
 
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s,
-    background 0.2s;
+  transition: 0.2s ease;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #7a5744;
+  border-color: #8c6c59;
 
   box-shadow:
-    0 0 0 3px rgba(92, 64, 51, 0.09);
+    0 0 0 2px rgba(92, 64, 51, 0.08);
 }
 
 .form-group input:disabled {
-  background: #f3eee9;
+  background: #f2efed;
 
-  color: #8b7b70;
-
-  cursor: not-allowed;
+  color: #777;
 }
 
 .form-group textarea {
@@ -950,235 +1087,458 @@
   resize: vertical;
 }
 
-/* =========================================
-   Form Actions
-========================================= */
-
-.form-actions {
-  grid-column: 1 / -1;
-
-  display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
-  gap: 10px;
-
-  margin-top: 5px;
-
-  padding-top: 18px;
-
-  border-top: 1px solid #eee5dd;
+.full-width {
+  width: 100%;
 }
 
-.btn-save {
-  background: #5c4033;
+/* =====================================================
+   ITEMS
+===================================================== */
 
-  color: white;
-
-  padding: 13px 20px;
-}
-
-.btn-save:hover {
-  background: #463025;
-}
-
-.btn-cancel {
-  background: #eee8e1;
-
-  color: #5b4539;
-
-  padding: 13px 20px;
-}
-
-.btn-cancel:hover {
-  background: #dfd6ce;
-}
-
-/* =========================================
-   View Check Modal
-========================================= */
-
-.check-view-modal {
-  width: min(650px, 100%);
-}
-
-.check-view {
-  padding: 22px 25px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 10px;
-}
-
-.view-row {
+.items-title {
   display: flex;
 
   align-items: center;
 
   justify-content: space-between;
 
-  gap: 20px;
-
-  padding: 13px 15px;
-
-  background: #faf7f3;
-
-  border: 1px solid #eee4da;
-
-  border-radius: 10px;
+  gap: 15px;
 }
 
-.view-row span {
-  color: #88766a;
+.add-item-btn {
+  border: none;
+
+  border-radius: 5px;
+
+  background: #5c4033;
+
+  color: white;
+
+  padding: 8px 13px;
+
+  cursor: pointer;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+}
+
+.add-item-btn:hover {
+  background: #493126;
+}
+
+.items-container {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+
+  margin-bottom: 20px;
+}
+
+.item-box {
+  border: 1px solid #ded3cb;
+
+  border-radius: 7px;
+
+  background: #faf8f6;
+
+  padding: 15px;
+}
+
+.item-box-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 15px;
+
+  padding-bottom: 10px;
+
+  border-bottom: 1px solid #e7ddd7;
+}
+
+.item-box-header strong {
+  color: #5c4033;
+
+  font-size: 14px;
+}
+
+.remove-item-btn {
+  border: none;
+
+  border-radius: 5px;
+
+  background: #a94442;
+
+  color: white;
+
+  padding: 6px 10px;
+
+  cursor: pointer;
+
+  font-family: inherit;
+
+  font-size: 11px;
+}
+
+.remove-item-btn:hover {
+  background: #873535;
+}
+
+.item-grid {
+  display: grid;
+
+  grid-template-columns:
+    1.3fr
+    1.5fr
+    0.8fr
+    0.9fr
+    0.9fr;
+
+  gap: 12px;
+}
+
+/* =====================================================
+   TOTAL
+===================================================== */
+
+.total-preview {
+  margin-top: 20px;
+
+  background: #f3ebe5;
+
+  border: 1px solid #d9c9be;
+
+  border-radius: 7px;
+
+  padding: 15px 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.total-preview span {
+  color: #5c4033;
+
+  font-weight: bold;
+}
+
+.total-preview strong {
+  color: #5c4033;
+
+  font-size: 20px;
+
+  direction: ltr;
+}
+
+/* =====================================================
+   FORM ACTIONS
+===================================================== */
+
+.form-actions {
+  display: flex;
+
+  justify-content: flex-start;
+
+  gap: 10px;
+
+  padding-top: 20px;
+
+  margin-top: 20px;
+
+  border-top: 1px solid #e4d9d2;
+}
+
+.form-actions .btn {
+  min-width: 130px;
+}
+
+/* =====================================================
+   VIEW MODAL
+===================================================== */
+
+.check-view-modal {
+  max-width: 850px;
+}
+
+.check-view {
+  padding: 25px;
+}
+
+.view-row {
+  display: grid;
+
+  grid-template-columns: 180px 1fr;
+
+  gap: 15px;
+
+  padding: 12px 0;
+
+  border-bottom: 1px solid #eee5df;
+}
+
+.view-row > span {
+  color: #888;
 
   font-size: 13px;
-
-  font-weight: 600;
-
-  flex-shrink: 0;
 }
 
-.view-row strong {
-  color: #49372d;
+.view-row > strong {
+  color: #444;
 
   font-size: 14px;
 
-  text-align: left;
-
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
-.view-row .big-amount {
+.notes-row {
+  align-items: start;
+}
+
+/* =====================================================
+   VIEW ITEMS
+===================================================== */
+
+.view-items {
+  margin-top: 25px;
+}
+
+.view-items h3 {
+  margin: 0 0 12px;
+
+  color: #5c4033;
+
+  font-size: 17px;
+}
+
+.view-item {
+  border: 1px solid #ded3cb;
+
+  border-radius: 7px;
+
+  background: #faf8f6;
+
+  padding: 15px;
+
+  margin-bottom: 12px;
+}
+
+.view-item-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding-bottom: 10px;
+
+  margin-bottom: 12px;
+
+  border-bottom: 1px solid #e5ddd7;
+}
+
+.view-item-header strong {
+  color: #5c4033;
+}
+
+.view-item-header span {
+  color: #555;
+
+  overflow-wrap: anywhere;
+}
+
+.view-item-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 10px;
+}
+
+.view-item-grid > div {
+  background: white;
+
+  border: 1px solid #eee5df;
+
+  border-radius: 5px;
+
+  padding: 10px;
+}
+
+.view-item-grid span {
+  display: block;
+
+  color: #888;
+
+  font-size: 11px;
+
+  margin-bottom: 5px;
+}
+
+.view-item-grid strong {
+  display: block;
+
+  color: #444;
+
+  font-size: 13px;
+
+  overflow-wrap: anywhere;
+}
+
+/* =====================================================
+   VIEW TOTAL
+===================================================== */
+
+.view-total {
+  margin-top: 20px;
+
+  padding: 16px;
+
+  background: #f3ebe5;
+
+  border: 1px solid #d9c9be;
+
+  border-radius: 7px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+.view-total span {
+  color: #5c4033;
+
+  font-weight: bold;
+}
+
+.view-total strong {
   color: #5c4033;
 
   font-size: 21px;
 
-  font-weight: 800;
+  direction: ltr;
 }
 
-/* =========================================
-   View Actions
-========================================= */
+/* =====================================================
+   VIEW ACTIONS
+===================================================== */
 
 .view-actions {
-  display: grid;
+  display: flex;
 
-  grid-template-columns: 1fr 1fr;
+  justify-content: flex-start;
 
   gap: 10px;
 
-  padding: 0 25px 25px;
+  padding: 20px 25px;
+
+  border-top: 1px solid #e4d9d2;
 }
 
-.view-actions .btn {
-  padding: 12px;
-}
-
-.btn-edit {
-  background: #f1e4d4;
-
-  color: #805426;
-}
-
-.btn-edit:hover {
-  background: #e6d4bd;
-}
-
-/* =========================================
-   Scrollbar
-========================================= */
+/* =====================================================
+   SCROLLBAR
+===================================================== */
 
 .modal::-webkit-scrollbar {
   width: 7px;
 }
 
 .modal::-webkit-scrollbar-track {
-  background: #f4eee8;
+  background: #f5f1ee;
 }
 
 .modal::-webkit-scrollbar-thumb {
-  background: #bda998;
+  background: #c7b7ac;
 
   border-radius: 10px;
 }
 
 .modal::-webkit-scrollbar-thumb:hover {
-  background: #9e8471;
+  background: #a99384;
 }
 
-/* =========================================
-   Tablet
-========================================= */
+/* =====================================================
+   TABLET
+===================================================== */
 
-@media (max-width: 900px) {
-
-  .store-navbar {
-    padding: 0 20px;
-  }
-
-  .checks-container {
-    width: 94%;
-  }
-
+@media (max-width: 1100px) {
   .customer-checks-grid {
     grid-template-columns:
-      repeat(auto-fill, minmax(280px, 1fr));
+      repeat(2, minmax(0, 1fr));
   }
 
+  .item-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .view-item-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
 }
 
-/* =========================================
-   Mobile
-========================================= */
+/* =====================================================
+   MOBILE
+===================================================== */
 
-@media (max-width: 650px) {
-
+@media (max-width: 700px) {
   .store-navbar {
-    min-height: auto;
-
-    padding: 15px;
+    padding: 12px 15px;
 
     flex-direction: column;
 
-    gap: 12px;
+    align-items: stretch;
+
+    gap: 10px;
   }
 
   .store-logo {
-    font-size: 22px;
+    text-align: center;
   }
 
   .store-links {
-    width: 100%;
-
     justify-content: center;
 
-    gap: 5px;
+    flex-wrap: wrap;
   }
 
   .store-links a {
-    padding: 8px 10px;
+    padding: 8px 12px;
 
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .checks-container {
-    width: 92%;
-
-    padding-top: 25px;
+    padding: 15px;
   }
 
   .checks-header {
     flex-direction: column;
 
     align-items: stretch;
-
-    text-align: center;
   }
 
   .checks-header h1 {
-    font-size: 25px;
+    font-size: 23px;
   }
 
   .btn-add {
@@ -1186,71 +1546,131 @@
   }
 
   .checks-filter {
-    flex-wrap: wrap;
-
-    justify-content: center;
+    align-items: stretch;
   }
 
-  .checks-filter > span {
-    width: 100%;
-
-    text-align: center;
-
-    margin-bottom: 3px;
+  .filter-btn {
+    flex: 1;
   }
 
   .customer-section-header {
-    padding: 15px;
-  }
-
-  .customer-info h2 {
-    font-size: 17px;
+    padding: 13px;
   }
 
   .customer-checks-grid {
-    padding: 14px;
-
     grid-template-columns: 1fr;
-  }
 
-  .check-card {
-    padding: 15px;
+    padding: 12px;
   }
 
   .new-check-card {
-    min-height: 220px;
-  }
-
-  /* الفورم عمود واحد */
-
-  .check-form {
-    grid-template-columns: 1fr;
-
-    padding: 20px;
-  }
-
-  .form-group.full-width {
-    grid-column: auto;
-  }
-
-  .form-actions {
-    grid-column: auto;
-
-    grid-template-columns: 1fr;
+    min-height: 190px;
   }
 
   .modal-overlay {
-    padding: 10px;
+    padding: 8px;
+
+    align-items: flex-start;
   }
 
   .modal {
-    max-height: 95vh;
+    max-height: 96vh;
 
-    border-radius: 16px;
+    margin-top: 5px;
+  }
+
+  .check-form {
+    padding: 17px;
+  }
+
+  .items-title {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .add-item-btn {
+    width: 100%;
+  }
+
+  .item-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .view-item-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .view-row {
+    grid-template-columns: 1fr;
+
+    gap: 5px;
+  }
+
+  .view-actions {
+    flex-direction: column;
+
+    padding: 15px;
+  }
+
+  .view-actions .btn {
+    width: 100%;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+}
+
+/* =====================================================
+   VERY SMALL
+===================================================== */
+
+@media (max-width: 450px) {
+  .checks-container {
+    padding: 10px;
+  }
+
+  .customer-info {
+    gap: 8px;
+  }
+
+  .customer-icon {
+    width: 36px;
+    height: 36px;
+
+    font-size: 17px;
+  }
+
+  .customer-info h2 {
+    font-size: 16px;
+  }
+
+  .add-check-small {
+    width: 34px;
+    height: 34px;
+  }
+
+  .check-card {
+    padding: 12px;
+  }
+
+  .check-card-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .view-btn,
+  .edit-btn,
+  .delete-btn {
+    width: 100%;
   }
 
   .modal-header {
-    padding: 15px 17px;
+    padding: 14px;
   }
 
   .modal-header h2 {
@@ -1258,91 +1678,33 @@
   }
 
   .check-view {
-    padding: 16px;
+    padding: 15px;
   }
 
-  .view-row {
-    align-items: flex-start;
-
+  .view-total,
+  .total-preview {
     flex-direction: column;
 
-    gap: 5px;
+    align-items: stretch;
   }
 
-  .view-row strong {
-    text-align: right;
+  .view-total strong,
+  .total-preview strong {
+    text-align: center;
   }
 
-  .view-actions {
-    padding: 0 16px 18px;
+  /* رقم الكشف على الموبايل */
+  .check-number {
+    min-width: 90px;
 
-    grid-template-columns: 1fr;
+    padding: 7px 9px;
   }
-}
 
-/* =========================================
-   Small Mobile
-========================================= */
-
-@media (max-width: 400px) {
-
-  .store-links a {
-    padding: 7px 8px;
-
+  .check-number span {
     font-size: 11px;
   }
 
-  .checks-header h1 {
-    font-size: 22px;
+  .check-number strong {
+    font-size: 15px;
   }
-
-  .customer-checks-grid {
-    padding: 10px;
-  }
-
-  .check-card-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .check-details {
-    grid-template-columns: 1fr;
-  }
-
-  .check-card-extra {
-    grid-template-columns: 1fr;
-  }
-
-  .check-amount strong {
-    font-size: 20px;
-  }
-}.check-card-actions .view-btn,
-.check-card-actions .edit-btn,
-.check-card-actions .delete-btn {
-  color: white;
-}
-
-/* ألوان الأزرار */
-.check-card-actions .view-btn {
-  background: #5c4033;
-}
-
-.check-card-actions .edit-btn {
-  background: #8b623f;
-}
-
-.check-card-actions .delete-btn {
-  background: #a94442;
-}
-
-/* Hover */
-.check-card-actions .view-btn:hover {
-  background: #463025;
-}
-
-.check-card-actions .edit-btn:hover {
-  background: #704b2f;
-}
-
-.check-card-actions .delete-btn:hover {
-  background: #843735;
 }
