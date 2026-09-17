@@ -1,75 +1,183 @@
-/* =========================
-   General
-========================= */
+/* =========================================
+   الصفحة الرئيسية
+========================================= */
+
 .checks-page {
-  width: 100%;
-  padding: 30px;
-  direction: rtl;
-  background: #f5f1eb;
   min-height: 100vh;
-  color: #333;
-  box-sizing: border-box;
+  background: #f7f1e8;
+  direction: rtl;
+  color: #3f2f25;
+  font-family: Arial, sans-serif;
 }
 
-/* =========================
+/* =========================================
+   Navbar
+========================================= */
+
+.store-navbar {
+  width: 100%;
+  min-height: 70px;
+  background: #5c4033;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 40px;
+  box-sizing: border-box;
+
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+}
+
+.store-logo {
+  font-size: 25px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.store-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.store-links a {
+  color: white;
+  text-decoration: none;
+
+  padding: 10px 18px;
+  border-radius: 10px;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  transition: 0.25s;
+}
+
+.store-links a:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* =========================================
+   Main Container
+========================================= */
+
+.checks-container {
+  width: min(1400px, 94%);
+  margin: 0 auto;
+  padding: 35px 0 60px;
+}
+
+/* =========================================
    Header
-========================= */
+========================================= */
+
 .checks-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+
   gap: 20px;
   margin-bottom: 25px;
 }
 
 .checks-header h1 {
   margin: 0 0 8px;
+
   font-size: 30px;
-  color: #5c4033;
+  color: #4b3328;
 }
 
 .checks-header p {
   margin: 0;
-  color: #777;
+  color: #8a7668;
   font-size: 15px;
 }
 
-.add-check-btn {
+/* =========================================
+   Buttons
+========================================= */
+
+.btn {
   border: none;
+  cursor: pointer;
+
+  border-radius: 10px;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-add {
   background: #5c4033;
   color: white;
-  padding: 13px 22px;
-  border-radius: 9px;
-  cursor: pointer;
-  font-size: 15px;
-  transition: 0.2s;
-  white-space: nowrap;
+
+  padding: 13px 23px;
+
+  box-shadow: 0 5px 15px rgba(92, 64, 51, 0.2);
 }
 
-.add-check-btn:hover {
-  background: #432d24;
-  transform: translateY(-1px);
+.btn-add:hover {
+  background: #463025;
 }
 
-/* =========================
-   Filters
-========================= */
-.checks-filters {
+/* =========================================
+   Filter
+========================================= */
+
+.checks-filter {
+  background: white;
+
+  border: 1px solid #eadfd3;
+  border-radius: 15px;
+
+  padding: 14px 18px;
+
   display: flex;
+  align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+
+  margin-bottom: 28px;
+
+  box-shadow: 0 3px 12px rgba(92, 64, 51, 0.06);
+}
+
+.checks-filter > span {
+  font-weight: 700;
+  color: #5c4033;
+
+  margin-left: 5px;
 }
 
 .filter-btn {
-  border: 1px solid #d7c8b9;
-  background: white;
+  border: 1px solid #dccbbe;
+
+  background: #faf7f2;
   color: #5c4033;
-  padding: 10px 18px;
-  border-radius: 8px;
+
+  padding: 8px 18px;
+
+  border-radius: 9px;
+
   cursor: pointer;
-  font-size: 14px;
+
+  font-weight: 600;
+
   transition: 0.2s;
+}
+
+.filter-btn:hover {
+  background: #eee3d7;
 }
 
 .filter-btn.active {
@@ -78,488 +186,1163 @@
   border-color: #5c4033;
 }
 
-/* =========================
+/* =========================================
    Error
-========================= */
-.checks-error {
-  background: #ffe5e5;
-  color: #b42318;
-  padding: 14px;
-  border-radius: 8px;
+========================================= */
+
+.error-message {
+  background: #fff0f0;
+  border: 1px solid #e7b8b8;
+
+  color: #a33a3a;
+
+  padding: 14px 18px;
+  border-radius: 10px;
+
   margin-bottom: 20px;
+
+  font-weight: 600;
 }
 
-/* =========================
-   Table (Desktop & Tablet)
-========================= */
-.checks-table-container {
-  width: 100%;
-  overflow-x: auto;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
-  -webkit-overflow-scrolling: touch;
-}
-
-.checks-table {
-  width: 100%;
-  min-width: 1050px;
-  border-collapse: collapse;
-}
-
-.checks-table th {
-  background: #5c4033;
-  color: white;
-  padding: 15px 12px;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.checks-table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid #eee;
-  text-align: center;
-  vertical-align: middle;
-}
-
-.checks-table tbody tr:hover {
-  background: #faf7f3;
-}
-
-.total-cell {
-  font-weight: bold;
-  color: #5c4033;
-}
-
-/* =========================
-   Type
-========================= */
-.check-type {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.check-type.buy {
-  background: #e8f5e9;
-  color: #287d2f;
-}
-
-.check-type.sell {
-  background: #fff0e5;
-  color: #b85c00;
-}
-
-/* =========================
-   Actions
-========================= */
-.check-actions {
-  display: flex;
-  justify-content: center;
-  gap: 7px;
-}
-
-.edit-check-btn,
-.delete-check-btn {
-  border: none;
-  padding: 8px 12px;
-  border-radius: 7px;
-  cursor: pointer;
-  font-size: 13px;
-}
-
-.edit-check-btn {
-  background: #eee5dc;
-  color: #5c4033;
-}
-
-.delete-check-btn {
-  background: #ffe1e1;
-  color: #c62828;
-}
-
-.edit-check-btn:hover,
-.delete-check-btn:hover {
-  opacity: 0.8;
-}
-
-/* =========================
-   Empty
-========================= */
-.empty-checks {
-  padding: 40px !important;
-  color: #888;
-  text-align: center;
-}
-
-/* =========================
+/* =========================================
    Loading
-========================= */
-.checks-loading {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  direction: rtl;
-  font-size: 18px;
-  color: #5c4033;
-}
+========================================= */
 
-/* =========================
-   Modal
-========================= */
-.check-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  z-index: 9999;
-}
-
-.check-modal {
-  width: 100%;
-  max-width: 550px;
-  max-height: 90vh;
-  overflow-y: auto;
+.loading {
   background: white;
-  border-radius: 15px;
-  padding: 30px;
-  position: relative;
-  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
-  box-sizing: border-box;
-}
 
-.check-modal h2 {
-  margin: 0 0 25px;
+  padding: 60px 20px;
+
+  border-radius: 18px;
+
   text-align: center;
-  color: #5c4033;
+
+  color: #7d6b5e;
+
+  font-size: 18px;
 }
 
-.close-check-modal {
-  position: absolute;
-  top: 12px;
-  left: 15px;
-  width: 35px;
-  height: 35px;
-  border: none;
-  background: #f1f1f1;
-  color: #555;
-  border-radius: 50%;
-  font-size: 23px;
-  cursor: pointer;
+/* =========================================
+   Empty State
+========================================= */
+
+.empty-state {
+  background: white;
+
+  border: 1px dashed #d7c5b6;
+
+  border-radius: 20px;
+
+  padding: 70px 20px;
+
+  text-align: center;
+}
+
+.empty-state-icon {
+  font-size: 55px;
+  margin-bottom: 15px;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px;
+
+  color: #4d372c;
+  font-size: 22px;
+}
+
+.empty-state p {
+  margin: 0;
+
+  color: #8a7668;
+}
+
+/* =========================================
+   Customer Section
+========================================= */
+
+.customer-section {
+  background: white;
+
+  border: 1px solid #eadfd3;
+
+  border-radius: 20px;
+
+  margin-bottom: 28px;
+
+  overflow: hidden;
+
+  box-shadow: 0 6px 20px rgba(92, 64, 51, 0.07);
+}
+
+/* =========================================
+   Customer Header
+========================================= */
+
+.customer-section-header {
+  background: #fbf7f2;
+
+  border-bottom: 1px solid #eadfd3;
+
+  padding: 18px 22px;
+
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 }
 
-.check-modal form {
+.customer-info {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 13px;
 }
 
-.check-modal input,
-.check-modal select,
-.check-modal textarea {
-  width: 100%;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 12px;
-  font-family: inherit;
-  font-size: 14px;
-  outline: none;
-  direction: rtl;
-  box-sizing: border-box;
+.customer-icon {
+  width: 48px;
+  height: 48px;
+
+  border-radius: 50%;
+
+  background: #eadfd3;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 23px;
 }
 
-.check-modal input:focus,
-.check-modal select:focus,
-.check-modal textarea:focus {
-  border-color: #5c4033;
+.customer-info h2 {
+  margin: 0 0 4px;
+
+  font-size: 19px;
+  color: #4b3328;
 }
 
-.check-modal textarea {
-  resize: vertical;
+.customer-info span {
+  color: #8d796b;
+  font-size: 13px;
 }
 
-.save-check-btn {
+/* =========================================
+   زر +
+========================================= */
+
+.add-check-small {
+  width: 43px;
+  height: 43px;
+
+  border-radius: 50%;
+
   border: none;
+
   background: #5c4033;
   color: white;
-  padding: 13px;
-  border-radius: 8px;
+
+  font-size: 28px;
+  line-height: 1;
+
   cursor: pointer;
-  font-size: 15px;
-  margin-top: 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: 0.25s;
+
+  box-shadow: 0 5px 12px rgba(92, 64, 51, 0.2);
 }
 
-.save-check-btn:hover {
-  background: #432d24;
+.add-check-small:hover {
+  background: #463025;
+  transform: rotate(90deg) scale(1.05);
 }
 
-/* =========================
-   Responsive Breakpoints
-========================= */
+/* =========================================
+   Checks Grid
+========================================= */
 
-/* Tablets (1024px and below) - يبقى جدولاً طبيعياً مع سكرول أفقي */
-@media (max-width: 1024px) {
-  .checks-page {
-    padding: 20px;
+.customer-checks-grid {
+  padding: 22px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fill, minmax(310px, 1fr));
+
+  gap: 18px;
+}
+
+/* =========================================
+   Check Card
+========================================= */
+
+.check-card {
+  background: #fff;
+
+  border: 1px solid #e6d9ce;
+
+  border-radius: 17px;
+
+  padding: 18px;
+
+  position: relative;
+
+  transition:
+    transform 0.25s,
+    box-shadow 0.25s,
+    border-color 0.25s;
+
+  overflow: hidden;
+}
+
+.check-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
+  width: 5px;
+  height: 100%;
+
+  background: #5c4033;
+}
+
+.check-card:hover {
+  transform: translateY(-4px);
+
+  border-color: #cdb9a8;
+
+  box-shadow:
+    0 10px 25px rgba(92, 64, 51, 0.12);
+}
+
+/* =========================================
+   Card Top
+========================================= */
+
+.check-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  padding-bottom: 14px;
+
+  border-bottom: 1px solid #eee5dd;
+}
+
+.check-number {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.check-number span {
+  color: #918074;
+  font-size: 12px;
+}
+
+.check-number strong {
+  font-size: 20px;
+  color: #4d362b;
+}
+
+/* =========================================
+   Check Type
+========================================= */
+
+.check-type {
+  padding: 6px 12px;
+
+  border-radius: 20px;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.check-type.purchase {
+  background: #f1e5d9;
+  color: #704b34;
+}
+
+.check-type.sale {
+  background: #e7efe7;
+  color: #426247;
+}
+
+/* =========================================
+   Date + Notebook
+========================================= */
+
+.check-card-extra {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
+
+  margin-top: 14px;
+}
+
+.check-card-extra > div {
+  background: #faf7f3;
+
+  border-radius: 10px;
+
+  padding: 10px;
+
+  border: 1px solid #eee4da;
+}
+
+.check-card-extra span {
+  display: block;
+
+  color: #918074;
+
+  font-size: 11px;
+
+  margin-bottom: 5px;
+}
+
+.check-card-extra strong {
+  display: block;
+
+  color: #554036;
+
+  font-size: 13px;
+
+  word-break: break-word;
+}
+
+/* =========================================
+   Amount
+========================================= */
+
+.check-amount {
+  background: #f5ece3;
+
+  border-radius: 12px;
+
+  padding: 14px;
+
+  margin-top: 14px;
+
+  text-align: center;
+}
+
+.check-amount span {
+  display: block;
+
+  color: #806b5d;
+
+  font-size: 12px;
+
+  margin-bottom: 6px;
+}
+
+.check-amount strong {
+  display: block;
+
+  color: #4d3428;
+
+  font-size: 23px;
+
+  font-weight: 800;
+}
+
+/* =========================================
+   Details
+========================================= */
+
+.check-details {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 9px;
+
+  margin-top: 14px;
+}
+
+.check-details > div {
+  padding: 9px;
+
+  background: #fcfaf8;
+
+  border-radius: 9px;
+
+  border: 1px solid #eee7e0;
+
+  min-width: 0;
+}
+
+.check-details span {
+  display: block;
+
+  color: #958276;
+
+  font-size: 11px;
+
+  margin-bottom: 4px;
+}
+
+.check-details strong {
+  display: block;
+
+  color: #594338;
+
+  font-size: 13px;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+/* =========================================
+   Card Actions
+========================================= */
+
+.check-card-actions {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr 1fr;
+
+  gap: 7px;
+
+  margin-top: 16px;
+
+  padding-top: 14px;
+
+  border-top: 1px solid #eee5dd;
+}
+
+.check-card-actions button {
+  border: none;
+
+  padding: 9px 6px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  transition: 0.2s;
+}
+
+.check-card-actions button:hover {
+  transform: translateY(-2px);
+}
+
+.view-btn {
+  background: #eee8e1;
+  color: #594238;
+}
+
+.view-btn:hover {
+  background: #e1d7ce;
+}
+
+.edit-btn {
+  background: #f1e4d4;
+  color: #805426;
+}
+
+.edit-btn:hover {
+  background: #e7d6c0;
+}
+
+.delete-btn {
+  background: #f8e3e3;
+  color: #a23e3e;
+}
+
+.delete-btn:hover {
+  background: #f2cccc;
+}
+
+/* =========================================
+   New Check Card
+========================================= */
+
+.new-check-card {
+  min-height: 320px;
+
+  border-radius: 17px;
+
+  border: 2px dashed #cdb9a8;
+
+  background: #fdfbf8;
+
+  color: #684a3a;
+
+  cursor: pointer;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 8px;
+
+  transition: 0.25s;
+
+  padding: 25px;
+}
+
+.new-check-card:hover {
+  background: #f7efe7;
+
+  border-color: #8d6a55;
+
+  transform: translateY(-4px);
+}
+
+.new-check-card span {
+  width: 60px;
+  height: 60px;
+
+  border-radius: 50%;
+
+  background: #5c4033;
+  color: white;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 38px;
+
+  font-weight: 300;
+
+  transition: 0.25s;
+}
+
+.new-check-card:hover span {
+  transform: rotate(90deg);
+}
+
+.new-check-card strong {
+  font-size: 17px;
+}
+
+.new-check-card small {
+  color: #9a887b;
+  font-size: 12px;
+}
+
+/* =========================================
+   Modal Overlay
+========================================= */
+
+.modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(42, 29, 23, 0.62);
+
+  backdrop-filter: blur(4px);
+
+  z-index: 9999;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  overflow-y: auto;
+}
+
+/* =========================================
+   Modal
+========================================= */
+
+.modal {
+  width: min(720px, 100%);
+
+  max-height: 92vh;
+
+  overflow-y: auto;
+
+  background: #fff;
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.25);
+
+  animation: modalOpen 0.22s ease;
+}
+
+@keyframes modalOpen {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
-/* Mobile Devices (768px and below) - تحويل الجدول إلى كاردات */
-@media (max-width: 768px) {
-  .checks-page {
-    padding: 15px 10px;
+/* =========================================
+   Modal Header
+========================================= */
+
+.modal-header {
+  position: sticky;
+
+  top: 0;
+
+  z-index: 2;
+
+  background: #5c4033;
+
+  color: white;
+
+  padding: 18px 22px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.modal-header h2 {
+  margin: 0;
+
+  font-size: 21px;
+
+  line-height: 1.5;
+}
+
+.close-modal {
+  width: 38px;
+  height: 38px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.13);
+
+  color: white;
+
+  font-size: 28px;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+
+  flex-shrink: 0;
+}
+
+.close-modal:hover {
+  background: rgba(255, 255, 255, 0.25);
+
+  transform: rotate(90deg);
+}
+
+/* =========================================
+   Check Form
+========================================= */
+
+.check-form {
+  padding: 25px;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 17px;
+}
+
+.form-group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 13px;
+
+  font-weight: 700;
+
+  color: #594238;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #d9cabc;
+
+  background: #fff;
+
+  color: #44332b;
+
+  border-radius: 10px;
+
+  padding: 12px 13px;
+
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #7a5744;
+
+  box-shadow:
+    0 0 0 3px rgba(92, 64, 51, 0.09);
+}
+
+.form-group input:disabled {
+  background: #f3eee9;
+
+  color: #8b7b70;
+
+  cursor: not-allowed;
+}
+
+.form-group textarea {
+  min-height: 100px;
+
+  resize: vertical;
+}
+
+/* =========================================
+   Form Actions
+========================================= */
+
+.form-actions {
+  grid-column: 1 / -1;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
+
+  margin-top: 5px;
+
+  padding-top: 18px;
+
+  border-top: 1px solid #eee5dd;
+}
+
+.btn-save {
+  background: #5c4033;
+
+  color: white;
+
+  padding: 13px 20px;
+}
+
+.btn-save:hover {
+  background: #463025;
+}
+
+.btn-cancel {
+  background: #eee8e1;
+
+  color: #5b4539;
+
+  padding: 13px 20px;
+}
+
+.btn-cancel:hover {
+  background: #dfd6ce;
+}
+
+/* =========================================
+   View Check Modal
+========================================= */
+
+.check-view-modal {
+  width: min(650px, 100%);
+}
+
+.check-view {
+  padding: 22px 25px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.view-row {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 13px 15px;
+
+  background: #faf7f3;
+
+  border: 1px solid #eee4da;
+
+  border-radius: 10px;
+}
+
+.view-row span {
+  color: #88766a;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  flex-shrink: 0;
+}
+
+.view-row strong {
+  color: #49372d;
+
+  font-size: 14px;
+
+  text-align: left;
+
+  word-break: break-word;
+}
+
+.view-row .big-amount {
+  color: #5c4033;
+
+  font-size: 21px;
+
+  font-weight: 800;
+}
+
+/* =========================================
+   View Actions
+========================================= */
+
+.view-actions {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
+
+  padding: 0 25px 25px;
+}
+
+.view-actions .btn {
+  padding: 12px;
+}
+
+.btn-edit {
+  background: #f1e4d4;
+
+  color: #805426;
+}
+
+.btn-edit:hover {
+  background: #e6d4bd;
+}
+
+/* =========================================
+   Scrollbar
+========================================= */
+
+.modal::-webkit-scrollbar {
+  width: 7px;
+}
+
+.modal::-webkit-scrollbar-track {
+  background: #f4eee8;
+}
+
+.modal::-webkit-scrollbar-thumb {
+  background: #bda998;
+
+  border-radius: 10px;
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+  background: #9e8471;
+}
+
+/* =========================================
+   Tablet
+========================================= */
+
+@media (max-width: 900px) {
+
+  .store-navbar {
+    padding: 0 20px;
+  }
+
+  .checks-container {
+    width: 94%;
+  }
+
+  .customer-checks-grid {
+    grid-template-columns:
+      repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+}
+
+/* =========================================
+   Mobile
+========================================= */
+
+@media (max-width: 650px) {
+
+  .store-navbar {
+    min-height: auto;
+
+    padding: 15px;
+
+    flex-direction: column;
+
+    gap: 12px;
+  }
+
+  .store-logo {
+    font-size: 22px;
+  }
+
+  .store-links {
+    width: 100%;
+
+    justify-content: center;
+
+    gap: 5px;
+  }
+
+  .store-links a {
+    padding: 8px 10px;
+
+    font-size: 12px;
+  }
+
+  .checks-container {
+    width: 92%;
+
+    padding-top: 25px;
   }
 
   .checks-header {
     flex-direction: column;
+
     align-items: stretch;
-    gap: 15px;
+
+    text-align: center;
   }
 
   .checks-header h1 {
-    font-size: 24px;
+    font-size: 25px;
   }
 
-  .checks-header p {
-    font-size: 14px;
-  }
-
-  .add-check-btn {
+  .btn-add {
     width: 100%;
-    text-align: center;
-    padding: 12px;
   }
 
-  .checks-filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-    gap: 8px;
+  .checks-filter {
+    flex-wrap: wrap;
+
+    justify-content: center;
   }
 
-  .filter-btn {
+  .checks-filter > span {
     width: 100%;
+
     text-align: center;
-    padding: 10px;
-    font-size: 13px;
+
+    margin-bottom: 3px;
   }
 
-  /* --- هنا يبدأ تحويل الجدول إلى كاردات --- */
-  .checks-table-container {
-    background: transparent;
-    box-shadow: none;
-    overflow-x: visible;
-  }
-
-  .checks-table {
-    min-width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 12px;
-  }
-
-  .checks-table thead {
-    display: none; /* إخفاء رؤوس الجدول التقليدية */
-  }
-
-  .checks-table tbody tr {
-    display: block;
-    background: white;
-    margin-bottom: 12px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  .customer-section-header {
     padding: 15px;
-    border: 1px solid #e8e2dc;
   }
 
-  .checks-table tbody tr td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #f2f2f2;
-    text-align: left;
-    font-size: 14px;
+  .customer-info h2 {
+    font-size: 17px;
   }
 
-  .checks-table tbody tr td:last-child {
-    border-bottom: none;
-    padding-top: 12px;
+  .customer-checks-grid {
+    padding: 14px;
+
+    grid-template-columns: 1fr;
   }
 
-  /* إظهار تسميات البيانات بجانب كل قيمة في الكارد (يجب وضع attribute data-label في الـ HTML) */
-  .checks-table tbody tr td::before {
-    content: attr(data-label);
-    color: #777;
-    font-weight: 600;
+  .check-card {
+    padding: 15px;
   }
 
-  .check-actions {
-    width: 100%;
-    justify-content: stretch;
+  .new-check-card {
+    min-height: 220px;
   }
 
-  .edit-check-btn,
-  .delete-check-btn {
-    flex: 1;
-    text-align: center;
+  /* الفورم عمود واحد */
+
+  .check-form {
+    grid-template-columns: 1fr;
+
+    padding: 20px;
+  }
+
+  .form-group.full-width {
+    grid-column: auto;
+  }
+
+  .form-actions {
+    grid-column: auto;
+
+    grid-template-columns: 1fr;
+  }
+
+  .modal-overlay {
     padding: 10px;
   }
-  /* ------------------------------------- */
 
-  .check-modal {
-    padding: 20px 15px;
+  .modal {
     max-height: 95vh;
+
+    border-radius: 16px;
+  }
+
+  .modal-header {
+    padding: 15px 17px;
+  }
+
+  .modal-header h2 {
+    font-size: 17px;
+  }
+
+  .check-view {
+    padding: 16px;
+  }
+
+  .view-row {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 5px;
+  }
+
+  .view-row strong {
+    text-align: right;
+  }
+
+  .view-actions {
+    padding: 0 16px 18px;
+
+    grid-template-columns: 1fr;
   }
 }
 
-/* Small Mobile Devices (480px and below) */
-@media (max-width: 480px) {
-  .checks-page {
-    padding: 10px 8px;
+/* =========================================
+   Small Mobile
+========================================= */
+
+@media (max-width: 400px) {
+
+  .store-links a {
+    padding: 7px 8px;
+
+    font-size: 11px;
   }
 
   .checks-header h1 {
     font-size: 22px;
   }
 
-  .checks-filters {
-    grid-template-columns: 1fr 1fr;
+  .customer-checks-grid {
+    padding: 10px;
   }
 
-  .check-modal {
-    padding: 15px 12px;
+  .check-card-actions {
+    grid-template-columns: 1fr;
   }
 
-  .close-check-modal {
-    top: 8px;
-    left: 10px;
-    width: 30px;
-    height: 30px;
-    font-size: 18px;
+  .check-details {
+    grid-template-columns: 1fr;
   }
-}
-/* =================================
-   Inputs Direction
-================================= */
 
-.check-modal input,
-.check-modal textarea,
-.check-modal select {
-  direction: rtl;
-  text-align: right;
-  box-sizing: border-box;
-}
+  .check-card-extra {
+    grid-template-columns: 1fr;
+  }
 
-/* النصوص العربية */
-.check-modal input[type="text"],
-.check-modal textarea,
-.check-modal select {
-  direction: rtl;
-  text-align: right;
+  .check-amount strong {
+    font-size: 20px;
+  }
+}.check-card-actions .view-btn,
+.check-card-actions .edit-btn,
+.check-card-actions .delete-btn {
+  color: white;
 }
 
-/* الأرقام */
-.check-modal input[type="number"] {
-  direction: ltr;
-  text-align: left;
+/* ألوان الأزرار */
+.check-card-actions .view-btn {
+  background: #5c4033;
 }
 
-/* رقم الشيك ممكن يكون أرقام وحروف */
-.check-modal input[name="checkNumber"] {
-  direction: ltr;
-  text-align: left;
+.check-card-actions .edit-btn {
+  background: #8b623f;
 }
 
-/* Placeholder */
-.check-modal input::placeholder,
-.check-modal textarea::placeholder {
-  direction: rtl;
-  text-align: right;
+.check-card-actions .delete-btn {
+  background: #a94442;
 }
 
-/* =================================
-   Textarea
-================================= */
-
-.check-modal textarea {
-  resize: vertical;
-  min-height: 100px;
-  line-height: 1.7;
+/* Hover */
+.check-card-actions .view-btn:hover {
+  background: #463025;
 }
 
-/* =================================
-   Select
-================================= */
-
-.check-modal select {
-  cursor: pointer;
+.check-card-actions .edit-btn:hover {
+  background: #704b2f;
 }
 
-/* =================================
-   Form
-================================= */
-
-.check-modal form {
-  direction: rtl;
-}
-
-.check-modal form input,
-.check-modal form select,
-.check-modal form textarea {
-  width: 100%;
-  font-family: inherit;
-  font-size: 15px;
-}
-
-/* لما يكون الحقل فيه أرقام */
-.check-modal input[type="number"]::placeholder {
-  direction: rtl;
-  text-align: right;
-}
-
-.check-modal {
-  direction: rtl;
-}
-
-.check-modal form {
-  direction: rtl;
-}
-
-.check-modal input,
-.check-modal select,
-.check-modal textarea {
-  width: 100%;
-  box-sizing: border-box;
-  font-family: inherit;
-}
-
-.check-modal input[type="text"],
-.check-modal textarea,
-.check-modal select {
-  direction: rtl;
-  text-align: right;
-}
-
-.check-modal input[type="number"] {
-  direction: ltr;
-  text-align: left;
-}
-
-.check-modal input[name="checkNumber"] {
-  direction: ltr;
-  text-align: left;
-}
-
-.check-modal input::placeholder,
-.check-modal textarea::placeholder {
-  direction: rtl;
-  text-align: right;
+.check-card-actions .delete-btn:hover {
+  background: #843735;
 }

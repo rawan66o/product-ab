@@ -3,77 +3,140 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Login() {
+  // =====================================================
+  // API
+  // =====================================================
+
+  const API_URL = "https://abdbac2-11.onrender.com";
+
+  // =====================================================
+  // State
+  // =====================================================
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
+  // =====================================================
+  // LOGIN
+  // =====================================================
 
   const handleLogin = async (e) => {
-
     e.preventDefault();
 
     setError("");
+    setLoading(true);
 
     try {
-
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/users`
+        `${API_URL}/users`,
+        {
+          timeout: 20000,
+        }
       );
+
+      console.log("USERS RESPONSE:", response.data);
 
       const users = response.data;
 
+      if (!Array.isArray(users)) {
+        setError(
+          "بيانات المستخدمين القادمة من السيرفر غير صحيحة"
+        );
+        return;
+      }
 
+      // البحث عن المستخدم
       const user = users.find(
-        (user) =>
-          user.email === email &&
-          user.password === password
+        (item) =>
+          String(item.email).trim().toLowerCase() ===
+            String(email).trim().toLowerCase() &&
+          String(item.password) ===
+            String(password)
       );
 
-
       if (user) {
+        // =================================================
+        // حفظ بيانات المستخدم
+        // =================================================
 
-        // حفظ بيانات الأدمن
         localStorage.setItem(
           "user",
           JSON.stringify(user)
         );
 
+        // =================================================
         // الانتقال إلى Dashboard
+        // =================================================
+
         navigate("/dashboard");
 
       } else {
-
         setError(
           "البريد الإلكتروني أو كلمة المرور غير صحيحة"
         );
-
       }
 
     } catch (error) {
-
-      console.log(error);
-
-      setError(
-        "حدث خطأ في الاتصال بالسيرفر"
+      console.log(
+        "LOGIN ERROR:",
+        error
       );
 
-    }
+      console.log(
+        "STATUS:",
+        error.response?.status
+      );
 
+      console.log(
+        "DATA:",
+        error.response?.data
+      );
+
+      console.log(
+        "URL:",
+        error.config?.url
+      );
+
+      if (
+        error.code ===
+        "ECONNABORTED"
+      ) {
+        setError(
+          "السيرفر تأخر بالاستجابة، حاول مرة ثانية"
+        );
+      } else if (error.response) {
+        setError(
+          `حدث خطأ من السيرفر (${error.response.status})`
+        );
+      } else {
+        setError(
+          "حدث خطأ في الاتصال بالسيرفر"
+        );
+      }
+
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // =====================================================
+  // UI
+  // =====================================================
 
   return (
-
     <div className="login-page">
 
       <div className="login-card">
 
+        {/* ==========================================
+            Header
+        =========================================== */}
 
-        {/* Header */}
         <div className="login-header">
 
           <div className="login-icon">
@@ -90,12 +153,14 @@ function Login() {
 
         </div>
 
+        {/* ==========================================
+            Form
+        =========================================== */}
 
-        {/* Form */}
         <form onSubmit={handleLogin}>
 
-
           {/* Email */}
+
           <div className="login-input">
 
             <label>
@@ -104,7 +169,7 @@ function Login() {
 
             <input
               type="email"
-              placeholder="Enter your email"
+              placeholder="أدخل البريد الإلكتروني"
               value={email}
               onChange={(e) =>
                 setEmail(e.target.value)
@@ -114,8 +179,8 @@ function Login() {
 
           </div>
 
-
           {/* Password */}
+
           <div className="login-input">
 
             <label>
@@ -124,7 +189,7 @@ function Login() {
 
             <input
               type="password"
-              placeholder="Enter your password"
+              placeholder="أدخل كلمة المرور"
               value={password}
               onChange={(e) =>
                 setPassword(e.target.value)
@@ -134,40 +199,45 @@ function Login() {
 
           </div>
 
-
           {/* Error */}
+
           {error && (
             <div className="login-error">
               {error}
             </div>
           )}
 
+          {/* Login Button */}
 
-          {/* Button */}
           <button
             type="submit"
             className="login-btn"
+            disabled={loading}
           >
-            تسجيل الدخول
+            {loading
+              ? "جاري تسجيل الدخول..."
+              : "تسجيل الدخول"}
           </button>
-
 
         </form>
 
+        {/* ==========================================
+            Back
+        =========================================== */}
 
-        {/* Back */}
         <button
+          type="button"
           className="back-store-btn"
-          onClick={() => navigate("/products")}
+          onClick={() =>
+            navigate("/products")
+          }
         >
           ← العودة إلى المنتجات
         </button>
 
-
       </div>
 
     </div>
-
   );
 }
 

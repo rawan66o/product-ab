@@ -1,4 +1,3 @@
-
 import {
   BrowserRouter,
   Routes,
@@ -13,9 +12,9 @@ import Checks from "./components/Checks";
 
 import "./App.css";
 
-// ===============================
+// =========================================
 // Protected Route
-// ===============================
+// =========================================
 
 function ProtectedRoute({ children }) {
   const user = localStorage.getItem("user");
@@ -27,22 +26,30 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
-// ===============================
+// =========================================
 // Dashboard
-// ===============================
+// =========================================
 
 function Dashboard() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(
+    localStorage.getItem("user")
+  );
 
   const logout = () => {
     localStorage.removeItem("user");
+
     window.location.href = "/products";
   };
 
   return (
-    <div className="dashboard">
+    <div
+      className="dashboard"
+      dir="rtl"
+      lang="ar"
+    >
 
       {/* Sidebar */}
+
       <aside className="sidebar">
 
         <div className="logo">
@@ -84,6 +91,7 @@ function Dashboard() {
       </aside>
 
       {/* Main */}
+
       <main className="dashboard-main">
 
         <div className="dashboard-header">
@@ -101,6 +109,7 @@ function Dashboard() {
         <div className="dashboard-cards">
 
           {/* Products */}
+
           <div className="dashboard-card">
 
             <div className="card-icon">
@@ -125,6 +134,7 @@ function Dashboard() {
           </div>
 
           {/* User */}
+
           <div className="dashboard-card">
 
             <div className="card-icon">
@@ -142,6 +152,7 @@ function Dashboard() {
           </div>
 
           {/* Dashboard */}
+
           <div className="dashboard-card">
 
             <div className="card-icon">
@@ -166,75 +177,88 @@ function Dashboard() {
   );
 }
 
-// ===============================
+// =========================================
 // App
-// ===============================
+// =========================================
 
 function App() {
   return (
-    <BrowserRouter>
+    <div
+      lang="ar"
+      dir="rtl"
+      className="app"
+    >
 
-      <Routes>
+      <BrowserRouter>
 
-        {/* Home */}
-        <Route
-          path="/"
-          element={
-            <Navigate
-              to="/products"
-              replace
-            />
-          }
-        />
+        <Routes>
 
-        {/* Products - Public */}
-        <Route
-          path="/products"
-          element={<Products />}
-        />
+          {/* Home */}
 
-        {/* Login */}
-        <Route
-          path="/login"
-          element={<Login />}
-        />
+          <Route
+            path="/"
+            element={
+              <Navigate
+                to="/products"
+                replace
+              />
+            }
+          />
 
-        {/* Dashboard - Protected */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+          {/* Products */}
 
-        {/* Checks - Protected */}
-        <Route
-          path="/checks"
-          element={
-            <ProtectedRoute>
-              <Checks />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/products"
+            element={<Products />}
+          />
 
-        {/* Any wrong URL */}
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to="/products"
-              replace
-            />
-          }
-        />
+          {/* Login */}
 
-      </Routes>
+          <Route
+            path="/login"
+            element={<Login />}
+          />
 
-    </BrowserRouter>
+          {/* Dashboard */}
+
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Checks */}
+
+          <Route
+            path="/checks"
+            element={
+              <ProtectedRoute>
+                <Checks />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Wrong URL */}
+
+          <Route
+            path="*"
+            element={
+              <Navigate
+                to="/products"
+                replace
+              />
+            }
+          />
+
+        </Routes>
+
+      </BrowserRouter>
+
+    </div>
   );
 }
 
 export default App;
-
