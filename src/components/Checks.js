@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -28,6 +27,7 @@ const emptyForm = {
   date: "",
   checkNumber: "",
   bookNumber: "",
+  exchangeRate: "",
   type: "شراء",
   notes: "",
   items: [{ ...emptyItem }],
@@ -142,6 +142,13 @@ const normalizeCheck = (check) => {
       bookNumber:
         check.bookNumber || "",
 
+      // سعر الدولار وقت إنشاء الكشف
+      exchangeRate:
+        check.exchangeRate ??
+        check.dollarRate ??
+        check.usdRate ??
+        "",
+
       items: check.items.map((item) => ({
         productType:
           item.productType || "",
@@ -180,6 +187,12 @@ const normalizeCheck = (check) => {
 
     bookNumber:
       check.bookNumber || "",
+
+    exchangeRate:
+      check.exchangeRate ??
+      check.dollarRate ??
+      check.usdRate ??
+      "",
 
     items: [
       {
@@ -270,7 +283,10 @@ function CheckForm({
           onSubmit={handleSubmit}
         >
 
+          {/* =============================== */}
           {/* بيانات الزبون */}
+          {/* =============================== */}
+
           <div className="form-section-title">
             بيانات الزبون
           </div>
@@ -313,7 +329,10 @@ function CheckForm({
 
           </div>
 
+          {/* =============================== */}
           {/* بيانات الكشف */}
+          {/* =============================== */}
+
           <div className="form-section-title">
             بيانات الكشف
           </div>
@@ -336,6 +355,7 @@ function CheckForm({
           </div>
 
           {/* رقم الدفتر */}
+
           <div className="form-group">
 
             <label>
@@ -353,6 +373,8 @@ function CheckForm({
 
           </div>
 
+          {/* التاريخ */}
+
           <div className="form-group">
 
             <label>
@@ -368,6 +390,8 @@ function CheckForm({
             />
 
           </div>
+
+          {/* نوع الكشف */}
 
           <div className="form-group">
 
@@ -393,7 +417,36 @@ function CheckForm({
 
           </div>
 
+          {/* =============================== */}
+          {/* سعر الدولار */}
+          {/* =============================== */}
+
+          <div className="form-group exchange-rate-group">
+
+            <label>
+              سعر الدولار وقت إنشاء الكشف
+            </label>
+
+            <input
+              type="text"
+              inputMode="decimal"
+              name="exchangeRate"
+              value={formData.exchangeRate}
+              onChange={handleChange}
+              placeholder="مثال: 13,333"
+              required
+            />
+
+            <small>
+              يتم حفظ سعر الدولار مع هذا الكشف
+            </small>
+
+          </div>
+
+          {/* =============================== */}
           {/* المواد */}
+          {/* =============================== */}
+
           <div className="form-section-title items-title">
 
             <span>
@@ -414,6 +467,7 @@ function CheckForm({
 
             {formData.items.map(
               (item, index) => (
+
                 <div
                   className="item-box"
                   key={index}
@@ -442,6 +496,7 @@ function CheckForm({
                   <div className="item-grid">
 
                     {/* نوع البضاعة */}
+
                     <div className="form-group">
 
                       <label>
@@ -467,6 +522,7 @@ function CheckForm({
                     </div>
 
                     {/* المواصفات */}
+
                     <div className="form-group">
 
                       <label>
@@ -491,6 +547,7 @@ function CheckForm({
                     </div>
 
                     {/* العدد */}
+
                     <div className="form-group">
 
                       <label>
@@ -517,6 +574,7 @@ function CheckForm({
                     </div>
 
                     {/* السعر بالدولار */}
+
                     <div className="form-group">
 
                       <label>
@@ -543,6 +601,7 @@ function CheckForm({
                     </div>
 
                     {/* السعر بالسوري */}
+
                     <div className="form-group">
 
                       <label>
@@ -576,10 +635,14 @@ function CheckForm({
 
           </div>
 
+          {/* =============================== */}
           {/* الإجماليات */}
+          {/* =============================== */}
+
           <div className="total-preview">
 
             <div>
+
               <span>
                 القيمة الإجمالية بالدولار
               </span>
@@ -591,9 +654,11 @@ function CheckForm({
                   totalUsd.toFixed(2)
                 )}
               </strong>
+
             </div>
 
             <div>
+
               <span>
                 القيمة الإجمالية بالسوري
               </span>
@@ -605,11 +670,15 @@ function CheckForm({
                 {" "}
                 ل.س
               </strong>
+
             </div>
 
           </div>
 
+          {/* =============================== */}
           {/* الملاحظات */}
+          {/* =============================== */}
+
           <div className="form-section-title">
             ملاحظات
           </div>
@@ -629,7 +698,10 @@ function CheckForm({
 
           </div>
 
+          {/* =============================== */}
           {/* الأزرار */}
+          {/* =============================== */}
+
           <div className="form-actions">
 
             <button
@@ -750,6 +822,36 @@ function Checks() {
       name,
       value,
     } = e.target;
+
+    // تنسيق سعر الدولار
+    if (name === "exchangeRate") {
+
+      let cleanValue =
+        value.replace(/[^\d.]/g, "");
+
+      const parts =
+        cleanValue.split(".");
+
+      if (parts.length > 2) {
+
+        cleanValue =
+          parts[0] +
+          "." +
+          parts.slice(1).join("");
+
+      }
+
+      cleanValue =
+        formatNumber(cleanValue);
+
+      setFormData((prev) => ({
+        ...prev,
+        exchangeRate:
+          cleanValue,
+      }));
+
+      return;
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -981,6 +1083,15 @@ function Checks() {
         bookNumber:
           formData.bookNumber.trim(),
 
+        // ==========================================
+        // سعر الدولار وقت إنشاء الكشف
+        // ==========================================
+
+        exchangeRate:
+          toNumber(
+            formData.exchangeRate
+          ),
+
         type:
           formData.type,
 
@@ -1025,6 +1136,11 @@ function Checks() {
         notes:
           formData.notes.trim(),
       };
+
+      console.log(
+        "البيانات المرسلة:",
+        newCheck
+      );
 
       const response =
         await axios.post(
@@ -1144,6 +1260,14 @@ function Checks() {
       bookNumber:
         normalized.bookNumber || "",
 
+      // سعر الدولار المحفوظ
+      exchangeRate:
+        normalized.exchangeRate !== ""
+          ? formatNumber(
+              normalized.exchangeRate
+            )
+          : "",
+
       type:
         normalized.type || "شراء",
 
@@ -1155,6 +1279,7 @@ function Checks() {
         normalized.items.length
           ? normalized.items.map(
               (item) => ({
+
                 productType:
                   item.productType || "",
 
@@ -1175,6 +1300,7 @@ function Checks() {
                   formatNumber(
                     item.priceSyp
                   ),
+
               })
             )
           : [
@@ -1226,6 +1352,15 @@ function Checks() {
         bookNumber:
           formData.bookNumber.trim(),
 
+        // ==========================================
+        // سعر الدولار وقت الكشف
+        // ==========================================
+
+        exchangeRate:
+          toNumber(
+            formData.exchangeRate
+          ),
+
         type:
           formData.type,
 
@@ -1270,6 +1405,11 @@ function Checks() {
         notes:
           formData.notes.trim(),
       };
+
+      console.log(
+        "بيانات التعديل:",
+        updatedCheck
+      );
 
       const response =
         await axios.put(
@@ -1320,6 +1460,7 @@ function Checks() {
       value === "شراء" ||
       value === "purchase"
     ) {
+
       return "شراء";
     }
 
@@ -1327,6 +1468,7 @@ function Checks() {
       value === "بيع" ||
       value === "sale"
     ) {
+
       return "بيع";
     }
 
@@ -1428,6 +1570,7 @@ function Checks() {
     <div className="checks-page">
 
       {/* Navbar */}
+
       <nav className="store-navbar">
 
         <div className="store-logo">
@@ -1453,9 +1596,11 @@ function Checks() {
       </nav>
 
       {/* Main */}
+
       <main className="checks-container">
 
         {/* Header */}
+
         <div className="checks-header">
 
           <div>
@@ -1482,6 +1627,7 @@ function Checks() {
         </div>
 
         {/* Error */}
+
         {error && (
           <div className="error-message">
             {error}
@@ -1489,6 +1635,7 @@ function Checks() {
         )}
 
         {/* Filter */}
+
         <div className="checks-filter">
 
           <span>
@@ -1537,6 +1684,7 @@ function Checks() {
         </div>
 
         {/* Loading */}
+
         {loading ? (
 
           <div className="loading">
@@ -1586,6 +1734,7 @@ function Checks() {
                   >
 
                     {/* Customer Header */}
+
                     <div className="customer-section-header">
 
                       <div className="customer-info">
@@ -1630,6 +1779,7 @@ function Checks() {
                     </div>
 
                     {/* كشوف الزبون */}
+
                     <div className="customer-checks-grid">
 
                       {customerChecks.map(
@@ -1658,6 +1808,7 @@ function Checks() {
                             >
 
                               {/* أعلى الكرت */}
+
                               <div className="check-card-top">
 
                                 <div className="check-number">
@@ -1703,6 +1854,7 @@ function Checks() {
                               </div>
 
                               {/* التاريخ */}
+
                               <div className="check-card-extra">
 
                                 <div>
@@ -1720,9 +1872,30 @@ function Checks() {
 
                                 </div>
 
+                                {/* سعر الدولار */}
+
+                                <div>
+
+                                  <span>
+                                    سعر الدولار
+                                  </span>
+
+                                  <strong>
+                                    {check.exchangeRate
+                                      ? formatNumber(
+                                          check.exchangeRate
+                                        )
+                                      : "-"}
+                                    {" "}
+                                    ل.س
+                                  </strong>
+
+                                </div>
+
                               </div>
 
                               {/* القيمة الإجمالية */}
+
                               <div className="check-amount">
 
                                 <div>
@@ -1760,6 +1933,7 @@ function Checks() {
                               </div>
 
                               {/* عدد المواد */}
+
                               <div className="check-details">
 
                                 <div>
@@ -1797,6 +1971,7 @@ function Checks() {
                               </div>
 
                               {/* المواد */}
+
                               <div className="card-products">
 
                                 {normalized.items
@@ -1854,6 +2029,7 @@ function Checks() {
                               </div>
 
                               {/* الأزرار */}
+
                               <div className="check-card-actions">
 
                                 <button
@@ -1897,6 +2073,7 @@ function Checks() {
                       )}
 
                       {/* كرت كشف جديد */}
+
                       <button
                         className="new-check-card"
                         onClick={() =>
@@ -1934,6 +2111,7 @@ function Checks() {
       </main>
 
       {/* Add / Edit Modal */}
+
       {showAddForm && (
 
         <CheckForm
@@ -1959,6 +2137,7 @@ function Checks() {
       )}
 
       {/* View Check Modal */}
+
       {openedCheck && (
 
         <div className="modal-overlay">
@@ -1966,6 +2145,7 @@ function Checks() {
           <div className="modal check-view-modal">
 
             {/* Header */}
+
             <div className="modal-header">
 
               <div>
@@ -2001,6 +2181,7 @@ function Checks() {
             </div>
 
             {/* Details */}
+
             <div className="check-view">
 
               <div className="view-row">
@@ -2049,6 +2230,7 @@ function Checks() {
               </div>
 
               {/* رقم الدفتر */}
+
               <div className="view-row">
 
                 <span>
@@ -2064,6 +2246,8 @@ function Checks() {
 
               </div>
 
+              {/* التاريخ */}
+
               <div className="view-row">
 
                 <span>
@@ -2078,6 +2262,8 @@ function Checks() {
                 </strong>
 
               </div>
+
+              {/* نوع الكشف */}
 
               <div className="view-row">
 
@@ -2095,7 +2281,30 @@ function Checks() {
 
               </div>
 
+              {/* =============================== */}
+              {/* سعر الدولار */}
+              {/* =============================== */}
+
+              <div className="view-row exchange-rate-view">
+
+                <span>
+                  سعر الدولار وقت إنشاء الكشف
+                </span>
+
+                <strong>
+                  {openedCheck.exchangeRate
+                    ? formatNumber(
+                        openedCheck.exchangeRate
+                      )
+                    : "-"}
+                  {" "}
+                  ل.س
+                </strong>
+
+              </div>
+
               {/* المواد */}
+
               <div className="view-items">
 
                 <h3>
@@ -2208,6 +2417,7 @@ function Checks() {
               </div>
 
               {/* الإجماليات */}
+
               <div className="view-total">
 
                 <div>
@@ -2249,6 +2459,7 @@ function Checks() {
               </div>
 
               {/* الملاحظات */}
+
               <div className="view-row notes-row">
 
                 <span>
@@ -2267,6 +2478,7 @@ function Checks() {
             </div>
 
             {/* Actions */}
+
             <div className="view-actions">
 
               <button
@@ -2308,4 +2520,3 @@ function Checks() {
 }
 
 export default Checks;
-
