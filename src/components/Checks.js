@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -85,14 +86,16 @@ const toNumber = (value) => {
     return 0;
   }
 
-  return Number(cleaned);
+  const number = Number(cleaned);
+
+  return isNaN(number) ? 0 : number;
 };
 
 // =====================================================
-// حساب الإجمالي بالدولار
+// حساب إجمالي كشف واحد بالدولار
 // =====================================================
 
-const calculateTotalUsd = (items) => {
+const calculateTotalUsd = (items = []) => {
   return items.reduce((total, item) => {
     const quantity = toNumber(item.quantity);
     const priceUsd = toNumber(item.priceUsd);
@@ -102,15 +105,47 @@ const calculateTotalUsd = (items) => {
 };
 
 // =====================================================
-// حساب الإجمالي بالسوري
+// حساب إجمالي كشف واحد بالسوري
 // =====================================================
 
-const calculateTotalSyp = (items) => {
+const calculateTotalSyp = (items = []) => {
   return items.reduce((total, item) => {
     const quantity = toNumber(item.quantity);
     const priceSyp = toNumber(item.priceSyp);
 
     return total + quantity * priceSyp;
+  }, 0);
+};
+
+// =====================================================
+// حساب إجمالي كل كشوف الزبون بالدولار
+// =====================================================
+
+const calculateCustomerTotalUsd = (customerChecks = []) => {
+  return customerChecks.reduce((total, check) => {
+    const normalized = normalizeCheck(check);
+
+    const checkTotal = calculateTotalUsd(
+      normalized.items || []
+    );
+
+    return total + checkTotal;
+  }, 0);
+};
+
+// =====================================================
+// حساب إجمالي كل كشوف الزبون بالسوري
+// =====================================================
+
+const calculateCustomerTotalSyp = (customerChecks = []) => {
+  return customerChecks.reduce((total, check) => {
+    const normalized = normalizeCheck(check);
+
+    const checkTotal = calculateTotalSyp(
+      normalized.items || []
+    );
+
+    return total + checkTotal;
   }, 0);
 };
 
@@ -142,7 +177,6 @@ const normalizeCheck = (check) => {
       bookNumber:
         check.bookNumber || "",
 
-      // سعر الدولار وقت إنشاء الكشف
       exchangeRate:
         check.exchangeRate ??
         check.dollarRate ??
@@ -283,9 +317,7 @@ function CheckForm({
           onSubmit={handleSubmit}
         >
 
-          {/* =============================== */}
           {/* بيانات الزبون */}
-          {/* =============================== */}
 
           <div className="form-section-title">
             بيانات الزبون
@@ -329,9 +361,7 @@ function CheckForm({
 
           </div>
 
-          {/* =============================== */}
           {/* بيانات الكشف */}
-          {/* =============================== */}
 
           <div className="form-section-title">
             بيانات الكشف
@@ -354,8 +384,6 @@ function CheckForm({
 
           </div>
 
-          {/* رقم الدفتر */}
-
           <div className="form-group">
 
             <label>
@@ -373,8 +401,6 @@ function CheckForm({
 
           </div>
 
-          {/* التاريخ */}
-
           <div className="form-group">
 
             <label>
@@ -390,8 +416,6 @@ function CheckForm({
             />
 
           </div>
-
-          {/* نوع الكشف */}
 
           <div className="form-group">
 
@@ -417,9 +441,7 @@ function CheckForm({
 
           </div>
 
-          {/* =============================== */}
           {/* سعر الدولار */}
-          {/* =============================== */}
 
           <div className="form-group exchange-rate-group">
 
@@ -443,9 +465,7 @@ function CheckForm({
 
           </div>
 
-          {/* =============================== */}
           {/* المواد */}
-          {/* =============================== */}
 
           <div className="form-section-title items-title">
 
@@ -495,8 +515,6 @@ function CheckForm({
 
                   <div className="item-grid">
 
-                    {/* نوع البضاعة */}
-
                     <div className="form-group">
 
                       <label>
@@ -521,8 +539,6 @@ function CheckForm({
 
                     </div>
 
-                    {/* المواصفات */}
-
                     <div className="form-group">
 
                       <label>
@@ -545,8 +561,6 @@ function CheckForm({
                       />
 
                     </div>
-
-                    {/* العدد */}
 
                     <div className="form-group">
 
@@ -573,8 +587,6 @@ function CheckForm({
 
                     </div>
 
-                    {/* السعر بالدولار */}
-
                     <div className="form-group">
 
                       <label>
@@ -599,8 +611,6 @@ function CheckForm({
                       />
 
                     </div>
-
-                    {/* السعر بالسوري */}
 
                     <div className="form-group">
 
@@ -635,9 +645,7 @@ function CheckForm({
 
           </div>
 
-          {/* =============================== */}
-          {/* الإجماليات */}
-          {/* =============================== */}
+          {/* إجماليات الكشف */}
 
           <div className="total-preview">
 
@@ -675,9 +683,7 @@ function CheckForm({
 
           </div>
 
-          {/* =============================== */}
           {/* الملاحظات */}
-          {/* =============================== */}
 
           <div className="form-section-title">
             ملاحظات
@@ -698,9 +704,7 @@ function CheckForm({
 
           </div>
 
-          {/* =============================== */}
           {/* الأزرار */}
-          {/* =============================== */}
 
           <div className="form-actions">
 
@@ -823,7 +827,6 @@ function Checks() {
       value,
     } = e.target;
 
-    // تنسيق سعر الدولار
     if (name === "exchangeRate") {
 
       let cleanValue =
@@ -1083,10 +1086,6 @@ function Checks() {
         bookNumber:
           formData.bookNumber.trim(),
 
-        // ==========================================
-        // سعر الدولار وقت إنشاء الكشف
-        // ==========================================
-
         exchangeRate:
           toNumber(
             formData.exchangeRate
@@ -1260,7 +1259,6 @@ function Checks() {
       bookNumber:
         normalized.bookNumber || "",
 
-      // سعر الدولار المحفوظ
       exchangeRate:
         normalized.exchangeRate !== ""
           ? formatNumber(
@@ -1351,10 +1349,6 @@ function Checks() {
 
         bookNumber:
           formData.bookNumber.trim(),
-
-        // ==========================================
-        // سعر الدولار وقت الكشف
-        // ==========================================
 
         exchangeRate:
           toNumber(
@@ -1726,6 +1720,20 @@ function Checks() {
                     customerName
                   );
 
+                // =================================================
+                // إجمالي جميع كشوف هذا الزبون
+                // =================================================
+
+                const customerTotalUsd =
+                  calculateCustomerTotalUsd(
+                    customerChecks
+                  );
+
+                const customerTotalSyp =
+                  calculateCustomerTotalSyp(
+                    customerChecks
+                  );
+
                 return (
 
                   <div
@@ -1775,6 +1783,58 @@ function Checks() {
                       >
                         +
                       </button>
+
+                    </div>
+
+                    {/* ================================================= */}
+                    {/* إجمالي كشوف الزبون */}
+                    {/* ================================================= */}
+
+                    <div className="customer-total-box">
+
+                      <div className="customer-total-title">
+                        إجمالي جميع كشوف الزبون
+                      </div>
+
+                      <div className="customer-total-values">
+
+                        {/* الدولار */}
+
+                        <div className="customer-total-item usd-total">
+
+                          <span>
+                            الإجمالي بالدولار
+                          </span>
+
+                          <strong>
+                            $
+                            {" "}
+                            {formatNumber(
+                              customerTotalUsd.toFixed(2)
+                            )}
+                          </strong>
+
+                        </div>
+
+                        {/* السوري */}
+
+                        <div className="customer-total-item syp-total">
+
+                          <span>
+                            الإجمالي بالسوري
+                          </span>
+
+                          <strong>
+                            {formatNumber(
+                              customerTotalSyp.toFixed(0)
+                            )}
+                            {" "}
+                            ل.س
+                          </strong>
+
+                        </div>
+
+                      </div>
 
                     </div>
 
@@ -1853,7 +1913,7 @@ function Checks() {
 
                               </div>
 
-                              {/* التاريخ */}
+                              {/* التاريخ وسعر الدولار */}
 
                               <div className="check-card-extra">
 
@@ -1871,8 +1931,6 @@ function Checks() {
                                   </strong>
 
                                 </div>
-
-                                {/* سعر الدولار */}
 
                                 <div>
 
@@ -1894,7 +1952,7 @@ function Checks() {
 
                               </div>
 
-                              {/* القيمة الإجمالية */}
+                              {/* القيمة الإجمالية للكشف */}
 
                               <div className="check-amount">
 
@@ -2229,8 +2287,6 @@ function Checks() {
 
               </div>
 
-              {/* رقم الدفتر */}
-
               <div className="view-row">
 
                 <span>
@@ -2246,8 +2302,6 @@ function Checks() {
 
               </div>
 
-              {/* التاريخ */}
-
               <div className="view-row">
 
                 <span>
@@ -2262,8 +2316,6 @@ function Checks() {
                 </strong>
 
               </div>
-
-              {/* نوع الكشف */}
 
               <div className="view-row">
 
@@ -2281,9 +2333,7 @@ function Checks() {
 
               </div>
 
-              {/* =============================== */}
               {/* سعر الدولار */}
-              {/* =============================== */}
 
               <div className="view-row exchange-rate-view">
 
@@ -2416,7 +2466,7 @@ function Checks() {
 
               </div>
 
-              {/* الإجماليات */}
+              {/* إجمالي الكشف */}
 
               <div className="view-total">
 
@@ -2520,3 +2570,4 @@ function Checks() {
 }
 
 export default Checks;
+
