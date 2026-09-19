@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -19,6 +18,22 @@ const emptyItem = {
 };
 
 // =====================================================
+// تحديد حالة الدفع الافتراضية حسب نوع الكشف
+// =====================================================
+
+const getDefaultPaymentStatus = (type) => {
+  if (type === "بيع" || type === "sale") {
+    return "غير مقبوض";
+  }
+
+  if (type === "شراء" || type === "purchase") {
+    return "غير مدفوع";
+  }
+
+  return "";
+};
+
+// =====================================================
 // فورم الكشف الفارغ
 // =====================================================
 
@@ -30,6 +45,7 @@ const emptyForm = {
   bookNumber: "",
   exchangeRate: "",
   type: "شراء",
+  paymentStatus: "غير مدفوع",
   notes: "",
   items: [{ ...emptyItem }],
 };
@@ -118,38 +134,6 @@ const calculateTotalSyp = (items = []) => {
 };
 
 // =====================================================
-// حساب إجمالي كل كشوف الزبون بالدولار
-// =====================================================
-
-const calculateCustomerTotalUsd = (customerChecks = []) => {
-  return customerChecks.reduce((total, check) => {
-    const normalized = normalizeCheck(check);
-
-    const checkTotal = calculateTotalUsd(
-      normalized.items || []
-    );
-
-    return total + checkTotal;
-  }, 0);
-};
-
-// =====================================================
-// حساب إجمالي كل كشوف الزبون بالسوري
-// =====================================================
-
-const calculateCustomerTotalSyp = (customerChecks = []) => {
-  return customerChecks.reduce((total, check) => {
-    const normalized = normalizeCheck(check);
-
-    const checkTotal = calculateTotalSyp(
-      normalized.items || []
-    );
-
-    return total + checkTotal;
-  }, 0);
-};
-
-// =====================================================
 // تحويل البيانات القديمة إلى الشكل الجديد
 // =====================================================
 
@@ -158,7 +142,14 @@ const normalizeCheck = (check) => {
     return check;
   }
 
-  // إذا كان الكشف جديد
+  const defaultStatus = getDefaultPaymentStatus(
+    check.type
+  );
+
+  // ===================================================
+  // إذا كان الكشف جديد ويحتوي على items
+  // ===================================================
+
   if (Array.isArray(check.items)) {
     return {
       ...check,
@@ -183,6 +174,13 @@ const normalizeCheck = (check) => {
         check.usdRate ??
         "",
 
+      // مهم:
+      // نحافظ على حالة الكشف نفسها
+      // وإذا كانت غير موجودة نضع الحالة الافتراضية
+      paymentStatus:
+        check.paymentStatus ||
+        defaultStatus,
+
       items: check.items.map((item) => ({
         productType:
           item.productType || "",
@@ -204,7 +202,10 @@ const normalizeCheck = (check) => {
     };
   }
 
+  // ===================================================
   // تحويل الكشف القديم
+  // ===================================================
+
   return {
     ...check,
 
@@ -227,6 +228,10 @@ const normalizeCheck = (check) => {
       check.dollarRate ??
       check.usdRate ??
       "",
+
+    paymentStatus:
+      check.paymentStatus ||
+      defaultStatus,
 
     items: [
       {
@@ -252,6 +257,52 @@ const normalizeCheck = (check) => {
 };
 
 // =====================================================
+// إجمالي كل كشوف الزبون بالدولار
+// =====================================================
+
+const calculateCustomerTotalUsd = (
+  customerChecks = []
+) => {
+  return customerChecks.reduce(
+    (total, check) => {
+      const normalized =
+        normalizeCheck(check);
+
+      const checkTotal =
+        calculateTotalUsd(
+          normalized.items || []
+        );
+
+      return total + checkTotal;
+    },
+    0
+  );
+};
+
+// =====================================================
+// إجمالي كل كشوف الزبون بالسوري
+// =====================================================
+
+const calculateCustomerTotalSyp = (
+  customerChecks = []
+) => {
+  return customerChecks.reduce(
+    (total, check) => {
+      const normalized =
+        normalizeCheck(check);
+
+      const checkTotal =
+        calculateTotalSyp(
+          normalized.items || []
+        );
+
+      return total + checkTotal;
+    },
+    0
+  );
+};
+
+// =====================================================
 // فورم الكشف
 // =====================================================
 
@@ -266,24 +317,19 @@ function CheckForm({
   editMode,
   selectedCustomer,
 }) {
-  const totalUsd = calculateTotalUsd(
-    formData.items
-  );
+  const totalUsd =
+    calculateTotalUsd(formData.items);
 
-  const totalSyp = calculateTotalSyp(
-    formData.items
-  );
+  const totalSyp =
+    calculateTotalSyp(formData.items);
 
   return (
     <div className="modal-overlay">
-
       <div className="modal check-form-modal">
 
         {/* Header */}
         <div className="modal-header">
-
           <div>
-
             <h2>
               {editMode
                 ? "تعديل الكشف"
@@ -298,7 +344,6 @@ function CheckForm({
                   يمكنك إنشاء كشف جديد لنفس الزبون
                 </small>
               )}
-
           </div>
 
           <button
@@ -308,7 +353,6 @@ function CheckForm({
           >
             ×
           </button>
-
         </div>
 
         {/* Form */}
@@ -318,13 +362,11 @@ function CheckForm({
         >
 
           {/* بيانات الزبون */}
-
           <div className="form-section-title">
             بيانات الزبون
           </div>
 
           <div className="form-group">
-
             <label>
               اسم الزبون
             </label>
@@ -341,11 +383,9 @@ function CheckForm({
                 !editMode
               }
             />
-
           </div>
 
           <div className="form-group">
-
             <label>
               مكان الإقامة
             </label>
@@ -358,17 +398,14 @@ function CheckForm({
               placeholder="مثال: حلب - الحمدانية"
               required
             />
-
           </div>
 
           {/* بيانات الكشف */}
-
           <div className="form-section-title">
             بيانات الكشف
           </div>
 
           <div className="form-group">
-
             <label>
               رقم الكشف
             </label>
@@ -381,11 +418,9 @@ function CheckForm({
               placeholder="أدخل رقم الكشف"
               required
             />
-
           </div>
 
           <div className="form-group">
-
             <label>
               رقم الدفتر
             </label>
@@ -398,11 +433,9 @@ function CheckForm({
               placeholder="أدخل رقم الدفتر"
               required
             />
-
           </div>
 
           <div className="form-group">
-
             <label>
               التاريخ
             </label>
@@ -414,11 +447,9 @@ function CheckForm({
               onChange={handleChange}
               required
             />
-
           </div>
 
           <div className="form-group">
-
             <label>
               نوع الكشف
             </label>
@@ -428,7 +459,6 @@ function CheckForm({
               value={formData.type}
               onChange={handleChange}
             >
-
               <option value="شراء">
                 شراء
               </option>
@@ -436,15 +466,48 @@ function CheckForm({
               <option value="بيع">
                 بيع
               </option>
-
             </select>
+          </div>
 
+          {/* حالة الدفع */}
+          <div className="form-group payment-status-group">
+            <label>
+              حالة الدفع
+            </label>
+
+            {formData.type === "بيع" ? (
+              <select
+                name="paymentStatus"
+                value={formData.paymentStatus}
+                onChange={handleChange}
+              >
+                <option value="غير مقبوض">
+                  غير مقبوض
+                </option>
+
+                <option value="مقبوض">
+                  مقبوض
+                </option>
+              </select>
+            ) : (
+              <select
+                name="paymentStatus"
+                value={formData.paymentStatus}
+                onChange={handleChange}
+              >
+                <option value="غير مدفوع">
+                  غير مدفوع
+                </option>
+
+                <option value="مدفوع">
+                  مدفوع
+                </option>
+              </select>
+            )}
           </div>
 
           {/* سعر الدولار */}
-
           <div className="form-group exchange-rate-group">
-
             <label>
               سعر الدولار وقت إنشاء الكشف
             </label>
@@ -462,13 +525,10 @@ function CheckForm({
             <small>
               يتم حفظ سعر الدولار مع هذا الكشف
             </small>
-
           </div>
 
           {/* المواد */}
-
           <div className="form-section-title items-title">
-
             <span>
               مواد الكشف
             </span>
@@ -480,21 +540,16 @@ function CheckForm({
             >
               + إضافة مادة
             </button>
-
           </div>
 
           <div className="items-container">
-
             {formData.items.map(
               (item, index) => (
-
                 <div
                   className="item-box"
                   key={index}
                 >
-
                   <div className="item-box-header">
-
                     <strong>
                       المادة {index + 1}
                     </strong>
@@ -510,13 +565,11 @@ function CheckForm({
                         حذف المادة
                       </button>
                     )}
-
                   </div>
 
                   <div className="item-grid">
 
                     <div className="form-group">
-
                       <label>
                         نوع البضاعة
                       </label>
@@ -536,11 +589,9 @@ function CheckForm({
                         placeholder="مثال: أكياس شيال"
                         required
                       />
-
                     </div>
 
                     <div className="form-group">
-
                       <label>
                         المواصفات
                       </label>
@@ -559,11 +610,9 @@ function CheckForm({
                         }
                         placeholder="النوع - القياس - اللون"
                       />
-
                     </div>
 
                     <div className="form-group">
-
                       <label>
                         العدد
                       </label>
@@ -584,11 +633,9 @@ function CheckForm({
                         placeholder="مثال: 1,000"
                         required
                       />
-
                     </div>
 
                     <div className="form-group">
-
                       <label>
                         السعر بالدولار
                       </label>
@@ -609,11 +656,9 @@ function CheckForm({
                         placeholder="مثال: 1.7"
                         required
                       />
-
                     </div>
 
                     <div className="form-group">
-
                       <label>
                         السعر بالسوري
                       </label>
@@ -634,23 +679,18 @@ function CheckForm({
                         placeholder="مثال: 13,333"
                         required
                       />
-
                     </div>
 
                   </div>
-
                 </div>
               )
             )}
-
           </div>
 
           {/* إجماليات الكشف */}
-
           <div className="total-preview">
 
             <div>
-
               <span>
                 القيمة الإجمالية بالدولار
               </span>
@@ -662,11 +702,9 @@ function CheckForm({
                   totalUsd.toFixed(2)
                 )}
               </strong>
-
             </div>
 
             <div>
-
               <span>
                 القيمة الإجمالية بالسوري
               </span>
@@ -678,19 +716,16 @@ function CheckForm({
                 {" "}
                 ل.س
               </strong>
-
             </div>
 
           </div>
 
           {/* الملاحظات */}
-
           <div className="form-section-title">
             ملاحظات
           </div>
 
           <div className="form-group full-width">
-
             <label>
               الملاحظات
             </label>
@@ -701,11 +736,9 @@ function CheckForm({
               onChange={handleChange}
               placeholder="أدخل الملاحظات..."
             />
-
           </div>
 
           {/* الأزرار */}
-
           <div className="form-actions">
 
             <button
@@ -728,9 +761,7 @@ function CheckForm({
           </div>
 
         </form>
-
       </div>
-
     </div>
   );
 }
@@ -773,9 +804,7 @@ function Checks() {
   // =====================================================
 
   const getChecks = async () => {
-
     try {
-
       setLoading(true);
       setError("");
 
@@ -783,32 +812,24 @@ function Checks() {
         await axios.get(API_URL);
 
       if (Array.isArray(response.data)) {
-
         const normalized =
           response.data.map(
             normalizeCheck
           );
 
         setChecks(normalized);
-
       } else {
-
         setChecks([]);
-
       }
 
     } catch (err) {
-
       console.error(err);
 
       setError(
         "حدث خطأ أثناء جلب الكشوف"
       );
-
     } finally {
-
       setLoading(false);
-
     }
   };
 
@@ -821,11 +842,49 @@ function Checks() {
   // =====================================================
 
   const handleChange = (e) => {
-
     const {
       name,
       value,
     } = e.target;
+
+    // -----------------------------------------------
+    // تغيير نوع الكشف
+    // -----------------------------------------------
+
+    if (name === "type") {
+
+      setFormData((prev) => ({
+        ...prev,
+        type: value,
+
+        // عند الإضافة فقط نعطي الحالة الافتراضية
+        // عند التعديل نحافظ على حالة الكشف الحالية
+        paymentStatus:
+          editId
+            ? prev.paymentStatus
+            : getDefaultPaymentStatus(value),
+      }));
+
+      return;
+    }
+
+    // -----------------------------------------------
+    // حالة الدفع
+    // -----------------------------------------------
+
+    if (name === "paymentStatus") {
+
+      setFormData((prev) => ({
+        ...prev,
+        paymentStatus: value,
+      }));
+
+      return;
+    }
+
+    // -----------------------------------------------
+    // سعر الدولار
+    // -----------------------------------------------
 
     if (name === "exchangeRate") {
 
@@ -836,12 +895,10 @@ function Checks() {
         cleanValue.split(".");
 
       if (parts.length > 2) {
-
         cleanValue =
           parts[0] +
           "." +
           parts.slice(1).join("");
-
       }
 
       cleanValue =
@@ -889,14 +946,10 @@ function Checks() {
         cleanValue.split(".");
 
       if (parts.length > 2) {
-
         cleanValue =
           parts[0] +
           "." +
-          parts
-            .slice(1)
-            .join("");
-
+          parts.slice(1).join("");
       }
 
       cleanValue =
@@ -943,7 +996,6 @@ function Checks() {
   // =====================================================
 
   const addItem = () => {
-
     setFormData((prev) => ({
       ...prev,
 
@@ -959,7 +1011,6 @@ function Checks() {
   // =====================================================
 
   const removeItem = (index) => {
-
     setFormData((prev) => ({
       ...prev,
 
@@ -982,6 +1033,8 @@ function Checks() {
       customerName
     );
 
+    const defaultType = "شراء";
+
     setFormData({
       ...emptyForm,
 
@@ -995,6 +1048,18 @@ function Checks() {
         new Date()
           .toISOString()
           .split("T")[0],
+
+      type:
+        defaultType,
+
+      paymentStatus:
+        getDefaultPaymentStatus(
+          defaultType
+        ),
+
+      items: [
+        { ...emptyItem }
+      ],
     });
 
     setEditId(null);
@@ -1016,7 +1081,9 @@ function Checks() {
 
     setFormData({
       ...emptyForm,
-      items: [{ ...emptyItem }],
+      items: [
+        { ...emptyItem }
+      ],
     });
   };
 
@@ -1036,7 +1103,6 @@ function Checks() {
         );
 
     if (numericIds.length > 0) {
-
       return String(
         Math.max(...numericIds) + 1
       );
@@ -1093,6 +1159,13 @@ function Checks() {
 
         type:
           formData.type,
+
+        // مهم جداً
+        paymentStatus:
+          formData.paymentStatus ||
+          getDefaultPaymentStatus(
+            formData.type
+          ),
 
         totalAmountUsd:
           Number(
@@ -1174,9 +1247,7 @@ function Checks() {
   // حذف كشف
   // =====================================================
 
-  const handleDelete = async (
-    id
-  ) => {
+  const handleDelete = async (id) => {
 
     const confirmDelete =
       window.confirm(
@@ -1206,9 +1277,7 @@ function Checks() {
         String(openedCheck.id) ===
           String(id)
       ) {
-
         setOpenedCheck(null);
-
       }
 
       alert(
@@ -1234,9 +1303,7 @@ function Checks() {
     const normalized =
       normalizeCheck(check);
 
-    setEditId(
-      check.id
-    );
+    setEditId(check.id);
 
     setSelectedCustomer(
       normalized.customerName || ""
@@ -1269,6 +1336,14 @@ function Checks() {
       type:
         normalized.type || "شراء",
 
+      // مهم جداً:
+      // نأخذ حالة هذا الكشف فقط
+      paymentStatus:
+        normalized.paymentStatus ||
+        getDefaultPaymentStatus(
+          normalized.type || "شراء"
+        ),
+
       notes:
         normalized.notes || "",
 
@@ -1298,7 +1373,6 @@ function Checks() {
                   formatNumber(
                     item.priceSyp
                   ),
-
               })
             )
           : [
@@ -1315,9 +1389,7 @@ function Checks() {
   // تعديل كشف
   // =====================================================
 
-  const handleUpdate = async (
-    e
-  ) => {
+  const handleUpdate = async (e) => {
 
     e.preventDefault();
 
@@ -1358,6 +1430,16 @@ function Checks() {
         type:
           formData.type,
 
+        // =================================================
+        // حالة هذا الكشف فقط
+        // =================================================
+
+        paymentStatus:
+          formData.paymentStatus ||
+          getDefaultPaymentStatus(
+            formData.type
+          ),
+
         totalAmountUsd:
           Number(
             totalAmountUsd.toFixed(2)
@@ -1392,7 +1474,6 @@ function Checks() {
                 toNumber(
                   item.priceSyp
                 ),
-
             })
           ),
 
@@ -1404,6 +1485,10 @@ function Checks() {
         "بيانات التعديل:",
         updatedCheck
       );
+
+      // =================================================
+      // PUT على ID الكشف المحدد فقط
+      // =================================================
 
       const response =
         await axios.put(
@@ -1442,9 +1527,7 @@ function Checks() {
   // تحديد نوع الكشف
   // =====================================================
 
-  const getCheckType = (
-    type
-  ) => {
+  const getCheckType = (type) => {
 
     const value =
       String(type || "")
@@ -1454,7 +1537,6 @@ function Checks() {
       value === "شراء" ||
       value === "purchase"
     ) {
-
       return "شراء";
     }
 
@@ -1462,7 +1544,6 @@ function Checks() {
       value === "بيع" ||
       value === "sale"
     ) {
-
       return "بيع";
     }
 
@@ -1546,10 +1627,7 @@ function Checks() {
   // فتح التفاصيل
   // =====================================================
 
-  const openCheck = (
-    check
-  ) => {
-
+  const openCheck = (check) => {
     setOpenedCheck(
       normalizeCheck(check)
     );
@@ -1560,7 +1638,6 @@ function Checks() {
   // =====================================================
 
   return (
-
     <div className="checks-page">
 
       {/* Navbar */}
@@ -1598,7 +1675,6 @@ function Checks() {
         <div className="checks-header">
 
           <div>
-
             <h1>
               كشوف الزبائن
             </h1>
@@ -1606,7 +1682,6 @@ function Checks() {
             <p>
               يمكن للزبون الواحد امتلاك عدة كشوف
             </p>
-
           </div>
 
           <button
@@ -1720,10 +1795,6 @@ function Checks() {
                     customerName
                   );
 
-                // =================================================
-                // إجمالي جميع كشوف هذا الزبون
-                // =================================================
-
                 const customerTotalUsd =
                   calculateCustomerTotalUsd(
                     customerChecks
@@ -1786,9 +1857,7 @@ function Checks() {
 
                     </div>
 
-                    {/* ================================================= */}
                     {/* إجمالي كشوف الزبون */}
-                    {/* ================================================= */}
 
                     <div className="customer-total-box">
 
@@ -1797,8 +1866,6 @@ function Checks() {
                       </div>
 
                       <div className="customer-total-values">
-
-                        {/* الدولار */}
 
                         <div className="customer-total-item usd-total">
 
@@ -1815,8 +1882,6 @@ function Checks() {
                           </strong>
 
                         </div>
-
-                        {/* السوري */}
 
                         <div className="customer-total-item syp-total">
 
@@ -1846,9 +1911,7 @@ function Checks() {
                         (check) => {
 
                           const normalized =
-                            normalizeCheck(
-                              check
-                            );
+                            normalizeCheck(check);
 
                           const totalUsd =
                             calculateTotalUsd(
@@ -1913,6 +1976,32 @@ function Checks() {
 
                               </div>
 
+                              {/* حالة الدفع */}
+
+                              <div className="payment-status-display">
+
+                                <span>
+                                  حالة الدفع
+                                </span>
+
+                                <strong
+                                  className={
+                                    check.paymentStatus ===
+                                      "مقبوض" ||
+                                    check.paymentStatus ===
+                                      "مدفوع"
+                                      ? "paid"
+                                      : "unpaid"
+                                  }
+                                >
+                                  {check.paymentStatus ||
+                                    getDefaultPaymentStatus(
+                                      check.type
+                                    )}
+                                </strong>
+
+                              </div>
+
                               {/* التاريخ وسعر الدولار */}
 
                               <div className="check-card-extra">
@@ -1939,13 +2028,16 @@ function Checks() {
                                   </span>
 
                                   <strong>
+
                                     {check.exchangeRate
                                       ? formatNumber(
                                           check.exchangeRate
                                         )
                                       : "-"}
+
                                     {" "}
                                     ل.س
+
                                   </strong>
 
                                 </div>
@@ -2002,8 +2094,7 @@ function Checks() {
 
                                   <strong>
                                     {
-                                      normalized
-                                        .items
+                                      normalized.items
                                         ?.length ||
                                       0
                                     }
@@ -2333,6 +2424,34 @@ function Checks() {
 
               </div>
 
+              {/* حالة الدفع */}
+
+              <div className="view-row payment-status-view">
+
+                <span>
+                  حالة الدفع
+                </span>
+
+                <strong
+                  className={
+                    openedCheck.paymentStatus ===
+                      "مقبوض" ||
+                    openedCheck.paymentStatus ===
+                      "مدفوع"
+                      ? "paid"
+                      : "unpaid"
+                  }
+                >
+                  {
+                    openedCheck.paymentStatus ||
+                    getDefaultPaymentStatus(
+                      openedCheck.type
+                    )
+                  }
+                </strong>
+
+              </div>
+
               {/* سعر الدولار */}
 
               <div className="view-row exchange-rate-view">
@@ -2342,13 +2461,16 @@ function Checks() {
                 </span>
 
                 <strong>
+
                   {openedCheck.exchangeRate
                     ? formatNumber(
                         openedCheck.exchangeRate
                       )
                     : "-"}
+
                   {" "}
                   ل.س
+
                 </strong>
 
               </div>
@@ -2570,4 +2692,3 @@ function Checks() {
 }
 
 export default Checks;
-
