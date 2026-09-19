@@ -573,6 +573,11 @@ function Products() {
             الشيكات
           </Link>
 
+
+          <Link to="/online-payment">
+الدفع الالكتروني 
+          </Link>
+
           <a
             href="https://wa.me/963967227179"
             target="_blank"

@@ -9,7 +9,7 @@ import {
 import Login from "./components/Login";
 import Products from "./components/Products";
 import Checks from "./components/Checks";
-
+import OnlinePayment from "./components/OnlinePayment";
 import "./App.css";
 
 // =========================================
@@ -56,30 +56,37 @@ function Dashboard() {
           لوحة التحكم
         </div>
 
-        <nav className="sidebar-nav">
+ <nav className="sidebar-nav">
 
-          <Link
-            to="/dashboard"
-            className="sidebar-link active"
-          >
-            🏠 الرئيسية
-          </Link>
+  <Link
+    to="/dashboard"
+    className="sidebar-link active"
+  >
+    🏠 الرئيسية
+  </Link>
 
-          <Link
-            to="/products"
-            className="sidebar-link"
-          >
-            📦 المنتجات
-          </Link>
+  <Link
+    to="/products"
+    className="sidebar-link"
+  >
+    📦 المنتجات
+  </Link>
 
-          <Link
-            to="/checks"
-            className="sidebar-link"
-          >
-            📊 الكشوف
-          </Link>
+  <Link
+    to="/checks"
+    className="sidebar-link"
+  >
+    📊 الكشوف
+  </Link>
 
-        </nav>
+  <Link
+    to="/online-payment"
+    className="sidebar-link"
+  >
+    💳 الدفع الإلكتروني
+  </Link>
+
+</nav>
 
         <button
           className="logout-btn"
@@ -219,6 +226,7 @@ function App() {
             element={<Login />}
           />
 
+
           {/* Dashboard */}
 
           <Route
@@ -240,6 +248,19 @@ function App() {
               </ProtectedRoute>
             }
           />
+              <Route
+            path="/checks"
+            element={
+              <ProtectedRoute>
+                <OnlinePayment />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+  path="/online-payment"
+  element={<OnlinePayment />}
+/>
 
           {/* Wrong URL */}
 
