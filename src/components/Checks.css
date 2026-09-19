@@ -2206,3 +2206,51 @@
     width: 100%;
   }
 }
+/* ================================
+   حالة الدفعة - عرض فقط
+================================ */
+
+.payment-status-section {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #faf7f3;
+  border: 1px solid #eadfd4;
+  border-radius: 9px;
+}
+
+.payment-status-section > span {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #806b5d;
+}
+
+.payment-status-select {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid #d8c6b4;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #5c4033;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+}
+
+/* مقبوض / مدفوع */
+.payment-status-select.paid {
+  background: #eef8ef;
+  border-color: #9ac69d;
+  color: #34743a;
+}
+
+/* غير مقبوض / غير مدفوع */
+.payment-status-select.unpaid {
+  background: #fff6e8;
+  border-color: #e4bd82;
+  color: #a46616;
+}
