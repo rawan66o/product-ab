@@ -482,7 +482,7 @@ function CheckForm({
                 onChange={handleChange}
               >
                 <option value="غير مقبوض">
-              غير مقبوض
+                  غير مقبوض
                 </option>
 
                 <option value="مقبوض">
@@ -2428,7 +2428,7 @@ function Checks() {
               <div className="view-row payment-status-view">
 
                 <span>
-                  حالة الدفع
+                  حالة الدفع :
                 </span>
 
                 <strong
