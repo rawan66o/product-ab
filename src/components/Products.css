@@ -2744,3 +2744,125 @@ input {
     font-size: 11px;
   }
 }
+
+/* =========================================
+   Navbar - Mobile
+========================================= */
+
+@media (max-width: 768px) {
+
+  .store-navbar {
+    width: 100%;
+    padding: 12px 15px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+
+  /* اللوجو */
+  .store-logo {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* الروابط */
+  .store-links {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .store-links a {
+    font-size: 14px;
+    padding: 8px 10px;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  /* زر لوحة التحكم / تسجيل الدخول */
+  .store-links .admin-login-btn {
+    padding: 9px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+
+  /* واتساب */
+  .store-links .whatsapp-link {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+}
+
+
+/* =========================================
+   موبايلات صغيرة جداً
+========================================= */
+
+@media (max-width: 480px) {
+
+  .store-navbar {
+    padding: 10px;
+    gap: 12px;
+  }
+
+  .store-logo {
+    font-size: 21px;
+  }
+
+  .store-links {
+    gap: 6px;
+  }
+
+  .store-links a {
+    font-size: 12px;
+    padding: 7px 8px;
+  }
+
+  .store-links .admin-login-btn {
+    font-size: 12px;
+    padding: 8px 9px;
+  }
+
+  .store-links .whatsapp-link {
+    font-size: 12px;
+    padding: 7px 8px;
+  }
+}
+
+
+/* =========================================
+   شاشات صغيرة جداً مثل 360px
+========================================= */
+
+@media (max-width: 380px) {
+
+  .store-navbar {
+    padding: 8px;
+  }
+
+  .store-logo {
+    font-size: 20px;
+  }
+
+  .store-links {
+    gap: 5px;
+  }
+
+  .store-links a {
+    font-size: 11px;
+    padding: 6px 7px;
+  }
+
+  .store-links .admin-login-btn {
+    font-size: 11px;
+    padding: 7px 8px;
+  }
+}
