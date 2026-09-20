@@ -2749,7 +2749,7 @@ input {
   .store-navbar {
     height: auto;
     min-height: 60px;
-    padding: 10px 12px;
+    padding: 10px 68px;
 
     flex-wrap: wrap;
   }
