@@ -39,6 +39,7 @@ const getDefaultPaymentStatus = (type) => {
 
 const emptyForm = {
   customerName: "",
+  phone: "",
   residence: "",
   date: "",
   checkNumber: "",
@@ -159,6 +160,9 @@ const normalizeCheck = (check) => {
         check.recipientName ||
         "",
 
+      // رقم التليفون
+      phone: check.phone || "",
+
       residence:
         check.residence || "",
 
@@ -174,9 +178,6 @@ const normalizeCheck = (check) => {
         check.usdRate ??
         "",
 
-      // مهم:
-      // نحافظ على حالة الكشف نفسها
-      // وإذا كانت غير موجودة نضع الحالة الافتراضية
       paymentStatus:
         check.paymentStatus ||
         defaultStatus,
@@ -214,6 +215,9 @@ const normalizeCheck = (check) => {
       check.recipientName ||
       "",
 
+    // رقم التليفون
+    phone: check.phone || "",
+
     residence:
       check.residence || "",
 
@@ -245,12 +249,10 @@ const normalizeCheck = (check) => {
           check.quantity ?? "",
 
         priceUsd:
-          check.price ??
-          "",
+          check.price ?? "",
 
         priceSyp:
-          check.priceSyp ??
-          "",
+          check.priceSyp ?? "",
       },
     ],
   };
@@ -382,6 +384,21 @@ function CheckForm({
                 !!selectedCustomer &&
                 !editMode
               }
+            />
+          </div>
+
+          {/* رقم التليفون */}
+          <div className="form-group">
+            <label>
+              رقم التليفون
+            </label>
+
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone || ""}
+              onChange={handleChange}
+              placeholder="أدخل رقم التليفون"
             />
           </div>
 
@@ -857,8 +874,6 @@ function Checks() {
         ...prev,
         type: value,
 
-        // عند الإضافة فقط نعطي الحالة الافتراضية
-        // عند التعديل نحافظ على حالة الكشف الحالية
         paymentStatus:
           editId
             ? prev.paymentStatus
@@ -912,6 +927,10 @@ function Checks() {
 
       return;
     }
+
+    // -----------------------------------------------
+    // باقي الحقول ومن ضمنها phone
+    // -----------------------------------------------
 
     setFormData((prev) => ({
       ...prev,
@@ -1033,6 +1052,19 @@ function Checks() {
       customerName
     );
 
+    // جلب رقم الهاتف الموجود سابقاً للزبون
+    const previousCustomerCheck =
+      checks.find(
+        (check) =>
+          String(
+            check.customerName || ""
+          ).trim() ===
+          String(
+            customerName || ""
+          ).trim() &&
+          check.phone
+      );
+
     const defaultType = "شراء";
 
     setFormData({
@@ -1040,6 +1072,9 @@ function Checks() {
 
       customerName:
         customerName,
+
+      phone:
+        previousCustomerCheck?.phone || "",
 
       residence:
         residence,
@@ -1140,6 +1175,10 @@ function Checks() {
         customerName:
           formData.customerName.trim(),
 
+        // رقم التليفون
+        phone:
+          (formData.phone || "").trim(),
+
         residence:
           formData.residence.trim(),
 
@@ -1160,7 +1199,6 @@ function Checks() {
         type:
           formData.type,
 
-        // مهم جداً
         paymentStatus:
           formData.paymentStatus ||
           getDefaultPaymentStatus(
@@ -1314,6 +1352,10 @@ function Checks() {
       customerName:
         normalized.customerName || "",
 
+      // رقم التليفون
+      phone:
+        normalized.phone || "",
+
       residence:
         normalized.residence || "",
 
@@ -1336,8 +1378,6 @@ function Checks() {
       type:
         normalized.type || "شراء",
 
-      // مهم جداً:
-      // نأخذ حالة هذا الكشف فقط
       paymentStatus:
         normalized.paymentStatus ||
         getDefaultPaymentStatus(
@@ -1410,6 +1450,10 @@ function Checks() {
         customerName:
           formData.customerName.trim(),
 
+        // رقم التليفون
+        phone:
+          (formData.phone || "").trim(),
+
         residence:
           formData.residence.trim(),
 
@@ -1429,10 +1473,6 @@ function Checks() {
 
         type:
           formData.type,
-
-        // =================================================
-        // حالة هذا الكشف فقط
-        // =================================================
 
         paymentStatus:
           formData.paymentStatus ||
@@ -1485,10 +1525,6 @@ function Checks() {
         "بيانات التعديل:",
         updatedCheck
       );
-
-      // =================================================
-      // PUT على ID الكشف المحدد فقط
-      // =================================================
 
       const response =
         await axios.put(
@@ -1619,6 +1655,32 @@ function Checks() {
 
     return (
       customerCheck?.residence ||
+      ""
+    );
+  };
+
+  // =====================================================
+  // رقم تليفون الزبون
+  // =====================================================
+
+  const getCustomerPhone = (
+    customerName
+  ) => {
+
+    const customerCheck =
+      checks.find(
+        (check) =>
+          String(
+            check.customerName || ""
+          ).trim() ===
+          String(
+            customerName
+          ).trim() &&
+          check.phone
+      );
+
+    return (
+      customerCheck?.phone ||
       ""
     );
   };
@@ -1795,6 +1857,11 @@ function Checks() {
                     customerName
                   );
 
+                const phone =
+                  getCustomerPhone(
+                    customerName
+                  );
+
                 const customerTotalUsd =
                   calculateCustomerTotalUsd(
                     customerChecks
@@ -1831,6 +1898,12 @@ function Checks() {
                           {residence && (
                             <p className="customer-residence">
                               📍 {residence}
+                            </p>
+                          )}
+
+                          {phone && (
+                            <p className="customer-residence">
+                              📞 {phone}
                             </p>
                           )}
 
@@ -1981,7 +2054,8 @@ function Checks() {
                               <div className="payment-status-display">
 
                                 <span>
-حالة الدفع :                                </span>
+                                  حالة الدفع :
+                                </span>
 
                                 <strong
                                   className={
@@ -2341,6 +2415,23 @@ function Checks() {
                 <strong>
                   {
                     openedCheck.customerName ||
+                    "-"
+                  }
+                </strong>
+
+              </div>
+
+              {/* رقم التليفون */}
+
+              <div className="view-row">
+
+                <span>
+                  رقم التليفون
+                </span>
+
+                <strong>
+                  {
+                    openedCheck.phone ||
                     "-"
                   }
                 </strong>
