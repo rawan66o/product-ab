@@ -251,9 +251,9 @@ function App() {
               <Route
             path="/checks"
             element={
-              <ProtectedRoute>
+          
                 <OnlinePayment />
-              </ProtectedRoute>
+           
             }
           />
           

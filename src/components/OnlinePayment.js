@@ -15,7 +15,7 @@ function OnlinePayment() {
         {/* زر إغلاق الواجهة */}
         <button
           className="payment-close-btn"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/products")}
           title="العودة للرئيسية"
           aria-label="إغلاق واجهة الدفع"
         >

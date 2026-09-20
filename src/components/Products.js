@@ -569,9 +569,9 @@ function Products() {
             المنتجات
           </Link>
 
-          <Link to="/checks">
+          {/* <Link to="/checks">
             الشيكات
-          </Link>
+          </Link> */}
 
 
           <Link to="/online-payment">
