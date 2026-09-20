@@ -1,10 +1,10 @@
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./Daily.css";
 import { Link } from "react-router-dom";
+
 // ========================================
-// API
+// API - نفس الباك إند الحالي
 // ========================================
 
 const API_URL = "https://abdbac2-10.onrender.com/daily";
@@ -16,6 +16,7 @@ const API_URL = "https://abdbac2-10.onrender.com/daily";
 const getEmptyDaily = () => ({
   customerName: "",
   date: new Date().toISOString().split("T")[0],
+  transactionType: "بيع",
   paymentStatus: "غير مقبوض",
   notes: "",
 });
@@ -26,17 +27,15 @@ const getEmptyDaily = () => ({
 
 function Daily() {
   const [daily, setDaily] = useState([]);
-
   const [form, setForm] = useState(getEmptyDaily());
 
   const [editingId, setEditingId] = useState(null);
 
   const [search, setSearch] = useState("");
-
   const [filterStatus, setFilterStatus] = useState("الكل");
+  const [filterType, setFilterType] = useState("الكل");
 
   const [loading, setLoading] = useState(false);
-
   const [saving, setSaving] = useState(false);
 
   // ========================================
@@ -49,8 +48,6 @@ function Daily() {
 
       const response = await axios.get(API_URL);
 
-      console.log("Daily data:", response.data);
-
       const data = Array.isArray(response.data)
         ? response.data
         : [];
@@ -60,25 +57,14 @@ function Daily() {
       );
 
       setDaily(sortedData);
-
     } catch (error) {
       console.error("Error fetching daily:", error);
 
       if (error.response) {
-        console.error("Status:", error.response.status);
-        console.error("Data:", error.response.data);
-
-        alert(
-          `حدث خطأ من السيرفر (${error.response.status})`
-        );
-      } else if (error.request) {
-        alert(
-          "لم يتم الاتصال بالسيرفر، تأكدي أن الباك يعمل على Render"
-        );
+        alert(`حدث خطأ من السيرفر (${error.response.status})`);
       } else {
-        alert("حدث خطأ أثناء جلب اليوميات");
+        alert("تعذر الاتصال بالسيرفر، تأكدي من Render");
       }
-
     } finally {
       setLoading(false);
     }
@@ -99,6 +85,18 @@ function Daily() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    // عند تغيير نوع الحركة نغيّر الحالة الافتراضية
+    if (name === "transactionType") {
+      setForm((prev) => ({
+        ...prev,
+        transactionType: value,
+        paymentStatus:
+          value === "شراء" ? "غير مدفوع" : "غير مقبوض",
+      }));
+
+      return;
+    }
+
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -106,14 +104,14 @@ function Daily() {
   };
 
   // ========================================
-  // إضافة / تعديل
+  // إضافة / تعديل اليومية
   // ========================================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.customerName.trim()) {
-      alert("يرجى إدخال اسم الزبون");
+      alert("يرجى إدخال اسم الزبون أو المورد");
       return;
     }
 
@@ -125,63 +123,46 @@ function Daily() {
     try {
       setSaving(true);
 
-      // ====================================
+      const dailyData = {
+        customerName: form.customerName.trim(),
+        date: form.date,
+        transactionType: form.transactionType,
+        paymentStatus: form.paymentStatus,
+        notes: form.notes.trim(),
+      };
+
       // تعديل
-      // ====================================
+      if (editingId !== null) {
+        await axios.put(`${API_URL}/${editingId}`, {
+          id: editingId,
+          ...dailyData,
+        });
 
-      if (editingId) {
-        const updatedDaily = {
-          customerName: form.customerName.trim(),
-          date: form.date,
-          paymentStatus: form.paymentStatus,
-          notes: form.notes.trim(),
-        };
-
-        await axios.put(
-          `${API_URL}/${editingId}`,
-          updatedDaily
-        );
-
-        alert("تم تعديل اليومية بنجاح");
-
+        alert("تم تعديل الحركة بنجاح");
       } else {
-
-        // ====================================
         // إضافة
-        // ====================================
-
         const newDaily = {
           id: Date.now().toString(),
-          customerName: form.customerName.trim(),
-          date: form.date,
-          paymentStatus: form.paymentStatus,
-          notes: form.notes.trim(),
+          ...dailyData,
         };
 
         await axios.post(API_URL, newDaily);
 
-        alert("تمت إضافة اليومية بنجاح");
+        alert("تمت إضافة الحركة بنجاح");
       }
 
-      // إعادة ضبط النموذج
       setForm(getEmptyDaily());
-
       setEditingId(null);
 
-      // إعادة جلب البيانات
       await fetchDaily();
-
     } catch (error) {
       console.error("Error saving daily:", error);
 
       if (error.response) {
-        alert(
-          `حدث خطأ أثناء الحفظ (${error.response.status})`
-        );
+        alert(`حدث خطأ أثناء الحفظ (${error.response.status})`);
       } else {
-        alert("حدث خطأ أثناء حفظ اليومية");
+        alert("حدث خطأ أثناء حفظ الحركة");
       }
-
     } finally {
       setSaving(false);
     }
@@ -197,8 +178,13 @@ function Daily() {
     setForm({
       customerName: item.customerName || "",
       date: item.date || "",
+      // السجلات القديمة التي لا تحتوي نوع حركة تعتبر بيع
+      transactionType: item.transactionType || "بيع",
       paymentStatus:
-        item.paymentStatus || "غير مقبوض",
+        item.paymentStatus ||
+        (item.transactionType === "شراء"
+          ? "غير مدفوع"
+          : "غير مقبوض"),
       notes: item.notes || "",
     });
 
@@ -214,22 +200,19 @@ function Daily() {
 
   const handleCancelEdit = () => {
     setEditingId(null);
-
     setForm(getEmptyDaily());
   };
 
   // ========================================
-  // حذف
+  // حذف اليومية
   // ========================================
 
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
-      "هل أنت متأكد من حذف هذه اليومية؟"
+      "هل أنت متأكد من حذف هذه الحركة؟"
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
       await axios.delete(`${API_URL}/${id}`);
@@ -238,17 +221,18 @@ function Daily() {
         prev.filter((item) => item.id !== id)
       );
 
-      alert("تم حذف اليومية بنجاح");
+      if (editingId === id) {
+        handleCancelEdit();
+      }
 
+      alert("تم حذف الحركة بنجاح");
     } catch (error) {
       console.error("Error deleting daily:", error);
 
       if (error.response) {
-        alert(
-          `حدث خطأ أثناء الحذف (${error.response.status})`
-        );
+        alert(`حدث خطأ أثناء الحذف (${error.response.status})`);
       } else {
-        alert("حدث خطأ أثناء حذف اليومية");
+        alert("حدث خطأ أثناء حذف الحركة");
       }
     }
   };
@@ -258,23 +242,28 @@ function Daily() {
   // ========================================
 
   const filteredDaily = daily.filter((item) => {
+    const customerName = item.customerName || "";
 
-    const customerName =
-      item.customerName || "";
+    // البيانات القديمة تعتبر بيع
+    const transactionType = item.transactionType || "بيع";
 
     const paymentStatus =
-      item.paymentStatus || "";
+      item.paymentStatus ||
+      (transactionType === "شراء" ? "غير مدفوع" : "غير مقبوض");
 
-    const matchesSearch =
-      customerName
-        .toLowerCase()
-        .includes(search.toLowerCase());
+    const matchesSearch = customerName
+      .toLowerCase()
+      .includes(search.toLowerCase().trim());
+
+    const matchesType =
+      filterType === "الكل" ||
+      transactionType === filterType;
 
     const matchesStatus =
       filterStatus === "الكل" ||
       paymentStatus === filterStatus;
 
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesType && matchesStatus;
   });
 
   // ========================================
@@ -283,14 +272,36 @@ function Daily() {
 
   const totalDaily = daily.length;
 
+  const salesCount = daily.filter(
+    (item) => (item.transactionType || "بيع") === "بيع"
+  ).length;
+
+  const purchasesCount = daily.filter(
+    (item) => item.transactionType === "شراء"
+  ).length;
+
   const paidCount = daily.filter(
     (item) =>
+      (item.transactionType || "بيع") === "بيع" &&
       item.paymentStatus === "مقبوض"
   ).length;
 
   const unpaidCount = daily.filter(
     (item) =>
-      item.paymentStatus === "غير مقبوض"
+      (item.transactionType || "بيع") === "بيع" &&
+      (item.paymentStatus || "غير مقبوض") === "غير مقبوض"
+  ).length;
+
+  const purchasePaidCount = daily.filter(
+    (item) =>
+      item.transactionType === "شراء" &&
+      item.paymentStatus === "مدفوع"
+  ).length;
+
+  const purchaseUnpaidCount = daily.filter(
+    (item) =>
+      item.transactionType === "شراء" &&
+      (item.paymentStatus || "غير مدفوع") === "غير مدفوع"
   ).length;
 
   // ========================================
@@ -299,136 +310,131 @@ function Daily() {
 
   return (
     <div className="daily-page" dir="rtl">
-  <nav className="store-navbar">
 
-        <div className="store-logo">
-          متجري
-        </div>
+      {/* Navbar */}
+
+      <nav className="store-navbar">
+        <div className="store-logo">متجري</div>
 
         <div className="store-links">
-
-          <Link to="/products">
-            المنتجات
-          </Link>
-
-          <Link to="/checks">
-            الكشوف
-          </Link>
-
-          <Link to="/dashboard">
-            الداشبورد
-          </Link>
-
+          <Link to="/products">المنتجات</Link>
+          <Link to="/checks">الكشوف</Link>
+          <Link to="/dashboard">الداشبورد</Link>
         </div>
-
       </nav>
-  
-      {/* ====================================
-          Header
-      ==================================== */}
+
+      {/* Header */}
 
       <div className="daily-header">
-
         <div>
-   <h1 style={{ color: "white" }}>📖 اليوميات</h1>
+          <h1 style={{ color: "white" }}>📖 اليوميات</h1>
 
           <p>
-            تسجيل ومتابعة ملاحظات وحركات الزبائن اليومية
+            تسجيل ومتابعة حركات البيع والشراء اليومية
           </p>
         </div>
-
       </div>
 
-      {/* ====================================
-          Statistics
-      ==================================== */}
+      {/* Statistics */}
 
       <div className="daily-stats">
 
-        {/* إجمالي */}
         <div className="daily-stat-card">
-
-          <span className="stat-icon">
-            📋
-          </span>
-
+          <span className="stat-icon">📋</span>
           <div>
-            <h3>
-              إجمالي اليوميات
-            </h3>
-
-            <strong>
-              {totalDaily}
-            </strong>
+            <h3>إجمالي الحركات</h3>
+            <strong>{totalDaily}</strong>
           </div>
-
         </div>
 
-        {/* مقبوض */}
+        <div className="daily-stat-card">
+          <span className="stat-icon">🛒</span>
+          <div>
+            <h3>حركات البيع</h3>
+            <strong>{salesCount}</strong>
+          </div>
+        </div>
+
+        <div className="daily-stat-card">
+          <span className="stat-icon">📦</span>
+          <div>
+            <h3>حركات الشراء</h3>
+            <strong>{purchasesCount}</strong>
+          </div>
+        </div>
+
         <div className="daily-stat-card paid">
-
-          <span className="stat-icon">
-            💰
-          </span>
-
+          <span className="stat-icon">💰</span>
           <div>
-            <h3>
-              مقبوض
-            </h3>
-
-            <strong>
-              {paidCount}
-            </strong>
+            <h3>مقبوض من البيع</h3>
+            <strong>{paidCount}</strong>
           </div>
-
         </div>
 
-        {/* غير مقبوض */}
         <div className="daily-stat-card unpaid">
-
-          <span className="stat-icon">
-            ⏳
-          </span>
-
+          <span className="stat-icon">⏳</span>
           <div>
-            <h3>
-              غير مقبوض
-            </h3>
-
-            <strong>
-              {unpaidCount}
-            </strong>
+            <h3>غير مقبوض</h3>
+            <strong>{unpaidCount}</strong>
           </div>
+        </div>
 
+        <div className="daily-stat-card paid">
+          <span className="stat-icon">✅</span>
+          <div>
+            <h3>مدفوع للمورد</h3>
+            <strong>{purchasePaidCount}</strong>
+          </div>
+        </div>
+
+        <div className="daily-stat-card unpaid">
+          <span className="stat-icon">💳</span>
+          <div>
+            <h3>غير مدفوع للمورد</h3>
+            <strong>{purchaseUnpaidCount}</strong>
+          </div>
         </div>
 
       </div>
 
-      {/* ====================================
-          Form
-      ==================================== */}
+      {/* Form */}
 
       <div className="daily-form-card">
 
         <div className="form-title">
-
           <h2>
-            {editingId
-              ? "✏️ تعديل اليومية"
-              : "➕ إضافة يومية جديدة"}
+            {editingId !== null
+              ? "✏️ تعديل الحركة"
+              : "➕ إضافة حركة جديدة"}
           </h2>
-
         </div>
 
         <form onSubmit={handleSubmit}>
 
           <div className="daily-form-grid">
 
-            {/* اسم الزبون */}
-            <div className="daily-input-group">
+            {/* نوع الحركة */}
 
+            <div className="daily-input-group">
+              <label>نوع الحركة</label>
+
+              <select
+                name="transactionType"
+                value={form.transactionType}
+                onChange={handleChange}
+              >
+                <option value="بيع">🛒 بيع</option>
+                <option value="شراء">📦 شراء</option>
+              </select>
+            </div>
+
+            {/* اسم الزبون أو المورد */}
+
+            <div className="daily-input-group">
               <label>
-                اسم الزبون
+                {form.transactionType === "شراء"
+                  ? "اسم المورد"
+                  : "اسم الزبون"}
               </label>
 
               <input
@@ -436,17 +442,18 @@ function Daily() {
                 name="customerName"
                 value={form.customerName}
                 onChange={handleChange}
-                placeholder="أدخل اسم الزبون"
+                placeholder={
+                  form.transactionType === "شراء"
+                    ? "أدخل اسم المورد"
+                    : "أدخل اسم الزبون"
+                }
               />
-
             </div>
 
             {/* التاريخ */}
-            <div className="daily-input-group">
 
-              <label>
-                التاريخ
-              </label>
+            <div className="daily-input-group">
+              <label>التاريخ</label>
 
               <input
                 type="date"
@@ -454,14 +461,15 @@ function Daily() {
                 value={form.date}
                 onChange={handleChange}
               />
-
             </div>
 
-            {/* حالة القبض */}
-            <div className="daily-input-group">
+            {/* حالة الدفع أو القبض */}
 
+            <div className="daily-input-group">
               <label>
-                حالة القبض
+                {form.transactionType === "شراء"
+                  ? "حالة الدفع"
+                  : "حالة القبض"}
               </label>
 
               <select
@@ -469,34 +477,32 @@ function Daily() {
                 value={form.paymentStatus}
                 onChange={handleChange}
               >
-
-                <option value="غير مقبوض">
-                  غير مقبوض
-                </option>
-
-                <option value="مقبوض">
-                  مقبوض
-                </option>
-
+                {form.transactionType === "شراء" ? (
+                  <>
+                    <option value="غير مدفوع">غير مدفوع</option>
+                    <option value="مدفوع">مدفوع</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="غير مقبوض">غير مقبوض</option>
+                    <option value="مقبوض">مقبوض</option>
+                  </>
+                )}
               </select>
-
             </div>
 
             {/* الملاحظات */}
-            <div className="daily-input-group daily-notes-group">
 
-              <label>
-                الملاحظات
-              </label>
+            <div className="daily-input-group daily-notes-group">
+              <label>الملاحظات</label>
 
               <textarea
                 name="notes"
                 value={form.notes}
                 onChange={handleChange}
-                placeholder="اكتب الملاحظات هنا..."
+                placeholder="اكتب تفاصيل حركة البيع أو الشراء..."
                 rows="4"
               />
-
             </div>
 
           </div>
@@ -510,17 +516,14 @@ function Daily() {
               className="daily-save-btn"
               disabled={saving}
             >
-
               {saving
                 ? "جاري الحفظ..."
-                : editingId
+                : editingId !== null
                 ? "💾 حفظ التعديل"
-                : "➕ إضافة اليومية"}
-
+                : "➕ إضافة الحركة"}
             </button>
 
-            {editingId && (
-
+            {editingId !== null && (
               <button
                 type="button"
                 className="daily-cancel-btn"
@@ -529,69 +532,69 @@ function Daily() {
               >
                 ✖ إلغاء
               </button>
-
             )}
 
           </div>
-
         </form>
-
       </div>
 
-      {/* ====================================
-          Search + Filter
-      ==================================== */}
+      {/* Search + Filters */}
 
       <div className="daily-tools">
 
-        {/* البحث */}
-
         <div className="daily-search">
-
-          <span>
-            🔎
-          </span>
+          <span>🔎</span>
 
           <input
             type="text"
-            placeholder="ابحث باسم الزبون..."
+            placeholder="ابحث باسم الزبون أو المورد..."
             value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
+            onChange={(e) => setSearch(e.target.value)}
           />
-
         </div>
 
-        {/* الفلترة */}
+        {/* فلترة نوع الحركة */}
+
+        <select
+          className="daily-filter"
+          value={filterType}
+          onChange={(e) => {
+            setFilterType(e.target.value);
+            setFilterStatus("الكل");
+          }}
+        >
+          <option value="الكل">كل الحركات</option>
+          <option value="بيع">البيع فقط</option>
+          <option value="شراء">الشراء فقط</option>
+        </select>
+
+        {/* فلترة الحالة */}
 
         <select
           className="daily-filter"
           value={filterStatus}
-          onChange={(e) =>
-            setFilterStatus(e.target.value)
-          }
+          onChange={(e) => setFilterStatus(e.target.value)}
         >
+          <option value="الكل">كل الحالات</option>
 
-          <option value="الكل">
-            كل الحالات
-          </option>
+          {filterType !== "شراء" && (
+            <>
+              <option value="مقبوض">مقبوض</option>
+              <option value="غير مقبوض">غير مقبوض</option>
+            </>
+          )}
 
-          <option value="مقبوض">
-            مقبوض
-          </option>
-
-          <option value="غير مقبوض">
-            غير مقبوض
-          </option>
-
+          {filterType !== "بيع" && (
+            <>
+              <option value="مدفوع">مدفوع</option>
+              <option value="غير مدفوع">غير مدفوع</option>
+            </>
+          )}
         </select>
 
       </div>
 
-      {/* ====================================
-          Table
-      ==================================== */}
+      {/* Table */}
 
       <div className="daily-table-card">
 
@@ -600,140 +603,111 @@ function Daily() {
           <table className="daily-table">
 
             <thead>
-
               <tr>
-
-                <th>
-                  #
-                </th>
-
-                <th>
-                  اسم الزبون
-                </th>
-
-                <th>
-                  التاريخ
-                </th>
-
-                <th>
-                  حالة القبض
-                </th>
-
-                <th>
-                  الملاحظات
-                </th>
-
-                <th>
-                  الإجراءات
-                </th>
-
+                <th>#</th>
+                <th>نوع الحركة</th>
+                <th>اسم الزبون / المورد</th>
+                <th>التاريخ</th>
+                <th>حالة الدفع / القبض</th>
+                <th>الملاحظات</th>
+                <th>الإجراءات</th>
               </tr>
-
             </thead>
 
             <tbody>
 
-              {/* Loading */}
-
               {loading ? (
-
                 <tr>
-
-                  <td
-                    colSpan="6"
-                    className="daily-empty"
-                  >
+                  <td colSpan="7" className="daily-empty">
                     جاري تحميل البيانات...
                   </td>
-
                 </tr>
-
               ) : filteredDaily.length === 0 ? (
-
-                /* لا يوجد بيانات */
-
                 <tr>
-
-                  <td
-                    colSpan="6"
-                    className="daily-empty"
-                  >
-                    لا توجد يوميات
+                  <td colSpan="7" className="daily-empty">
+                    لا توجد حركات
                   </td>
-
                 </tr>
-
               ) : (
+                filteredDaily.map((item, index) => {
+                  const transactionType =
+                    item.transactionType || "بيع";
 
-                /* البيانات */
+                  const isPurchase =
+                    transactionType === "شراء";
 
-                filteredDaily.map(
-                  (item, index) => (
+                  const paymentStatus =
+                    item.paymentStatus ||
+                    (isPurchase ? "غير مدفوع" : "غير مقبوض");
 
+                  const isPaid =
+                    paymentStatus === "مقبوض" ||
+                    paymentStatus === "مدفوع";
+
+                  return (
                     <tr key={item.id}>
 
-                      {/* الرقم */}
+                      <td>{index + 1}</td>
+
+                      {/* نوع الحركة */}
 
                       <td>
-                        {index + 1}
+                        <span
+                          className={`payment-badge ${
+                            isPurchase
+                              ? "purchase-badge"
+                              : "sale-badge"
+                          }`}
+                        >
+                          {isPurchase ? "📦 شراء" : "🛒 بيع"}
+                        </span>
                       </td>
 
-                      {/* الزبون */}
+                      {/* الاسم */}
 
                       <td className="customer-name">
-                        {item.customerName}
+                        {item.customerName || "-"}
                       </td>
 
                       {/* التاريخ */}
 
-                      <td>
-                        {item.date}
-                      </td>
+                      <td>{item.date || "-"}</td>
 
-                      {/* حالة القبض */}
+                      {/* الحالة */}
 
                       <td>
-
                         <span
                           className={`payment-badge ${
-                            item.paymentStatus ===
-                            "مقبوض"
+                            isPaid
                               ? "paid-badge"
                               : "unpaid-badge"
                           }`}
                         >
-
-                          {item.paymentStatus ===
-                          "مقبوض"
+                          {isPurchase
+                            ? isPaid
+                              ? "✓ مدفوع"
+                              : "⏳ غير مدفوع"
+                            : isPaid
                             ? "✓ مقبوض"
                             : "⏳ غير مقبوض"}
-
                         </span>
-
                       </td>
 
                       {/* الملاحظات */}
 
                       <td className="notes-cell">
-
-                        {item.notes
-                          ? item.notes
-                          : "لا توجد ملاحظات"}
-
+                        {item.notes || "لا توجد ملاحظات"}
                       </td>
 
                       {/* الإجراءات */}
 
                       <td>
-
                         <div className="daily-actions">
 
                           <button
                             type="button"
                             className="edit-daily-btn"
-                            onClick={() =>
-                              handleEdit(item)
-                            }
+                            onClick={() => handleEdit(item)}
                             title="تعديل"
                           >
                             ✏️
@@ -742,31 +716,24 @@ function Daily() {
                           <button
                             type="button"
                             className="delete-daily-btn"
-                            onClick={() =>
-                              handleDelete(item.id)
-                            }
+                            onClick={() => handleDelete(item.id)}
                             title="حذف"
                           >
                             🗑️
                           </button>
 
                         </div>
-
                       </td>
 
                     </tr>
-
-                  )
-                )
-
+                  );
+                })
               )}
 
             </tbody>
-
           </table>
 
         </div>
-
       </div>
 
     </div>
