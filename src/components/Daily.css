@@ -1,0 +1,507 @@
+/* ===============================
+   الصفحة الرئيسية
+================================ */
+
+.daily-page {
+  min-height: 100vh;
+  padding: 30px;
+  background: #f7f1e8;
+  color: #3f2d20;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+/* ===============================
+   العنوان
+================================ */
+
+.daily-header {
+  background: #5c4033;
+  color: white;
+  border-radius: 18px;
+  padding: 25px 30px;
+  margin-bottom: 25px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.daily-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.daily-header p {
+  margin: 0;
+  color: #f5e6d3;
+  font-size: 15px;
+}
+
+/* ===============================
+   الإحصائيات
+================================ */
+
+.daily-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 25px;
+}
+
+.daily-stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-right: 5px solid #5c4033;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.daily-stat-card.paid {
+  border-right-color: #3f7d45;
+}
+
+.daily-stat-card.unpaid {
+  border-right-color: #d97706;
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 13px;
+  background: #f5e6d3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.daily-stat-card h3 {
+  margin: 0 0 5px;
+  font-size: 14px;
+  color: #777;
+  font-weight: 500;
+}
+
+.daily-stat-card strong {
+  font-size: 25px;
+  color: #5c4033;
+}
+
+/* ===============================
+   نموذج الإضافة
+================================ */
+
+.daily-form-card {
+  background: white;
+  border-radius: 18px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.form-title {
+  border-bottom: 1px solid #eadfd2;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.form-title h2 {
+  margin: 0;
+  color: #5c4033;
+  font-size: 21px;
+}
+
+.daily-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.daily-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.daily-input-group label {
+  font-weight: bold;
+  font-size: 14px;
+  color: #4c382b;
+}
+
+.daily-input-group input,
+.daily-input-group select,
+.daily-input-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d9c8b7;
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: #fffdfb;
+  color: #3f2d20;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+  font-family: inherit;
+}
+
+.daily-input-group input:focus,
+.daily-input-group select:focus,
+.daily-input-group textarea:focus {
+  border-color: #5c4033;
+  box-shadow: 0 0 0 3px rgba(92, 64, 51, 0.08);
+}
+
+.daily-input-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.daily-notes-group {
+  grid-column: span 3;
+}
+
+/* ===============================
+   أزرار النموذج
+================================ */
+
+.daily-form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.daily-save-btn,
+.daily-cancel-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 22px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.daily-save-btn {
+  background: #5c4033;
+  color: white;
+}
+
+.daily-save-btn:hover {
+  background: #432f25;
+  transform: translateY(-1px);
+}
+
+.daily-cancel-btn {
+  background: #eee4d9;
+  color: #5c4033;
+}
+
+.daily-cancel-btn:hover {
+  background: #dfd0c0;
+}
+
+/* ===============================
+   البحث والفلترة
+================================ */
+
+.daily-tools {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.daily-search {
+  flex: 1;
+  background: white;
+  border: 1px solid #e1d5c9;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+}
+
+.daily-search span {
+  font-size: 18px;
+}
+
+.daily-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 13px 0;
+  font-size: 14px;
+  background: transparent;
+}
+
+.daily-filter {
+  min-width: 170px;
+  border: 1px solid #d9c8b7;
+  background: white;
+  color: #3f2d20;
+  border-radius: 11px;
+  padding: 13px;
+  outline: none;
+  font-family: inherit;
+}
+
+/* ===============================
+   الجدول
+================================ */
+
+.daily-table-card {
+  background: white;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.daily-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.daily-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+}
+
+.daily-table thead {
+  background: #5c4033;
+  color: white;
+}
+
+.daily-table th {
+  padding: 15px 12px;
+  text-align: center;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.daily-table td {
+  padding: 14px 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee5dc;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.daily-table tbody tr:hover {
+  background: #fcf8f3;
+}
+
+.customer-name {
+  font-weight: bold;
+  color: #5c4033;
+  min-width: 190px;
+}
+
+.notes-cell {
+  max-width: 300px;
+  min-width: 220px;
+  white-space: normal;
+  line-height: 1.7;
+}
+
+/* ===============================
+   حالة الدفع
+================================ */
+
+.payment-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.paid-badge {
+  background: #e6f4e8;
+  color: #286331;
+}
+
+.unpaid-badge {
+  background: #fff0d9;
+  color: #a85d00;
+}
+
+/* ===============================
+   أزرار الإجراءات
+================================ */
+
+.daily-actions {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+}
+
+.edit-daily-btn,
+.delete-daily-btn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.2s;
+}
+
+.edit-daily-btn {
+  background: #f5e6d3;
+}
+
+.edit-daily-btn:hover {
+  background: #e7d4bd;
+  transform: translateY(-1px);
+}
+
+.delete-daily-btn {
+  background: #fbe5e3;
+}
+
+.delete-daily-btn:hover {
+  background: #f2c8c4;
+  transform: translateY(-1px);
+}
+
+/* ===============================
+   لا يوجد بيانات
+================================ */
+
+.daily-empty {
+  padding: 45px !important;
+  color: #888;
+  font-size: 15px !important;
+}
+
+/* ===============================
+   Tablet
+================================ */
+
+@media (max-width: 900px) {
+
+  .daily-page {
+    padding: 20px;
+  }
+
+  .daily-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .daily-form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .daily-notes-group {
+    grid-column: span 2;
+  }
+
+}
+
+/* ===============================
+   Mobile
+================================ */
+
+@media (max-width: 600px) {
+
+  .daily-page {
+    padding: 12px;
+  }
+
+  .daily-header {
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .daily-header h1 {
+    font-size: 23px;
+  }
+
+  .daily-header p {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .daily-stat-card {
+    padding: 16px;
+  }
+
+  .daily-form-card {
+    padding: 17px;
+    border-radius: 14px;
+  }
+
+  .daily-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .daily-notes-group {
+    grid-column: span 1;
+  }
+
+  .daily-tools {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .daily-filter {
+    width: 100%;
+  }
+
+  .daily-form-buttons {
+    flex-direction: column;
+  }
+
+  .daily-save-btn,
+  .daily-cancel-btn {
+    width: 100%;
+  }
+
+  .daily-table-card {
+    border-radius: 14px;
+  }
+
+}
+
+/* ===============================
+   Small Mobile
+================================ */
+
+@media (max-width: 400px) {
+
+  .daily-page {
+    padding: 8px;
+  }
+
+  .daily-header {
+    padding: 16px;
+  }
+
+  .daily-header h1 {
+    font-size: 21px;
+  }
+
+  .daily-stat-card {
+    padding: 14px;
+  }
+
+  .daily-stat-card strong {
+    font-size: 22px;
+  }
+
+  .daily-form-card {
+    padding: 14px;
+  }
+
+  .form-title h2 {
+    font-size: 18px;
+  }
+
+}
