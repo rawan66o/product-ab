@@ -2758,4 +2758,15 @@ input {
     flex-basis: 100%;
     order: 3;
   }
+}@media (max-width: 480px) {
+  .whatsapp-link {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    font-size: 13px;
+    padding: 6px 10px;
+    z-index: 1000;
+  }
 }
