@@ -2744,3 +2744,18 @@ input {
     font-size: 11px;
   }
 }
+
+@media (max-width: 480px) {
+  .store-navbar {
+    height: auto;
+    min-height: 60px;
+    padding: 10px 12px;
+
+    flex-wrap: wrap;
+  }
+
+  .store-links {
+    flex-basis: 100%;
+    order: 3;
+  }
+}
