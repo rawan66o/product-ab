@@ -8,10 +8,17 @@
   box-sizing: border-box;
 }
 
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
+  width: 100%;
   font-family: Arial, sans-serif;
   background-color: #f7f3ee;
   color: #4b3325;
+  overflow-x: hidden;
 }
 
 button,
@@ -26,6 +33,7 @@ input {
 
 .store-page {
   min-height: 100vh;
+  width: 100%;
   direction: rtl;
   background-color: #f7f3ee;
 }
@@ -37,13 +45,12 @@ input {
 
 .store-navbar {
   height: 75px;
+  width: 100%;
 
   background-color: white;
 
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
 
   padding: 0 50px;
@@ -52,39 +59,30 @@ input {
     0 3px 15px rgba(0, 0, 0, 0.08);
 
   position: sticky;
-
   top: 0;
-
   z-index: 100;
 }
 
 .store-logo {
   font-size: 26px;
-
   font-weight: bold;
-
   color: #4b3325;
 }
 
 .store-links {
   display: flex;
-
   align-items: center;
-
   gap: 25px;
 }
 
 .store-links a {
   text-decoration: none;
-
   color: #4b3325;
-
   font-weight: bold;
 }
 
 .admin-login-btn {
   background-color: #6b4630 !important;
-
   color: white !important;
 
   padding: 11px 18px;
@@ -104,6 +102,7 @@ input {
 ===================================== */
 
 .store-content {
+  width: 100%;
   max-width: 1250px;
 
   margin: auto;
@@ -113,16 +112,13 @@ input {
 
 .store-title {
   text-align: center;
-
   margin-bottom: 35px;
 }
 
 .store-title h1 {
   font-size: 36px;
-
-      margin-top: 65px;
+  margin-top: 65px;
   color: #4b3325;
-
   margin-bottom: 10px;
 }
 
@@ -137,7 +133,6 @@ input {
 
 .products-error {
   background-color: #fce8e8;
-
   color: #c0392b;
 
   padding: 15px;
@@ -630,11 +625,15 @@ input {
 .dashboard {
   min-height: 100vh;
 
+  width: 100%;
+
   display: flex;
 
   direction: rtl;
 
   background-color: #f5f0e9;
+
+  overflow-x: hidden;
 }
 
 
@@ -646,6 +645,8 @@ input {
   width: 250px;
 
   min-height: 100vh;
+
+  flex-shrink: 0;
 
   background-color: #4b3325;
 
@@ -726,6 +727,8 @@ input {
 
 .dashboard-main {
   flex: 1;
+
+  min-width: 0;
 
   padding: 40px;
 }
@@ -816,10 +819,10 @@ input {
 
 
 /* =====================================
-   Responsive
+   Tablet
 ===================================== */
 
-@media (max-width: 1000px) {
+@media screen and (max-width: 1000px) {
 
   .products-table {
     min-width: 850px;
@@ -830,12 +833,189 @@ input {
       repeat(2, 1fr);
   }
 
+  .dashboard-main {
+    padding: 30px;
+  }
+
 }
 
 
-@media (max-width: 700px) {
+/* =====================================
+   Mobile
+===================================== */
+
+@media screen and (max-width: 700px) {
+
+  /* -------------------------------
+     Dashboard
+  -------------------------------- */
+
+  .dashboard {
+    width: 100%;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow-x: hidden;
+  }
+
+
+  /* -------------------------------
+     Sidebar
+  -------------------------------- */
+
+  .sidebar {
+    width: 100%;
+
+    min-height: auto;
+
+    padding: 20px 15px;
+
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-size: 21px;
+
+    margin-bottom: 20px;
+  }
+
+  .sidebar-nav {
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column !important;
+
+    gap: 8px;
+  }
+
+  .sidebar-link {
+    width: 100%;
+
+    display: block;
+
+    text-align: center;
+
+    padding: 12px 10px;
+
+    font-size: 14px;
+  }
+
+  .logout-btn {
+    width: 100%;
+
+    margin-top: 15px;
+
+    padding: 12px;
+
+    font-size: 14px;
+  }
+
+
+  /* -------------------------------
+     Dashboard Main
+  -------------------------------- */
+
+  .dashboard-main {
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 15px;
+  }
+
+
+  /* -------------------------------
+     Dashboard Header
+  -------------------------------- */
+
+  .dashboard-header {
+    width: 100%;
+
+    padding: 20px 15px;
+
+    margin-bottom: 20px;
+
+    border-radius: 12px;
+
+    text-align: center;
+  }
+
+  .dashboard-header h1 {
+    font-size: 23px;
+
+    margin-bottom: 8px;
+  }
+
+  .dashboard-header p {
+    font-size: 13px;
+
+    line-height: 1.8;
+  }
+
+
+  /* -------------------------------
+     Dashboard Cards
+  -------------------------------- */
+
+  .dashboard-cards {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns: 1fr;
+
+    gap: 15px;
+  }
+
+  .dashboard-card {
+    width: 100%;
+
+    padding: 20px 15px;
+
+    border-radius: 12px;
+
+    text-align: center;
+  }
+
+  .card-icon {
+    font-size: 30px;
+
+    margin-bottom: 10px;
+  }
+
+  .dashboard-card h3 {
+    font-size: 18px;
+
+    margin-bottom: 8px;
+  }
+
+  .dashboard-card p {
+    font-size: 13px;
+
+    line-height: 1.7;
+
+    margin-bottom: 15px;
+  }
+
+  .card-btn {
+    padding: 10px 18px;
+
+    font-size: 13px;
+  }
+
+
+  /* -------------------------------
+     Store Navbar
+  -------------------------------- */
 
   .store-navbar {
+    height: 65px;
+
     padding: 0 15px;
   }
 
@@ -852,46 +1032,43 @@ input {
   }
 
 
+  /* -------------------------------
+     Store Content
+  -------------------------------- */
+
   .store-content {
     padding: 30px 15px;
   }
 
+  .store-title h1 {
+    font-size: 28px;
 
-  .dashboard {
-    flex-direction: column;
+    margin-top: 30px;
   }
 
 
-  .sidebar {
-    width: 100%;
+  /* -------------------------------
+     Products
+  -------------------------------- */
 
-    min-height: auto;
+  .products-table-container {
+    border-radius: 10px;
   }
 
-
-  .sidebar-nav {
-    flex-direction: row;
-  }
-
-
-  .logout-btn {
-    margin-top: 20px;
-  }
-
-
-  .dashboard-main {
-    padding: 20px;
-  }
-
-
-  .dashboard-cards {
-    grid-template-columns: 1fr;
+  .products-table {
+    min-width: 850px;
   }
 
 }
 
 
-@media (max-width: 500px) {
+/* =====================================
+   Very Small Mobile
+===================================== */
+
+@media screen and (max-width: 480px) {
+
+  /* Login */
 
   .login-card {
     padding: 25px;
@@ -901,125 +1078,8 @@ input {
     font-size: 24px;
   }
 
-}/* =====================================
-   Dashboard - Mobile
-===================================== */
 
-@media (max-width: 700px) {
-
-  /* الصفحة الرئيسية */
-  .dashboard {
-    width: 100%;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-  }
-
-  /* Sidebar */
-  .sidebar {
-    width: 100%;
-    min-height: auto;
-    padding: 20px 15px;
-  }
-
-  /* اللوجو */
-  .logo {
-    font-size: 21px;
-    margin-bottom: 20px;
-  }
-
-  /* روابط القائمة */
-  .sidebar-nav {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .sidebar-link {
-    width: 100%;
-    padding: 12px 14px;
-    font-size: 14px;
-    text-align: center;
-  }
-
-  /* زر تسجيل الخروج */
-  .logout-btn {
-    width: 100%;
-    margin-top: 15px;
-    padding: 12px;
-    font-size: 14px;
-  }
-
-  /* المحتوى الرئيسي */
-  .dashboard-main {
-    width: 100%;
-    padding: 15px;
-  }
-
-  /* رأس الداشبورد */
-  .dashboard-header {
-    width: 100%;
-    padding: 20px 15px;
-    margin-bottom: 20px;
-    border-radius: 12px;
-    text-align: center;
-  }
-
-  .dashboard-header h1 {
-    font-size: 23px;
-    margin-bottom: 8px;
-  }
-
-  .dashboard-header p {
-    font-size: 13px;
-    line-height: 1.7;
-  }
-
-  /* الكروت */
-  .dashboard-cards {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-
-  .dashboard-card {
-    width: 100%;
-    padding: 20px 15px;
-    border-radius: 12px;
-    text-align: center;
-  }
-
-  .card-icon {
-    font-size: 30px;
-    margin-bottom: 10px;
-  }
-
-  .dashboard-card h3 {
-    font-size: 18px;
-    margin-bottom: 8px;
-  }
-
-  .dashboard-card p {
-    font-size: 13px;
-    line-height: 1.7;
-    margin-bottom: 15px;
-  }
-
-  .card-btn {
-    padding: 9px 16px;
-    font-size: 13px;
-  }
-}
-
-
-/* =====================================
-   Dashboard - Very Small Mobile
-===================================== */
-
-@media (max-width: 400px) {
+  /* Dashboard */
 
   .sidebar {
     padding: 15px 10px;
@@ -1027,11 +1087,19 @@ input {
 
   .logo {
     font-size: 19px;
+
     margin-bottom: 15px;
   }
 
   .sidebar-link {
-    padding: 11px 10px;
+    padding: 11px 8px;
+
+    font-size: 13px;
+  }
+
+  .logout-btn {
+    padding: 11px;
+
     font-size: 13px;
   }
 
@@ -1041,6 +1109,8 @@ input {
 
   .dashboard-header {
     padding: 18px 12px;
+
+    border-radius: 10px;
   }
 
   .dashboard-header h1 {
@@ -1053,6 +1123,8 @@ input {
 
   .dashboard-card {
     padding: 18px 12px;
+
+    border-radius: 10px;
   }
 
   .dashboard-card h3 {
@@ -1061,5 +1133,38 @@ input {
 
   .dashboard-card p {
     font-size: 12px;
+  }
+
+  .card-btn {
+    padding: 9px 15px;
+
+    font-size: 12px;
+  }
+
+
+  /* Store */
+
+  .store-navbar {
+    padding: 0 10px;
+  }
+
+  .store-logo {
+    font-size: 19px;
+  }
+
+  .store-content {
+    padding: 20px 10px;
+  }
+
+  .store-title h1 {
+    font-size: 24px;
+
+    margin-top: 25px;
+  }
+
+  .modal {
+    padding: 25px 15px;
+
+    border-radius: 14px;
   }
 }

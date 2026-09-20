@@ -584,7 +584,7 @@ function Products() {
             rel="noopener noreferrer"
             className="whatsapp-link"
           >
-            💬 تواصل معنا
+           تواصل معنا
           </a>
 
           {user ? (
