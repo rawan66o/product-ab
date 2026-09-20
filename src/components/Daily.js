@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./Daily.css";
-
+import { Link } from "react-router-dom";
 // ========================================
 // API
 // ========================================
@@ -299,7 +299,30 @@ function Daily() {
 
   return (
     <div className="daily-page" dir="rtl">
+  <nav className="store-navbar">
 
+        <div className="store-logo">
+          متجري
+        </div>
+
+        <div className="store-links">
+
+          <Link to="/products">
+            المنتجات
+          </Link>
+
+          <Link to="/checks">
+            الكشوف
+          </Link>
+
+          <Link to="/dashboard">
+            الداشبورد
+          </Link>
+
+        </div>
+
+      </nav>
+  
       {/* ====================================
           Header
       ==================================== */}
@@ -307,7 +330,7 @@ function Daily() {
       <div className="daily-header">
 
         <div>
-          <h1>📖 اليوميات</h1>
+   <h1 style={{ color: "white" }}>📖 اليوميات</h1>
 
           <p>
             تسجيل ومتابعة ملاحظات وحركات الزبائن اليومية
