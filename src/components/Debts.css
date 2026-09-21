@@ -1,0 +1,1908 @@
+/* =========================================
+   General
+========================================= */
+
+.debts-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 30px;
+  background: #f7f1e8;
+  color: #493626;
+  font-family: Arial, sans-serif;
+}
+
+.debts-page * {
+  box-sizing: border-box;
+}
+
+
+/* =========================================
+   Header
+========================================= */
+
+.debts-header {
+  width: 100%;
+  max-width: 1300px;
+
+  margin: 0 auto 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+.debts-header h1 {
+  margin: 0 0 8px;
+
+  font-size: 30px;
+
+  color: #5a3d2b;
+}
+
+.debts-header p {
+  margin: 0;
+
+  color: #8b7565;
+
+  font-size: 15px;
+}
+
+
+/* =========================================
+   Add Button
+========================================= */
+
+.add-debt-btn {
+  border: none;
+
+  background: #6f4e37;
+  color: white;
+
+  padding: 13px 22px;
+
+  border-radius: 9px;
+
+  font-size: 14px;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.add-debt-btn:hover {
+  background: #523722;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   Summary
+========================================= */
+
+.debts-summary {
+  width: 100%;
+  max-width: 1300px;
+
+  margin: 0 auto 25px;
+
+  display: grid;
+
+  grid-template-columns: repeat(
+    3,
+    minmax(0, 1fr)
+  );
+
+  gap: 18px;
+}
+
+.debt-summary-card {
+  background: white;
+
+  padding: 22px;
+
+  border-radius: 12px;
+
+  border: 1px solid #e7d9cb;
+
+  box-shadow:
+    0 4px 12px rgba(73, 54, 38, 0.06);
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.debt-summary-card span {
+  color: #8b7565;
+
+  font-size: 14px;
+}
+
+.debt-summary-card strong {
+  color: #5a3d2b;
+
+  font-size: 23px;
+
+  overflow-wrap: anywhere;
+}
+
+.usd-card {
+  border-right: 4px solid #9b7957;
+}
+
+.syp-card {
+  border-right: 4px solid #729477;
+}
+
+
+/* =========================================
+   Search
+========================================= */
+
+.debts-search {
+  width: 100%;
+  max-width: 1300px;
+
+  margin: 0 auto 20px;
+}
+
+.debts-search input {
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border: 1px solid #d9c8b7;
+
+  border-radius: 9px;
+
+  background: white;
+
+  color: #493626;
+
+  outline: none;
+
+  font-size: 15px;
+}
+
+.debts-search input:focus {
+  border-color: #8b6044;
+
+  box-shadow:
+    0 0 0 3px rgba(
+      111,
+      78,
+      55,
+      0.08
+    );
+}
+
+
+/* =========================================
+   Form
+========================================= */
+
+.debt-form-container {
+  width: 100%;
+  max-width: 1300px;
+
+  margin: 0 auto 25px;
+
+  padding: 25px;
+
+  background: white;
+
+  border: 1px solid #e5d6c7;
+
+  border-radius: 13px;
+
+  box-shadow:
+    0 4px 15px rgba(
+      73,
+      54,
+      38,
+      0.06
+    );
+}
+
+.debt-form-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 22px;
+}
+
+.debt-form-header h2 {
+  margin: 0;
+
+  color: #5a3d2b;
+
+  font-size: 22px;
+}
+
+.debt-close-btn {
+  width: 35px;
+  height: 35px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #f2e8df;
+
+  color: #5a3d2b;
+
+  font-size: 25px;
+
+  cursor: pointer;
+}
+
+.debt-close-btn:hover {
+  background: #e6d9cd;
+}
+
+
+/* =========================================
+   Form Grid
+========================================= */
+
+.debt-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 18px;
+}
+
+.debt-field {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.debt-field label {
+  color: #624833;
+
+  font-size: 14px;
+
+  font-weight: bold;
+}
+
+.debt-field input {
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 12px;
+
+  border: 1px solid #d9c8b7;
+
+  border-radius: 8px;
+
+  outline: none;
+
+  background: white;
+
+  color: #493626;
+
+  font-size: 14px;
+}
+
+.debt-field input:focus {
+  border-color: #8b6044;
+}
+
+
+/* =========================================
+   Form Buttons
+========================================= */
+
+.debt-form-actions {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 25px;
+}
+
+.save-debt-btn,
+.cancel-debt-btn {
+  padding: 12px 22px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  font-size: 14px;
+}
+
+.save-debt-btn {
+  background: #6f4e37;
+
+  color: white;
+}
+
+.save-debt-btn:hover {
+  background: #523722;
+}
+
+.save-debt-btn:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+.cancel-debt-btn {
+  background: #eee5dc;
+
+  color: #5a3d2b;
+}
+
+.cancel-debt-btn:hover {
+  background: #dfd2c5;
+}
+
+
+/* =========================================
+   Table Container
+========================================= */
+
+.debts-table-container {
+  width: 100%;
+  max-width: 1300px;
+
+  margin: 0 auto;
+
+  background: white;
+
+  border: 1px solid #e5d6c7;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 4px 15px rgba(
+      73,
+      54,
+      38,
+      0.06
+    );
+
+  overflow-x: auto;
+}
+
+
+/* =========================================
+   Desktop Table
+========================================= */
+
+.debts-table {
+  width: 100%;
+
+  min-width: 950px;
+
+  border-collapse: collapse;
+}
+
+.debts-table th {
+  padding: 16px 12px;
+
+  background: #6f4e37;
+
+  color: white;
+
+  font-size: 14px;
+
+  white-space: nowrap;
+}
+
+.debts-table td {
+  padding: 15px 12px;
+
+  text-align: center;
+
+  border-bottom: 1px solid #eee4da;
+
+  font-size: 14px;
+
+  vertical-align: middle;
+}
+
+.debts-table tbody tr:hover {
+  background: #fcf8f4;
+}
+
+.debts-table tfoot td {
+  background: #f4e9dc;
+
+  color: #5a3d2b;
+
+  font-weight: bold;
+
+  border-bottom: none;
+}
+
+
+/* =========================================
+   Person
+========================================= */
+
+.debt-person {
+  min-width: 190px;
+
+  max-width: 270px;
+
+  color: #503a29;
+
+  font-weight: bold;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================
+   Check Number
+========================================= */
+
+.debt-check-number {
+  direction: ltr;
+
+  white-space: nowrap;
+
+  font-weight: bold;
+}
+
+
+/* =========================================
+   Amounts
+========================================= */
+
+.debt-usd {
+  color: #8a5a27;
+
+  font-weight: bold;
+
+  white-space: nowrap;
+}
+
+.debt-syp {
+  color: #47754e;
+
+  font-weight: bold;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   Actions
+========================================= */
+
+.debt-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  flex-wrap: wrap;
+}
+
+.edit-debt-btn,
+.delete-debt-btn {
+  padding: 8px 10px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  font-size: 12px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+.edit-debt-btn {
+  background: #eee5dc;
+
+  color: #65452f;
+}
+
+.edit-debt-btn:hover {
+  background: #dfd2c5;
+}
+
+.delete-debt-btn {
+  background: #f8e1df;
+
+  color: #a43d3d;
+}
+
+.delete-debt-btn:hover {
+  background: #edcfcc;
+}
+
+
+/* =========================================
+   Empty / Loading
+========================================= */
+
+.debts-message {
+  padding: 60px 20px;
+
+  text-align: center;
+
+  color: #8b7565;
+}
+
+.debts-message h3 {
+  margin: 10px 0 8px;
+
+  color: #5a3d2b;
+}
+
+.debts-message p {
+  margin: 0;
+}
+
+.empty-debt-icon {
+  font-size: 45px;
+}
+
+
+/* =========================================
+   Mobile Cards
+========================================= */
+
+.debts-mobile-cards {
+  display: none;
+}
+
+
+/* =========================================
+   Tablet
+========================================= */
+
+@media (max-width: 900px) {
+
+  .debts-page {
+    padding: 20px;
+  }
+
+  .debts-summary {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .debt-form-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+}
+
+
+/* =========================================
+   Mobile
+========================================= */
+
+@media (max-width: 600px) {
+
+  .debts-page {
+    padding: 15px 10px;
+  }
+
+
+  /* Header */
+
+  .debts-header {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 15px;
+  }
+
+  .debts-header h1 {
+    font-size: 25px;
+  }
+
+  .debts-header p {
+    font-size: 13px;
+  }
+
+  .add-debt-btn {
+    width: 100%;
+
+    padding: 13px;
+  }
+
+
+  /* Summary */
+
+  .debts-summary {
+    grid-template-columns: 1fr;
+
+    gap: 12px;
+  }
+
+  .debt-summary-card {
+    padding: 17px;
+  }
+
+  .debt-summary-card strong {
+    font-size: 20px;
+  }
+
+
+  /* Search */
+
+  .debts-search input {
+    font-size: 14px;
+
+    padding: 13px;
+  }
+
+
+  /* Form */
+
+  .debt-form-container {
+    padding: 16px;
+
+    border-radius: 12px;
+  }
+
+  .debt-form-header h2 {
+    font-size: 19px;
+  }
+
+  .debt-form-grid {
+    grid-template-columns: 1fr;
+
+    gap: 15px;
+  }
+
+  .debt-form-actions {
+    flex-direction: column;
+
+    gap: 9px;
+  }
+
+  .save-debt-btn,
+  .cancel-debt-btn {
+    width: 100%;
+  }
+
+
+  /* =====================================
+     إخفاء الجدول بالموبايل
+  ===================================== */
+
+  .debts-table {
+    display: none;
+  }
+
+  .debts-table-container {
+    border: none;
+
+    background: transparent;
+
+    box-shadow: none;
+
+    overflow: visible;
+  }
+
+
+  /* =====================================
+     إظهار الكروت
+  ===================================== */
+
+  .debts-mobile-cards {
+    display: flex;
+
+    width: 100%;
+
+    flex-direction: column;
+
+    gap: 14px;
+  }
+
+
+  /* =====================================
+     Debt Card
+  ===================================== */
+
+  .debt-card {
+    width: 100%;
+
+    padding: 17px;
+
+    background: white;
+
+    border: 1px solid #e3d5c7;
+
+    border-radius: 14px;
+
+    box-shadow:
+      0 4px 14px rgba(
+        73,
+        54,
+        38,
+        0.07
+      );
+
+    overflow: hidden;
+  }
+
+
+  /* Card Header */
+
+  .debt-card-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding-bottom: 13px;
+
+    margin-bottom: 14px;
+
+    border-bottom: 1px solid #eee4da;
+  }
+
+  .debt-card-number {
+    padding: 6px 10px;
+
+    border-radius: 7px;
+
+    background: #6f4e37;
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: bold;
+  }
+
+  .debt-card-date {
+    color: #806b5a;
+
+    font-size: 13px;
+
+    white-space: nowrap;
+  }
+
+
+  /* Person */
+
+  .debt-card-person {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 7px;
+
+    margin-bottom: 13px;
+
+    padding-bottom: 14px;
+
+    border-bottom: 1px solid #f0e7df;
+  }
+
+  .debt-card-person span {
+    color: #927d6b;
+
+    font-size: 12px;
+  }
+
+  .debt-card-person strong {
+    color: #503a29;
+
+    font-size: 16px;
+
+    line-height: 1.6;
+
+    overflow-wrap: anywhere;
+  }
+
+
+  /* Card Rows */
+
+  .debt-card-row {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 11px 0;
+
+    border-bottom: 1px solid #f3ebe4;
+  }
+
+  .debt-card-row span {
+    color: #806b5a;
+
+    font-size: 13px;
+  }
+
+  .debt-card-row strong {
+    font-size: 14px;
+
+    text-align: left;
+
+    overflow-wrap: anywhere;
+  }
+
+
+  /* Check */
+
+  .mobile-check-number {
+    direction: ltr;
+
+    color: #5a3d2b;
+  }
+
+
+  /* Amounts */
+
+  .mobile-usd {
+    color: #8a5a27;
+  }
+
+  .mobile-syp {
+    color: #47754e;
+  }
+
+
+  /* Card Buttons */
+
+  .debt-card-actions {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 9px;
+
+    margin-top: 15px;
+  }
+
+  .debt-card-actions button {
+    width: 100%;
+
+    padding: 11px 7px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+  }
+
+
+  /* =====================================
+     Mobile Total
+  ===================================== */
+
+  .mobile-total-card {
+    width: 100%;
+
+    padding: 18px;
+
+    background: #6f4e37;
+
+    color: white;
+
+    border-radius: 14px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+    box-shadow:
+      0 4px 14px rgba(
+        73,
+        54,
+        38,
+        0.1
+      );
+  }
+
+  .mobile-total-card div {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+  }
+
+  .mobile-total-card div + div {
+    padding-top: 13px;
+
+    border-top:
+      1px solid
+      rgba(
+        255,
+        255,
+        255,
+        0.2
+      );
+  }
+
+  .mobile-total-card span {
+    font-size: 13px;
+  }
+
+  .mobile-total-card strong {
+    font-size: 16px;
+
+    white-space: nowrap;
+  }
+
+}
+
+
+/* =========================================
+   Small Mobile
+========================================= */
+
+@media (max-width: 380px) {
+
+  .debts-page {
+    padding: 12px 8px;
+  }
+
+  .debt-card {
+    padding: 14px;
+  }
+
+  .debt-card-person strong {
+    font-size: 14px;
+  }
+
+  .debt-card-row span {
+    font-size: 12px;
+  }
+
+  .debt-card-row strong {
+    font-size: 13px;
+  }
+
+  .debt-card-date {
+    font-size: 11px;
+  }
+
+  .debt-card-number {
+    font-size: 11px;
+  }
+
+}/* =========================================
+   General
+========================================= */
+
+.debts-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 30px;
+  background: #f7f1e8;
+  color: #493626;
+  font-family: Arial, sans-serif;
+}
+
+.debts-page * {
+  box-sizing: border-box;
+}
+
+
+/* =========================================
+   Header
+========================================= */
+
+.debts-header {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.debts-header h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  color: #5a3d2b;
+}
+
+.debts-header p {
+  margin: 0;
+  color: #8b7565;
+  font-size: 15px;
+}
+
+
+/* =========================================
+   Add Button
+========================================= */
+
+.add-debt-btn {
+  border: none;
+  background: #6f4e37;
+  color: white;
+
+  padding: 13px 22px;
+  border-radius: 9px;
+
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.add-debt-btn:hover {
+  background: #523722;
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   Summary
+========================================= */
+
+.debts-summary {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto 25px;
+
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.debt-summary-card {
+  min-width: 0;
+  background: white;
+  padding: 22px;
+
+  border-radius: 12px;
+  border: 1px solid #e7d9cb;
+
+  box-shadow: 0 4px 12px rgba(73, 54, 38, 0.06);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.debt-summary-card span {
+  color: #8b7565;
+  font-size: 14px;
+}
+
+.debt-summary-card strong {
+  color: #5a3d2b;
+  font-size: 23px;
+  overflow-wrap: anywhere;
+}
+
+.usd-card {
+  border-right: 4px solid #9b7957;
+}
+
+.syp-card {
+  border-right: 4px solid #729477;
+}
+
+
+/* =========================================
+   Search
+========================================= */
+
+.debts-search {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto 18px;
+}
+
+.debts-search input {
+  width: 100%;
+  min-width: 0;
+
+  padding: 14px 16px;
+
+  border: 1px solid #d9c8b7;
+  border-radius: 9px;
+
+  background: white;
+  color: #493626;
+
+  outline: none;
+  font-size: 15px;
+}
+
+.debts-search input:focus {
+  border-color: #8b6044;
+  box-shadow: 0 0 0 3px rgba(111, 78, 55, 0.08);
+}
+
+
+/* =========================================
+   Filter Buttons
+========================================= */
+
+.debts-filter {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto 20px;
+
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.debts-filter button {
+  padding: 11px 20px;
+
+  border: 1px solid #d9c8b7;
+  border-radius: 9px;
+
+  background: white;
+  color: #6f4e37;
+
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.debts-filter button:hover {
+  background: #eee5dc;
+}
+
+.debts-filter button.active {
+  background: #6f4e37;
+  color: white;
+  border-color: #6f4e37;
+}
+
+
+/* =========================================
+   Form Container
+========================================= */
+
+.debt-form-container {
+  width: 100%;
+  max-width: 1300px;
+
+  margin: 0 auto 25px;
+  padding: 25px;
+
+  background: white;
+  border: 1px solid #e5d6c7;
+  border-radius: 13px;
+
+  box-shadow: 0 4px 15px rgba(73, 54, 38, 0.06);
+}
+
+.debt-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.debt-form-header h2 {
+  margin: 0;
+  color: #5a3d2b;
+  font-size: 22px;
+}
+
+.debt-close-btn {
+  flex-shrink: 0;
+
+  width: 35px;
+  height: 35px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #f2e8df;
+  color: #5a3d2b;
+
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.debt-close-btn:hover {
+  background: #e6d9cd;
+}
+
+
+/* =========================================
+   Form Grid
+========================================= */
+
+.debt-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.debt-field {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.debt-field label {
+  color: #624833;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.debt-field input,
+.debt-field select {
+  width: 100%;
+  min-width: 0;
+
+  padding: 12px;
+
+  border: 1px solid #d9c8b7;
+  border-radius: 8px;
+
+  background: white;
+  color: #493626;
+
+  outline: none;
+  font-size: 14px;
+}
+
+.debt-field input:focus,
+.debt-field select:focus {
+  border-color: #8b6044;
+}
+
+
+/* =========================================
+   Form Actions
+========================================= */
+
+.debt-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  margin-top: 25px;
+}
+
+.save-debt-btn,
+.cancel-debt-btn {
+  padding: 12px 22px;
+
+  border: none;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.save-debt-btn {
+  background: #6f4e37;
+  color: white;
+}
+
+.save-debt-btn:hover {
+  background: #523722;
+}
+
+.save-debt-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancel-debt-btn {
+  background: #eee5dc;
+  color: #5a3d2b;
+}
+
+.cancel-debt-btn:hover {
+  background: #dfd2c5;
+}
+
+
+/* =========================================
+   Table Container
+========================================= */
+
+.debts-table-container {
+  width: 100%;
+  max-width: 1300px;
+
+  margin: 0 auto;
+
+  background: white;
+  border: 1px solid #e5d6c7;
+  border-radius: 12px;
+
+  box-shadow: 0 4px 15px rgba(73, 54, 38, 0.06);
+
+  overflow-x: auto;
+}
+
+
+/* =========================================
+   Desktop Table
+========================================= */
+
+.debts-table {
+  width: 100%;
+  min-width: 1050px;
+
+  border-collapse: collapse;
+}
+
+.debts-table th {
+  padding: 16px 12px;
+
+  background: #6f4e37;
+  color: white;
+
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.debts-table td {
+  padding: 15px 12px;
+
+  text-align: center;
+  vertical-align: middle;
+
+  border-bottom: 1px solid #eee4da;
+
+  font-size: 14px;
+}
+
+.debts-table tbody tr:hover {
+  background: #fcf8f4;
+}
+
+.debts-table tfoot td {
+  background: #f4e9dc;
+  color: #5a3d2b;
+
+  font-weight: bold;
+  border-bottom: none;
+}
+
+
+/* =========================================
+   Debt Type Badge
+========================================= */
+
+.debt-type-badge {
+  display: inline-block;
+
+  padding: 6px 10px;
+  border-radius: 20px;
+
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.customer-badge {
+  background: #e4eee5;
+  color: #47754e;
+}
+
+.personal-badge {
+  background: #f6e8d7;
+  color: #98652f;
+}
+
+.customer-text {
+  color: #47754e;
+}
+
+.personal-text {
+  color: #98652f;
+}
+
+
+/* =========================================
+   Person / Check Number
+========================================= */
+
+.debt-person {
+  min-width: 180px;
+  max-width: 270px;
+
+  color: #503a29;
+  font-weight: bold;
+
+  overflow-wrap: anywhere;
+}
+
+.debt-check-number {
+  direction: ltr;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+
+/* =========================================
+   Amounts
+========================================= */
+
+.debt-usd {
+  color: #8a5a27;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.debt-syp {
+  color: #47754e;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   Action Buttons
+========================================= */
+
+.debt-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.edit-debt-btn,
+.delete-debt-btn {
+  padding: 8px 10px;
+
+  border: none;
+  border-radius: 6px;
+
+  font-size: 12px;
+  font-weight: bold;
+
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.edit-debt-btn {
+  background: #eee5dc;
+  color: #65452f;
+}
+
+.edit-debt-btn:hover {
+  background: #dfd2c5;
+}
+
+.delete-debt-btn {
+  background: #f8e1df;
+  color: #a43d3d;
+}
+
+.delete-debt-btn:hover {
+  background: #edcfcc;
+}
+
+
+/* =========================================
+   Loading / Empty Message
+========================================= */
+
+.debts-message {
+  padding: 60px 20px;
+  text-align: center;
+  color: #8b7565;
+}
+
+.debts-message h3 {
+  margin: 10px 0 8px;
+  color: #5a3d2b;
+}
+
+.debts-message p {
+  margin: 0;
+}
+
+
+/* =========================================
+   Mobile Cards - Hidden by Default
+========================================= */
+
+.debts-mobile-cards {
+  display: none;
+}
+
+
+/* =========================================
+   Tablet
+========================================= */
+
+@media (max-width: 900px) {
+  .debts-page {
+    padding: 20px;
+  }
+
+  .debts-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .debt-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+/* =========================================
+   Mobile
+========================================= */
+
+@media (max-width: 600px) {
+  .debts-page {
+    padding: 15px 10px;
+  }
+
+  /* Header */
+
+  .debts-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .debts-header h1 {
+    font-size: 25px;
+  }
+
+  .debts-header p {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .add-debt-btn {
+    width: 100%;
+    padding: 13px;
+  }
+
+  /* Summary */
+
+  .debts-summary {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .debt-summary-card {
+    padding: 17px;
+  }
+
+  .debt-summary-card strong {
+    font-size: 20px;
+  }
+
+  /* Search */
+
+  .debts-search input {
+    font-size: 14px;
+    padding: 13px;
+  }
+
+  /* Filters */
+
+  .debts-filter {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .debts-filter button {
+    width: 100%;
+    padding: 12px;
+  }
+
+  /* Form */
+
+  .debt-form-container {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .debt-form-header h2 {
+    font-size: 19px;
+  }
+
+  .debt-form-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .debt-form-actions {
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .save-debt-btn,
+  .cancel-debt-btn {
+    width: 100%;
+  }
+
+  /* إخفاء الجدول */
+
+  .debts-table {
+    display: none;
+  }
+
+  .debts-table-container {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  /* إظهار الكروت */
+
+  .debts-mobile-cards {
+    display: flex;
+    width: 100%;
+
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Card */
+
+  .debt-card {
+    width: 100%;
+    min-width: 0;
+
+    padding: 17px;
+
+    background: white;
+    border: 1px solid #e3d5c7;
+    border-radius: 14px;
+
+    box-shadow: 0 4px 14px rgba(73, 54, 38, 0.07);
+
+    overflow: hidden;
+  }
+
+  /* Card Header */
+
+  .debt-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    padding-bottom: 13px;
+    margin-bottom: 14px;
+
+    border-bottom: 1px solid #eee4da;
+  }
+
+  .debt-card-number {
+    background: #6f4e37;
+    color: white;
+
+    padding: 6px 10px;
+    border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .debt-card-date {
+    color: #806b5a;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* Person */
+
+  .debt-card-person {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    margin-bottom: 13px;
+    padding-bottom: 14px;
+
+    border-bottom: 1px solid #f0e7df;
+  }
+
+  .debt-card-person span {
+    color: #927d6b;
+    font-size: 12px;
+  }
+
+  .debt-card-person strong {
+    color: #503a29;
+    font-size: 16px;
+    line-height: 1.6;
+
+    overflow-wrap: anywhere;
+  }
+
+  /* Card Rows */
+
+  .debt-card-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding: 11px 0;
+
+    border-bottom: 1px solid #f3ebe4;
+  }
+
+  .debt-card-row span {
+    color: #806b5a;
+    font-size: 13px;
+  }
+
+  .debt-card-row strong {
+    font-size: 14px;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  /* Check Number */
+
+  .mobile-check-number {
+    direction: ltr;
+    color: #5a3d2b;
+  }
+
+  /* Amounts */
+
+  .mobile-usd {
+    color: #8a5a27;
+  }
+
+  .mobile-syp {
+    color: #47754e;
+  }
+
+  /* Card Buttons */
+
+  .debt-card-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+
+    margin-top: 15px;
+  }
+
+  .debt-card-actions button {
+    width: 100%;
+    padding: 11px 7px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  /* Mobile Total */
+
+  .mobile-total-card {
+    width: 100%;
+
+    padding: 18px;
+
+    background: #6f4e37;
+    color: white;
+
+    border-radius: 14px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    box-shadow: 0 4px 14px rgba(73, 54, 38, 0.1);
+  }
+
+  .mobile-total-card div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+  }
+
+  .mobile-total-card div + div {
+    padding-top: 13px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .mobile-total-card span {
+    font-size: 13px;
+  }
+
+  .mobile-total-card strong {
+    font-size: 16px;
+    white-space: nowrap;
+  }
+}
+
+
+/* =========================================
+   Small Mobile
+========================================= */
+
+@media (max-width: 380px) {
+  .debts-page {
+    padding: 12px 8px;
+  }
+
+  .debt-card {
+    padding: 14px;
+  }
+
+  .debt-card-person strong {
+    font-size: 14px;
+  }
+
+  .debt-card-row span {
+    font-size: 12px;
+  }
+
+  .debt-card-row strong {
+    font-size: 13px;
+  }
+
+  .debt-card-date {
+    font-size: 11px;
+  }
+
+  .debt-card-number {
+    font-size: 11px;
+  }
+}
