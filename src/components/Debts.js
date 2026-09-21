@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./Debts.css";
+import { Link } from "react-router-dom";
 
 const API_URL = "https://abdbac2-10.onrender.com/debts";
 
@@ -296,7 +297,32 @@ function Debts() {
 
   return (
     <div className="debts-page" dir="rtl">
+  <nav className="store-navbar">
 
+        <div className="store-logo">
+          متجري
+        </div>
+
+        <div className="store-links">
+
+          <Link to="/products">
+            المنتجات
+          </Link>
+
+          <Link to="/checks">
+            الكشوف
+          </Link>
+
+          <Link to="/dashboard">
+            الداشبورد
+          </Link>
+
+        </div>
+
+      </nav>
+      <div>
+        <br></br>
+      </div>
       {/* رأس الصفحة */}
 
       <div className="debts-header">
