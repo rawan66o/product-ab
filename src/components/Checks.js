@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -160,7 +161,6 @@ const normalizeCheck = (check) => {
         check.recipientName ||
         "",
 
-      // رقم التليفون
       phone: check.phone || "",
 
       residence:
@@ -215,7 +215,6 @@ const normalizeCheck = (check) => {
       check.recipientName ||
       "",
 
-    // رقم التليفون
     phone: check.phone || "",
 
     residence:
@@ -329,7 +328,6 @@ function CheckForm({
     <div className="modal-overlay">
       <div className="modal check-form-modal">
 
-        {/* Header */}
         <div className="modal-header">
           <div>
             <h2>
@@ -357,21 +355,17 @@ function CheckForm({
           </button>
         </div>
 
-        {/* Form */}
         <form
           className="check-form"
           onSubmit={handleSubmit}
         >
 
-          {/* بيانات الزبون */}
           <div className="form-section-title">
             بيانات الزبون
           </div>
 
           <div className="form-group">
-            <label>
-              اسم الزبون
-            </label>
+            <label>اسم الزبون</label>
 
             <input
               type="text"
@@ -387,11 +381,8 @@ function CheckForm({
             />
           </div>
 
-          {/* رقم التليفون */}
           <div className="form-group">
-            <label>
-              رقم التليفون
-            </label>
+            <label>رقم التليفون</label>
 
             <input
               type="tel"
@@ -403,9 +394,7 @@ function CheckForm({
           </div>
 
           <div className="form-group">
-            <label>
-              مكان الإقامة
-            </label>
+            <label>مكان الإقامة</label>
 
             <input
               type="text"
@@ -417,15 +406,12 @@ function CheckForm({
             />
           </div>
 
-          {/* بيانات الكشف */}
           <div className="form-section-title">
             بيانات الكشف
           </div>
 
           <div className="form-group">
-            <label>
-              رقم الكشف
-            </label>
+            <label>رقم الكشف</label>
 
             <input
               type="text"
@@ -438,9 +424,7 @@ function CheckForm({
           </div>
 
           <div className="form-group">
-            <label>
-              رقم الدفتر
-            </label>
+            <label>رقم الدفتر</label>
 
             <input
               type="text"
@@ -453,9 +437,7 @@ function CheckForm({
           </div>
 
           <div className="form-group">
-            <label>
-              التاريخ
-            </label>
+            <label>التاريخ</label>
 
             <input
               type="date"
@@ -467,9 +449,7 @@ function CheckForm({
           </div>
 
           <div className="form-group">
-            <label>
-              نوع الكشف
-            </label>
+            <label>نوع الكشف</label>
 
             <select
               name="type"
@@ -486,11 +466,8 @@ function CheckForm({
             </select>
           </div>
 
-          {/* حالة الدفع */}
           <div className="form-group payment-status-group">
-            <label>
-              حالة الدفع
-            </label>
+            <label>حالة الدفع</label>
 
             {formData.type === "بيع" ? (
               <select
@@ -523,7 +500,6 @@ function CheckForm({
             )}
           </div>
 
-          {/* سعر الدولار */}
           <div className="form-group exchange-rate-group">
             <label>
               سعر الدولار وقت إنشاء الكشف
@@ -544,11 +520,8 @@ function CheckForm({
             </small>
           </div>
 
-          {/* المواد */}
           <div className="form-section-title items-title">
-            <span>
-              مواد الكشف
-            </span>
+            <span>مواد الكشف</span>
 
             <button
               type="button"
@@ -704,7 +677,6 @@ function CheckForm({
             )}
           </div>
 
-          {/* إجماليات الكشف */}
           <div className="total-preview">
 
             <div>
@@ -737,15 +709,12 @@ function CheckForm({
 
           </div>
 
-          {/* الملاحظات */}
           <div className="form-section-title">
             ملاحظات
           </div>
 
           <div className="form-group full-width">
-            <label>
-              الملاحظات
-            </label>
+            <label>الملاحظات</label>
 
             <textarea
               name="notes"
@@ -755,7 +724,6 @@ function CheckForm({
             />
           </div>
 
-          {/* الأزرار */}
           <div className="form-actions">
 
             <button
@@ -798,6 +766,13 @@ function Checks() {
   const [error, setError] =
     useState("");
 
+  // ===================================================
+  // فلتر الكشوف
+  // all = الكل
+  // sale = البيع
+  // purchase = الشراء
+  // ===================================================
+
   const [filterType, setFilterType] =
     useState("all");
 
@@ -829,24 +804,32 @@ function Checks() {
         await axios.get(API_URL);
 
       if (Array.isArray(response.data)) {
+
         const normalized =
           response.data.map(
             normalizeCheck
           );
 
         setChecks(normalized);
+
       } else {
+
         setChecks([]);
+
       }
 
     } catch (err) {
+
       console.error(err);
 
       setError(
         "حدث خطأ أثناء جلب الكشوف"
       );
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
@@ -859,15 +842,13 @@ function Checks() {
   // =====================================================
 
   const handleChange = (e) => {
+
     const {
       name,
       value,
     } = e.target;
 
-    // -----------------------------------------------
     // تغيير نوع الكشف
-    // -----------------------------------------------
-
     if (name === "type") {
 
       setFormData((prev) => ({
@@ -883,10 +864,7 @@ function Checks() {
       return;
     }
 
-    // -----------------------------------------------
     // حالة الدفع
-    // -----------------------------------------------
-
     if (name === "paymentStatus") {
 
       setFormData((prev) => ({
@@ -897,10 +875,7 @@ function Checks() {
       return;
     }
 
-    // -----------------------------------------------
     // سعر الدولار
-    // -----------------------------------------------
-
     if (name === "exchangeRate") {
 
       let cleanValue =
@@ -928,10 +903,7 @@ function Checks() {
       return;
     }
 
-    // -----------------------------------------------
-    // باقي الحقول ومن ضمنها phone
-    // -----------------------------------------------
-
+    // باقي الحقول
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -1015,6 +987,7 @@ function Checks() {
   // =====================================================
 
   const addItem = () => {
+
     setFormData((prev) => ({
       ...prev,
 
@@ -1023,6 +996,7 @@ function Checks() {
         { ...emptyItem },
       ],
     }));
+
   };
 
   // =====================================================
@@ -1030,6 +1004,7 @@ function Checks() {
   // =====================================================
 
   const removeItem = (index) => {
+
     setFormData((prev) => ({
       ...prev,
 
@@ -1037,6 +1012,7 @@ function Checks() {
         (_, i) => i !== index
       ),
     }));
+
   };
 
   // =====================================================
@@ -1052,7 +1028,6 @@ function Checks() {
       customerName
     );
 
-    // جلب رقم الهاتف الموجود سابقاً للزبون
     const previousCustomerCheck =
       checks.find(
         (check) =>
@@ -1068,6 +1043,7 @@ function Checks() {
     const defaultType = "شراء";
 
     setFormData({
+
       ...emptyForm,
 
       customerName:
@@ -1138,6 +1114,7 @@ function Checks() {
         );
 
     if (numericIds.length > 0) {
+
       return String(
         Math.max(...numericIds) + 1
       );
@@ -1175,7 +1152,6 @@ function Checks() {
         customerName:
           formData.customerName.trim(),
 
-        // رقم التليفون
         phone:
           (formData.phone || "").trim(),
 
@@ -1246,11 +1222,6 @@ function Checks() {
         notes:
           formData.notes.trim(),
       };
-
-      console.log(
-        "البيانات المرسلة:",
-        newCheck
-      );
 
       const response =
         await axios.post(
@@ -1313,7 +1284,7 @@ function Checks() {
       if (
         openedCheck &&
         String(openedCheck.id) ===
-          String(id)
+        String(id)
       ) {
         setOpenedCheck(null);
       }
@@ -1352,7 +1323,6 @@ function Checks() {
       customerName:
         normalized.customerName || "",
 
-      // رقم التليفون
       phone:
         normalized.phone || "",
 
@@ -1413,6 +1383,7 @@ function Checks() {
                   formatNumber(
                     item.priceSyp
                   ),
+
               })
             )
           : [
@@ -1450,7 +1421,6 @@ function Checks() {
         customerName:
           formData.customerName.trim(),
 
-        // رقم التليفون
         phone:
           (formData.phone || "").trim(),
 
@@ -1514,17 +1484,13 @@ function Checks() {
                 toNumber(
                   item.priceSyp
                 ),
+
             })
           ),
 
         notes:
           formData.notes.trim(),
       };
-
-      console.log(
-        "بيانات التعديل:",
-        updatedCheck
-      );
 
       const response =
         await axios.put(
@@ -1567,6 +1533,7 @@ function Checks() {
 
     const value =
       String(type || "")
+        .trim()
         .toLowerCase();
 
     if (
@@ -1583,25 +1550,47 @@ function Checks() {
       return "بيع";
     }
 
-    return type;
+    return type || "";
   };
 
   // =====================================================
-  // فلترة
+  // الفلترة
   // =====================================================
 
-  const filteredChecks =
-    filterType === "all"
-      ? checks
-      : checks.filter(
-          (check) =>
-            getCheckType(
-              check.type
-            ) === filterType
-        );
+  const filteredChecks = checks.filter(
+    (check) => {
+
+      // إذا اختار الكل
+      if (filterType === "all") {
+        return true;
+      }
+
+      // نوع الكشف بعد توحيده
+      const checkType =
+        getCheckType(check.type);
+
+      // فلترة شراء
+      if (
+        filterType === "purchase" &&
+        checkType === "شراء"
+      ) {
+        return true;
+      }
+
+      // فلترة بيع
+      if (
+        filterType === "sale" &&
+        checkType === "بيع"
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+  );
 
   // =====================================================
-  // تجميع حسب الزبون
+  // تجميع الزبائن حسب الفلتر
   // =====================================================
 
   const customers = Array.from(
@@ -1690,6 +1679,7 @@ function Checks() {
   // =====================================================
 
   const openCheck = (check) => {
+
     setOpenedCheck(
       normalizeCheck(check)
     );
@@ -1765,15 +1755,20 @@ function Checks() {
           </div>
         )}
 
-        {/* Filter */}
+        {/* =================================================
+            FILTER
+        ================================================= */}
 
         <div className="checks-filter">
 
           <span>
-            فلترة:
+            فلترة الكشوف:
           </span>
 
+          {/* الكل */}
+
           <button
+            type="button"
             className={`filter-btn ${
               filterType === "all"
                 ? "active"
@@ -1786,33 +1781,79 @@ function Checks() {
             الكل
           </button>
 
-          <button
-            className={`filter-btn ${
-              filterType === "شراء"
-                ? "active"
-                : ""
-            }`}
-            onClick={() =>
-              setFilterType("شراء")
-            }
-          >
-            شراء
-          </button>
+          {/* البيع */}
 
           <button
+            type="button"
             className={`filter-btn ${
-              filterType === "بيع"
+              filterType === "sale"
                 ? "active"
                 : ""
             }`}
             onClick={() =>
-              setFilterType("بيع")
+              setFilterType("sale")
             }
           >
-            بيع
+            كشوف البيع
+          </button>
+
+          {/* الشراء */}
+
+          <button
+            type="button"
+            className={`filter-btn ${
+              filterType === "purchase"
+                ? "active"
+                : ""
+            }`}
+            onClick={() =>
+              setFilterType("purchase")
+            }
+          >
+            كشوف الشراء
           </button>
 
         </div>
+
+        {/* =================================================
+            عدد الكشوف حسب الفلتر
+        ================================================= */}
+
+        {!loading && (
+          <div className="filter-result-info">
+
+            {filterType === "all" && (
+              <>
+                جميع الكشوف:
+                {" "}
+                <strong>
+                  {filteredChecks.length}
+                </strong>
+              </>
+            )}
+
+            {filterType === "sale" && (
+              <>
+                كشوف البيع:
+                {" "}
+                <strong>
+                  {filteredChecks.length}
+                </strong>
+              </>
+            )}
+
+            {filterType === "purchase" && (
+              <>
+                كشوف الشراء:
+                {" "}
+                <strong>
+                  {filteredChecks.length}
+                </strong>
+              </>
+            )}
+
+          </div>
+        )}
 
         {/* Loading */}
 
@@ -1835,8 +1876,19 @@ function Checks() {
             </h3>
 
             <p>
-              أضف أول كشف للبدء
+              لا يوجد كشوف ضمن الفلترة المحددة
             </p>
+
+            {filterType !== "all" && (
+              <button
+                className="btn btn-add"
+                onClick={() =>
+                  setFilterType("all")
+                }
+              >
+                عرض كل الكشوف
+              </button>
+            )}
 
           </div>
 
@@ -1861,6 +1913,10 @@ function Checks() {
                   getCustomerPhone(
                     customerName
                   );
+
+                // مهم:
+                // الإجمالي هون محسوب فقط للكشوف
+                // الموجودة ضمن الفلتر الحالي
 
                 const customerTotalUsd =
                   calculateCustomerTotalUsd(
@@ -1930,12 +1986,18 @@ function Checks() {
 
                     </div>
 
-                    {/* إجمالي كشوف الزبون */}
+                    {/* إجمالي الزبون حسب الفلتر */}
 
                     <div className="customer-total-box">
 
                       <div className="customer-total-title">
-                        إجمالي جميع كشوف الزبون
+
+                        {filterType === "all"
+                          ? "إجمالي جميع كشوف الزبون"
+                          : filterType === "sale"
+                          ? "إجمالي كشوف البيع"
+                          : "إجمالي كشوف الشراء"}
+
                       </div>
 
                       <div className="customer-total-values">
@@ -2117,7 +2179,7 @@ function Checks() {
 
                               </div>
 
-                              {/* القيمة الإجمالية للكشف */}
+                              {/* القيمة الإجمالية */}
 
                               <div className="check-amount">
 
@@ -2290,6 +2352,7 @@ function Checks() {
                               </div>
 
                             </div>
+
                           );
                         }
                       )}
@@ -2323,11 +2386,13 @@ function Checks() {
                     </div>
 
                   </div>
+
                 );
               }
             )}
 
           </div>
+
         )}
 
       </main>
@@ -2366,8 +2431,6 @@ function Checks() {
 
           <div className="modal check-view-modal">
 
-            {/* Header */}
-
             <div className="modal-header">
 
               <div>
@@ -2402,12 +2465,9 @@ function Checks() {
 
             </div>
 
-            {/* Details */}
-
             <div className="check-view">
 
               <div className="view-row">
-
                 <span>
                   اسم الزبون
                 </span>
@@ -2418,10 +2478,7 @@ function Checks() {
                     "-"
                   }
                 </strong>
-
               </div>
-
-              {/* رقم التليفون */}
 
               <div className="view-row">
 
@@ -2514,8 +2571,6 @@ function Checks() {
 
               </div>
 
-              {/* حالة الدفع */}
-
               <div className="view-row payment-status-view">
 
                 <span>
@@ -2542,8 +2597,6 @@ function Checks() {
 
               </div>
 
-              {/* سعر الدولار */}
-
               <div className="view-row exchange-rate-view">
 
                 <span>
@@ -2564,8 +2617,6 @@ function Checks() {
                 </strong>
 
               </div>
-
-              {/* المواد */}
 
               <div className="view-items">
 
@@ -2678,8 +2729,6 @@ function Checks() {
 
               </div>
 
-              {/* إجمالي الكشف */}
-
               <div className="view-total">
 
                 <div>
@@ -2720,8 +2769,6 @@ function Checks() {
 
               </div>
 
-              {/* الملاحظات */}
-
               <div className="view-row notes-row">
 
                 <span>
@@ -2738,8 +2785,6 @@ function Checks() {
               </div>
 
             </div>
-
-            {/* Actions */}
 
             <div className="view-actions">
 
@@ -2782,3 +2827,4 @@ function Checks() {
 }
 
 export default Checks;
+
