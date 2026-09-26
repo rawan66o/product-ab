@@ -13,6 +13,7 @@ import OnlinePayment from "./components/OnlinePayment";
 import "./App.css";
 import Daily from "./components/Daily";
 import Debts from "./components/Debts";
+import Capital from "./components/Capital";
 
 // =========================================
 // Protected Route
@@ -98,6 +99,13 @@ function Dashboard() {
     className="sidebar-link"
   >
    📦 الديون
+  </Link>
+
+     <Link
+    to="/capital"
+    className="sidebar-link"
+  >
+   📊 النشرة  
   </Link>
 
 </nav>
@@ -251,6 +259,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+                <Route
+            path="/capital"
+            element={
+              <ProtectedRoute>
+              <Capital/>
+              </ProtectedRoute>
+            }
+          />
+
 
           {/* Checks */}
 
