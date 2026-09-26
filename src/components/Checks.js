@@ -1590,6 +1590,66 @@ function Checks() {
   );
 
   // =====================================================
+  // الإجماليات العامة لكشوف البيع والشراء
+  // =====================================================
+
+  const saleChecks = checks.filter(
+    (check) => getCheckType(check.type) === "بيع"
+  );
+
+  const purchaseChecks = checks.filter(
+    (check) => getCheckType(check.type) === "شراء"
+  );
+
+  const totalSalesUsd = saleChecks.reduce(
+    (total, check) => {
+      const normalized = normalizeCheck(check);
+
+      return (
+        total +
+        calculateTotalUsd(normalized.items || [])
+      );
+    },
+    0
+  );
+
+  const totalSalesSyp = saleChecks.reduce(
+    (total, check) => {
+      const normalized = normalizeCheck(check);
+
+      return (
+        total +
+        calculateTotalSyp(normalized.items || [])
+      );
+    },
+    0
+  );
+
+  const totalPurchasesUsd = purchaseChecks.reduce(
+    (total, check) => {
+      const normalized = normalizeCheck(check);
+
+      return (
+        total +
+        calculateTotalUsd(normalized.items || [])
+      );
+    },
+    0
+  );
+
+  const totalPurchasesSyp = purchaseChecks.reduce(
+    (total, check) => {
+      const normalized = normalizeCheck(check);
+
+      return (
+        total +
+        calculateTotalSyp(normalized.items || [])
+      );
+    },
+    0
+  );
+
+  // =====================================================
   // تجميع الزبائن حسب الفلتر
   // =====================================================
 
@@ -1814,6 +1874,90 @@ function Checks() {
           </button>
 
         </div>
+
+        {/* =================================================
+            الإجماليات العامة للبيع والشراء
+        ================================================= */}
+
+        {!loading && (
+          <div className="checks-total-summary">
+
+            <div className="summary-box sale-summary">
+
+              <div className="summary-box-header">
+                <span>💰</span>
+                <h3>إجمالي كشوف البيع</h3>
+              </div>
+
+              <div className="summary-values">
+
+                <div className="summary-value">
+                  <span>بالدولار</span>
+
+                  <strong>
+                    $ {formatNumber(
+                      totalSalesUsd.toFixed(2)
+                    )}
+                  </strong>
+                </div>
+
+                <div className="summary-value">
+                  <span>بالسوري</span>
+
+                  <strong>
+                    {formatNumber(
+                      totalSalesSyp.toFixed(0)
+                    )} ل.س
+                  </strong>
+                </div>
+
+              </div>
+
+              <small>
+                عدد الكشوف: {saleChecks.length}
+              </small>
+
+            </div>
+
+            <div className="summary-box purchase-summary">
+
+              <div className="summary-box-header">
+                <span>🛒</span>
+                <h3>إجمالي كشوف الشراء</h3>
+              </div>
+
+              <div className="summary-values">
+
+                <div className="summary-value">
+                  <span>بالدولار</span>
+
+                  <strong>
+                    $ {formatNumber(
+                      totalPurchasesUsd.toFixed(2)
+                    )}
+                  </strong>
+                </div>
+
+                <div className="summary-value">
+                  <span>بالسوري</span>
+
+                  <strong>
+                    {formatNumber(
+                      totalPurchasesSyp.toFixed(0)
+                    )} ل.س
+                  </strong>
+                </div>
+
+              </div>
+
+              <small>
+                عدد الكشوف: {purchaseChecks.length}
+              </small>
+
+            </div>
+
+          </div>
+        )}
 
         {/* =================================================
             عدد الكشوف حسب الفلتر
