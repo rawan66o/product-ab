@@ -1,10 +1,6 @@
 /* ========================================
-   General
+   Capital Page - Isolated Styles
 ======================================== */
-
-* {
-  box-sizing: border-box;
-}
 
 .capital-page {
   width: 100%;
@@ -19,7 +15,7 @@
    Header
 ======================================== */
 
-.capital-header {
+.capital-page .capital-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -27,19 +23,19 @@
   margin-bottom: 25px;
 }
 
-.capital-header h1 {
+.capital-page .capital-header h1 {
   margin: 0 0 8px;
   font-size: 30px;
   color: #4a3428;
 }
 
-.capital-header p {
+.capital-page .capital-header p {
   margin: 0;
   color: #806f62;
   font-size: 15px;
 }
 
-.add-capital-btn {
+.capital-page .add-capital-btn {
   border: none;
   background: #795548;
   color: white;
@@ -51,7 +47,7 @@
   transition: 0.2s;
 }
 
-.add-capital-btn:hover {
+.capital-page .add-capital-btn:hover {
   background: #5d4037;
 }
 
@@ -59,14 +55,14 @@
    Stats
 ======================================== */
 
-.capital-stats {
+.capital-page .capital-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 18px;
   margin-bottom: 22px;
 }
 
-.capital-stat-card {
+.capital-page .capital-stat-card {
   background: white;
   border: 1px solid #eadfd4;
   border-radius: 14px;
@@ -74,14 +70,14 @@
   box-shadow: 0 3px 12px rgba(80, 50, 30, 0.05);
 }
 
-.stat-title {
+.capital-page .stat-title {
   display: block;
   color: #8b796b;
   font-size: 14px;
   margin-bottom: 8px;
 }
 
-.capital-stat-card strong {
+.capital-page .capital-stat-card strong {
   display: block;
   color: #4e382c;
   font-size: 27px;
@@ -91,7 +87,7 @@
    Search
 ======================================== */
 
-.capital-search-box {
+.capital-page .capital-search-box {
   background: white;
   border: 1px solid #eadfd4;
   padding: 15px;
@@ -99,7 +95,7 @@
   margin-bottom: 20px;
 }
 
-.capital-search-box input {
+.capital-page .capital-search-box input {
   width: 100%;
   border: 1px solid #ddd0c5;
   outline: none;
@@ -110,7 +106,7 @@
   background: #fffdfb;
 }
 
-.capital-search-box input:focus {
+.capital-page .capital-search-box input:focus {
   border-color: #795548;
 }
 
@@ -118,7 +114,7 @@
    Loading
 ======================================== */
 
-.capital-loading {
+.capital-page .capital-loading {
   background: white;
   border-radius: 14px;
   padding: 50px;
@@ -131,7 +127,7 @@
    Table
 ======================================== */
 
-.capital-table-wrapper {
+.capital-page .capital-table-wrapper {
   width: 100%;
   overflow-x: auto;
   background: white;
@@ -140,13 +136,13 @@
   box-shadow: 0 3px 12px rgba(80, 50, 30, 0.05);
 }
 
-.capital-table {
+.capital-page .capital-table {
   width: 100%;
   border-collapse: collapse;
   min-width: 1050px;
 }
 
-.capital-table th {
+.capital-page .capital-table th {
   background: #6d4c41;
   color: white;
   padding: 15px 12px;
@@ -155,7 +151,7 @@
   white-space: nowrap;
 }
 
-.capital-table td {
+.capital-page .capital-table td {
   padding: 14px 12px;
   border-bottom: 1px solid #eee4dc;
   text-align: center;
@@ -164,70 +160,72 @@
   font-size: 14px;
 }
 
-.capital-table tbody tr:hover {
+.capital-page .capital-table tbody tr:hover {
   background: #fdf9f5;
 }
 
-.capital-table tbody tr:last-child td {
+.capital-page .capital-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.product-name-cell {
+.capital-page .capital-product-name {
   font-weight: bold;
-  color: #4a3428 !important;
+  color: #4a3428;
   min-width: 140px;
 }
 
-.price-usd {
+.capital-page .capital-price-usd {
   direction: ltr;
   font-weight: bold;
 }
 
-.quantity-cell {
+.capital-page .capital-quantity {
   font-weight: bold;
   direction: ltr;
 }
 
-.empty-row {
+.capital-page .capital-empty-row {
   padding: 45px !important;
   color: #8c7b6e !important;
 }
 
 /* ========================================
-   Actions
+   Capital Actions
 ======================================== */
 
-.capital-actions {
+.capital-page .capital-actions {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 7px;
 }
 
-.edit-btn,
-.delete-btn {
+.capital-page .capital-edit-btn,
+.capital-page .capital-delete-btn {
   border: none;
   border-radius: 7px;
   padding: 8px 12px;
   cursor: pointer;
   font-size: 13px;
   font-weight: bold;
+  transition: 0.2s;
 }
 
-.edit-btn {
+.capital-page .capital-edit-btn {
   background: #eee3d8;
   color: #5d4037;
 }
 
-.edit-btn:hover {
+.capital-page .capital-edit-btn:hover {
   background: #dfd0c2;
 }
 
-.delete-btn {
+.capital-page .capital-delete-btn {
   background: #f5dddd;
   color: #a13e3e;
 }
 
-.delete-btn:hover {
+.capital-page .capital-delete-btn:hover {
   background: #ecc9c9;
 }
 
@@ -235,119 +233,253 @@
    Mobile Cards
 ======================================== */
 
-.capital-mobile-list {
+.capital-page .capital-mobile-list {
   display: none;
+}
+
+/* ========================================
+   Card
+======================================== */
+
+.capital-page .capital-card {
+  background: white;
+  border: 1px solid #eadfd4;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(80, 50, 30, 0.05);
+}
+
+.capital-page .capital-card-header {
+  padding: 16px;
+  background: #6d4c41;
+  color: white;
+}
+
+.capital-page .capital-card-header h3 {
+  margin: 5px 0 0;
+  font-size: 18px;
+}
+
+.capital-page .capital-card-number {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.capital-page .capital-card-content {
+  padding: 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13px;
+}
+
+.capital-page .capital-info {
+  background: #faf6f2;
+  padding: 10px;
+  border-radius: 9px;
+  min-width: 0;
+}
+
+.capital-page .capital-info span {
+  display: block;
+  color: #8a786b;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.capital-page .capital-info strong {
+  display: block;
+  color: #4e382c;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.capital-page .capital-mobile-usd {
+  direction: ltr;
+}
+
+.capital-page .capital-mobile-quantity {
+  direction: ltr;
+}
+
+.capital-page .capital-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 0 15px 15px;
 }
 
 /* ========================================
    Modal
 ======================================== */
 
-.capital-modal-overlay {
+.capital-page .capital-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(35, 25, 20, 0.55);
+
   display: flex;
   justify-content: center;
   align-items: center;
+
   padding: 20px;
+
   z-index: 9999;
+
   overflow-y: auto;
 }
 
-.capital-modal {
+.capital-page .capital-modal {
   width: 100%;
   max-width: 650px;
   max-height: 90vh;
+
   overflow-y: auto;
+
   background: white;
+
   border-radius: 18px;
+
   padding: 25px;
+
   box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
 }
 
-.modal-header {
+/* ========================================
+   Modal Header
+======================================== */
+
+.capital-page .capital-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+
   gap: 20px;
+
   margin-bottom: 25px;
 }
 
-.modal-header h2 {
+.capital-page .capital-modal-header h2 {
   margin: 0 0 6px;
+
   color: #4a3428;
+
   font-size: 23px;
+  font-weight: bold;
 }
 
-.modal-header p {
+.capital-page .capital-modal-header p {
   margin: 0;
+
   color: #8a786b;
+
   font-size: 14px;
 }
 
-.modal-close {
+/* ========================================
+   Modal Close
+======================================== */
+
+.capital-page .capital-modal-close {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+
   border: none;
-  background: #f1e9e2;
-  width: 36px;
-  height: 36px;
   border-radius: 50%;
-  font-size: 25px;
-  line-height: 30px;
-  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f1e9e2;
+
   color: #5d4037;
+
+  font-size: 27px;
+  font-weight: 400;
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
-.modal-close:hover {
-  background: #e7dbd1;
+.capital-page .capital-modal-close:hover {
+  background: #6d4c41;
+  color: white;
+
+  transform: rotate(90deg);
+}
+
+.capital-page .capital-modal-close:active {
+  transform: scale(0.92);
 }
 
 /* ========================================
    Form
 ======================================== */
 
-.capital-form {
+.capital-page .capital-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.form-group {
+.capital-page .capital-form-group {
   display: flex;
   flex-direction: column;
   gap: 7px;
 }
 
-.form-group label {
+.capital-page .capital-form-group label {
   font-size: 14px;
   font-weight: bold;
   color: #5b4538;
 }
 
-.form-group input {
+.capital-page .capital-form-group input {
   width: 100%;
+
   border: 1px solid #d9cbbf;
+
   background: #fffdfb;
+
   border-radius: 9px;
+
   padding: 12px 13px;
+
   outline: none;
+
   font-size: 15px;
+
   color: #4d392f;
 }
 
-.form-group input:focus {
+.capital-page .capital-form-group input:focus {
   border-color: #795548;
-  box-shadow: 0 0 0 3px rgba(121, 85, 72, 0.08);
+
+  box-shadow:
+    0 0 0 3px rgba(121, 85, 72, 0.08);
 }
 
-.form-group small {
+.capital-page .capital-form-group small {
   color: #8a786b;
   font-size: 12px;
 }
 
-.form-row {
+/* ========================================
+   Form Row
+======================================== */
+
+.capital-page .capital-form-row {
   display: grid;
+
   grid-template-columns: 1fr 1fr;
+
   gap: 15px;
 }
 
@@ -355,43 +487,53 @@
    Form Buttons
 ======================================== */
 
-.form-buttons {
+.capital-page .capital-form-buttons {
   display: flex;
+
   justify-content: flex-end;
+
   gap: 10px;
+
   margin-top: 8px;
 }
 
-.cancel-btn,
-.save-btn {
+.capital-page .capital-cancel-btn,
+.capital-page .capital-save-btn {
   border: none;
+
   padding: 12px 20px;
+
   border-radius: 9px;
+
   cursor: pointer;
+
   font-size: 14px;
+
   font-weight: bold;
+
+  transition: 0.2s;
 }
 
-.cancel-btn {
+.capital-page .capital-cancel-btn {
   background: #eee5de;
   color: #5d4037;
 }
 
-.save-btn {
+.capital-page .capital-save-btn {
   background: #795548;
   color: white;
 }
 
-.save-btn:hover {
+.capital-page .capital-save-btn:hover {
   background: #5d4037;
 }
 
-.cancel-btn:hover {
+.capital-page .capital-cancel-btn:hover {
   background: #e1d6cd;
 }
 
-.save-btn:disabled,
-.cancel-btn:disabled {
+.capital-page .capital-save-btn:disabled,
+.capital-page .capital-cancel-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -401,11 +543,12 @@
 ======================================== */
 
 @media (max-width: 900px) {
+
   .capital-page {
     padding: 20px;
   }
 
-  .capital-table {
+  .capital-page .capital-table {
     min-width: 950px;
   }
 }
@@ -420,137 +563,86 @@
     padding: 15px;
   }
 
-  .capital-header {
+  .capital-page .capital-header {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .capital-header h1 {
+  .capital-page .capital-header h1 {
     font-size: 25px;
   }
 
-  .add-capital-btn {
+  .capital-page .add-capital-btn {
     width: 100%;
   }
 
-  .capital-stats {
+  .capital-page .capital-stats {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
 
-  .capital-stat-card {
+  .capital-page .capital-stat-card {
     padding: 15px;
   }
 
-  .capital-stat-card strong {
+  .capital-page .capital-stat-card strong {
     font-size: 23px;
   }
 
-  .capital-table-wrapper {
+  /* إخفاء الجدول */
+
+  .capital-page .capital-table-wrapper {
     display: none;
   }
 
-  .capital-mobile-list {
+  /* إظهار الكروت */
+
+  .capital-page .capital-mobile-list {
     display: flex;
+
     flex-direction: column;
+
     gap: 15px;
   }
 
-  .capital-card {
-    background: white;
-    border: 1px solid #eadfd4;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 3px 12px rgba(80, 50, 30, 0.05);
-  }
-
-  .capital-card-header {
-    padding: 16px;
-    background: #6d4c41;
-    color: white;
-  }
-
-  .capital-card-header h3 {
-    margin: 5px 0 0;
-    font-size: 18px;
-  }
-
-  .card-number {
-    font-size: 12px;
-    opacity: 0.8;
-  }
-
-  .capital-card-content {
-    padding: 15px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 13px;
-  }
-
-  .capital-info {
-    background: #faf6f2;
-    padding: 10px;
-    border-radius: 9px;
-    min-width: 0;
-  }
-
-  .capital-info span {
-    display: block;
-    color: #8a786b;
-    font-size: 12px;
-    margin-bottom: 5px;
-  }
-
-  .capital-info strong {
-    display: block;
-    color: #4e382c;
-    font-size: 14px;
-    overflow-wrap: anywhere;
-  }
-
-  .mobile-usd {
-    direction: ltr;
-  }
-
-  .mobile-quantity {
-    direction: ltr;
-  }
-
-  .capital-card-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    padding: 0 15px 15px;
-  }
-
-  .capital-card-actions button {
+  .capital-page .capital-card-actions button {
     padding: 11px;
   }
 
-  .capital-modal-overlay {
+  /* Modal */
+
+  .capital-page .capital-modal-overlay {
     padding: 10px;
+
     align-items: flex-start;
   }
 
-  .capital-modal {
+  .capital-page .capital-modal {
     margin-top: 10px;
+
     max-height: calc(100vh - 20px);
+
     padding: 20px;
+
     border-radius: 15px;
   }
 
-  .form-row {
+  /* Form */
+
+  .capital-page .capital-form-row {
     grid-template-columns: 1fr;
+
     gap: 16px;
   }
 
-  .form-buttons {
+  .capital-page .capital-form-buttons {
     display: grid;
+
     grid-template-columns: 1fr 1fr;
   }
 
-  .cancel-btn,
-  .save-btn {
+  .capital-page .capital-cancel-btn,
+  .capital-page .capital-save-btn {
     width: 100%;
   }
 }
@@ -565,19 +657,19 @@
     padding: 10px;
   }
 
-  .capital-stats {
+  .capital-page .capital-stats {
     grid-template-columns: 1fr;
   }
 
-  .capital-card-content {
+  .capital-page .capital-card-content {
     grid-template-columns: 1fr;
   }
 
-  .modal-header h2 {
+  .capital-page .capital-modal-header h2 {
     font-size: 20px;
   }
 
-  .capital-modal {
+  .capital-page .capital-modal {
     padding: 16px;
   }
 }

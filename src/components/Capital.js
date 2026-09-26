@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Capital.css";
-
+import { Link } from "react-router-dom";
 const API_URL = "https://abdbac2-10.onrender.com/capital";
 
 const emptyForm = {
@@ -50,7 +50,7 @@ function Capital() {
   }, []);
 
   // ========================================
-  // تغيير قيم الفورم
+  // تغيير الحقول
   // ========================================
 
   const handleChange = (e) => {
@@ -85,11 +85,13 @@ function Capital() {
       size: item.size || "",
       color: item.color || "",
       price_usd:
-        item.price_usd !== undefined && item.price_usd !== null
+        item.price_usd !== undefined &&
+        item.price_usd !== null
           ? item.price_usd
           : "",
       price_syp:
-        item.price_syp !== undefined && item.price_syp !== null
+        item.price_syp !== undefined &&
+        item.price_syp !== null
           ? item.price_syp
           : "",
       quantity: item.quantity || "",
@@ -156,25 +158,15 @@ function Capital() {
             ? 0
             : Number(form.price_syp),
 
-        // نتركها String لأن عندك ممكن تكون:
-        // "25-20"
-        // "40"
         quantity: form.quantity.toString().trim(),
       };
 
-      // ========================================
-      // تعديل
-      // ========================================
-
       if (editingId) {
-        await axios.put(`${API_URL}/${editingId}`, data);
-      }
-
-      // ========================================
-      // إضافة
-      // ========================================
-
-      else {
+        await axios.put(
+          `${API_URL}/${editingId}`,
+          data
+        );
+      } else {
         await axios.post(API_URL, data);
       }
 
@@ -219,35 +211,62 @@ function Capital() {
   // ========================================
 
   const filteredCapital = capital.filter((item) => {
-    const searchText = search.toLowerCase().trim();
+    const searchText = search
+      .toLowerCase()
+      .trim();
 
     if (!searchText) return true;
 
     return (
-      item.name?.toLowerCase().includes(searchText) ||
-      item.type?.toLowerCase().includes(searchText) ||
-      item.size?.toLowerCase().includes(searchText) ||
-      item.color?.toLowerCase().includes(searchText)
+      item.name
+        ?.toLowerCase()
+        .includes(searchText) ||
+      item.type
+        ?.toLowerCase()
+        .includes(searchText) ||
+      item.size
+        ?.toLowerCase()
+        .includes(searchText) ||
+      item.color
+        ?.toLowerCase()
+        .includes(searchText)
     );
   });
 
   // ========================================
-  // مجموع المنتجات
-  // ========================================
-
-  const totalProducts = capital.length;
-
-  // ========================================
-  // الواجهة
+  // عرض
   // ========================================
 
   return (
     <div className="capital-page" dir="rtl">
 
-      {/* ==============================
+      {/* =====================================
           Header
-      ============================== */}
+      ===================================== */}
+     <nav className="store-navbar">
 
+        <div className="store-logo">
+          متجري
+        </div>
+
+        <div className="store-links">
+
+          <Link to="/products">
+            المنتجات
+          </Link>
+
+          <Link to="/checks">
+            الكشوف
+          </Link>
+
+          <Link to="/dashboard">
+            الداشبورد
+          </Link>
+
+        </div>
+
+      </nav>
+      <br/>
       <div className="capital-header">
 
         <div>
@@ -259,6 +278,7 @@ function Capital() {
         </div>
 
         <button
+          type="button"
           className="add-capital-btn"
           onClick={openAddModal}
         >
@@ -267,9 +287,9 @@ function Capital() {
 
       </div>
 
-      {/* ==============================
-          الإحصائيات
-      ============================== */}
+      {/* =====================================
+          Stats
+      ===================================== */}
 
       <div className="capital-stats">
 
@@ -280,7 +300,7 @@ function Capital() {
           </span>
 
           <strong>
-            {totalProducts}
+            {capital.length}
           </strong>
 
         </div>
@@ -299,24 +319,26 @@ function Capital() {
 
       </div>
 
-      {/* ==============================
-          البحث
-      ============================== */}
+      {/* =====================================
+          Search
+      ===================================== */}
 
       <div className="capital-search-box">
 
         <input
           type="text"
-          placeholder="ابحث باسم المنتج أو النوع أو القياس..."
+          placeholder="ابحث باسم المنتج أو النوع أو القياس أو اللون..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) =>
+            setSearch(e.target.value)
+          }
         />
 
       </div>
 
-      {/* ==============================
+      {/* =====================================
           Loading
-      ============================== */}
+      ===================================== */}
 
       {loading ? (
 
@@ -327,9 +349,9 @@ function Capital() {
       ) : (
 
         <>
-          {/* ==============================
+          {/* =====================================
               Desktop Table
-          ============================== */}
+          ===================================== */}
 
           <div className="capital-table-wrapper">
 
@@ -358,7 +380,7 @@ function Capital() {
                   <tr>
                     <td
                       colSpan="9"
-                      className="empty-row"
+                      className="capital-empty-row"
                     >
                       لا توجد منتجات
                     </td>
@@ -366,71 +388,80 @@ function Capital() {
 
                 ) : (
 
-                  filteredCapital.map((item, index) => (
+                  filteredCapital.map(
+                    (item, index) => (
 
-                    <tr key={item.id}>
+                      <tr key={item.id}>
 
-                      <td>
-                        {index + 1}
-                      </td>
+                        <td>
+                          {index + 1}
+                        </td>
 
-                      <td className="product-name-cell">
-                        {item.name}
-                      </td>
+                        <td className="capital-product-name">
+                          {item.name}
+                        </td>
 
-                      <td>
-                        {item.type}
-                      </td>
+                        <td>
+                          {item.type || "-"}
+                        </td>
 
-                      <td>
-                        {item.size}
-                      </td>
+                        <td>
+                          {item.size || "-"}
+                        </td>
 
-                      <td>
-                        {item.color}
-                      </td>
+                        <td>
+                          {item.color || "-"}
+                        </td>
 
-                      <td className="price-usd">
-                        ${Number(item.price_usd || 0).toFixed(2)}
-                      </td>
+                        <td className="capital-price-usd">
+                          $
+                          {Number(
+                            item.price_usd || 0
+                          ).toFixed(2)}
+                        </td>
 
-                      <td>
-                        {Number(item.price_syp || 0).toLocaleString()}
-                      </td>
+                        <td>
+                          {Number(
+                            item.price_syp || 0
+                          ).toLocaleString()}
+                        </td>
 
-                      <td className="quantity-cell">
-                        {item.quantity}
-                      </td>
+                        <td className="capital-quantity">
+                          {item.quantity || "-"}
+                        </td>
 
-                      <td>
+                        <td>
 
-                        <div className="capital-actions">
+                          <div className="capital-actions">
 
-                          <button
-                            className="edit-btn"
-                            onClick={() =>
-                              openEditModal(item)
-                            }
-                          >
-                            تعديل
-                          </button>
+                            <button
+                              type="button"
+                              className="capital-edit-btn"
+                              onClick={() =>
+                                openEditModal(item)
+                              }
+                            >
+                              تعديل
+                            </button>
 
-                          <button
-                            className="delete-btn"
-                            onClick={() =>
-                              handleDelete(item.id)
-                            }
-                          >
-                            حذف
-                          </button>
+                            <button
+                              type="button"
+                              className="capital-delete-btn"
+                              onClick={() =>
+                                handleDelete(item.id)
+                              }
+                            >
+                              حذف
+                            </button>
 
-                        </div>
+                          </div>
 
-                      </td>
+                        </td>
 
-                    </tr>
+                      </tr>
 
-                  ))
+                    )
+                  )
 
                 )}
 
@@ -440,156 +471,164 @@ function Capital() {
 
           </div>
 
-          {/* ==============================
+          {/* =====================================
               Mobile Cards
-          ============================== */}
+          ===================================== */}
 
           <div className="capital-mobile-list">
 
             {filteredCapital.length === 0 ? (
 
-              <div className="mobile-empty">
+              <div className="capital-mobile-empty">
                 لا توجد منتجات
               </div>
 
             ) : (
 
-              filteredCapital.map((item, index) => (
+              filteredCapital.map(
+                (item, index) => (
 
-                <div
-                  className="capital-card"
-                  key={item.id}
-                >
+                  <div
+                    className="capital-card"
+                    key={item.id}
+                  >
 
-                  <div className="capital-card-header">
+                    <div className="capital-card-header">
 
-                    <div>
+                      <div>
 
-                      <span className="card-number">
-                        #{index + 1}
-                      </span>
+                        <span className="capital-card-number">
+                          #{index + 1}
+                        </span>
 
-                      <h3>
-                        {item.name}
-                      </h3>
+                        <h3>
+                          {item.name}
+                        </h3>
+
+                      </div>
+
+                    </div>
+
+                    <div className="capital-card-content">
+
+                      <div className="capital-info">
+
+                        <span>
+                          النوع
+                        </span>
+
+                        <strong>
+                          {item.type || "-"}
+                        </strong>
+
+                      </div>
+
+                      <div className="capital-info">
+
+                        <span>
+                          القياس
+                        </span>
+
+                        <strong>
+                          {item.size || "-"}
+                        </strong>
+
+                      </div>
+
+                      <div className="capital-info">
+
+                        <span>
+                          اللون
+                        </span>
+
+                        <strong>
+                          {item.color || "-"}
+                        </strong>
+
+                      </div>
+
+                      <div className="capital-info">
+
+                        <span>
+                          السعر بالدولار
+                        </span>
+
+                        <strong className="capital-mobile-usd">
+                          $
+                          {Number(
+                            item.price_usd || 0
+                          ).toFixed(2)}
+                        </strong>
+
+                      </div>
+
+                      <div className="capital-info">
+
+                        <span>
+                          السعر بالليرة
+                        </span>
+
+                        <strong>
+                          {Number(
+                            item.price_syp || 0
+                          ).toLocaleString()}
+                        </strong>
+
+                      </div>
+
+                      <div className="capital-info">
+
+                        <span>
+                          الكمية
+                        </span>
+
+                        <strong className="capital-mobile-quantity">
+                          {item.quantity || "-"}
+                        </strong>
+
+                      </div>
+
+                    </div>
+
+                    <div className="capital-card-actions">
+
+                      <button
+                        type="button"
+                        className="capital-edit-btn"
+                        onClick={() =>
+                          openEditModal(item)
+                        }
+                      >
+                        تعديل
+                      </button>
+
+                      <button
+                        type="button"
+                        className="capital-delete-btn"
+                        onClick={() =>
+                          handleDelete(item.id)
+                        }
+                      >
+                        حذف
+                      </button>
 
                     </div>
 
                   </div>
 
-                  <div className="capital-card-content">
-
-                    <div className="capital-info">
-
-                      <span>
-                        النوع
-                      </span>
-
-                      <strong>
-                        {item.type || "-"}
-                      </strong>
-
-                    </div>
-
-                    <div className="capital-info">
-
-                      <span>
-                        القياس
-                      </span>
-
-                      <strong>
-                        {item.size || "-"}
-                      </strong>
-
-                    </div>
-
-                    <div className="capital-info">
-
-                      <span>
-                        اللون
-                      </span>
-
-                      <strong>
-                        {item.color || "-"}
-                      </strong>
-
-                    </div>
-
-                    <div className="capital-info">
-
-                      <span>
-                        السعر بالدولار
-                      </span>
-
-                      <strong className="mobile-usd">
-                        ${Number(item.price_usd || 0).toFixed(2)}
-                      </strong>
-
-                    </div>
-
-                    <div className="capital-info">
-
-                      <span>
-                        السعر بالليرة
-                      </span>
-
-                      <strong>
-                        {Number(item.price_syp || 0).toLocaleString()}
-                      </strong>
-
-                    </div>
-
-                    <div className="capital-info">
-
-                      <span>
-                        الكمية
-                      </span>
-
-                      <strong className="mobile-quantity">
-                        {item.quantity || "-"}
-                      </strong>
-
-                    </div>
-
-                  </div>
-
-                  <div className="capital-card-actions">
-
-                    <button
-                      className="edit-btn"
-                      onClick={() =>
-                        openEditModal(item)
-                      }
-                    >
-                      تعديل
-                    </button>
-
-                    <button
-                      className="delete-btn"
-                      onClick={() =>
-                        handleDelete(item.id)
-                      }
-                    >
-                      حذف
-                    </button>
-
-                  </div>
-
-                </div>
-
-              ))
+                )
+              )
 
             )}
 
           </div>
-
         </>
 
       )}
 
-      {/* ==============================
+      {/* =====================================
           Modal
-      ============================== */}
+      ===================================== */}
 
       {showModal && (
 
@@ -605,7 +644,9 @@ function Capital() {
             }
           >
 
-            <div className="modal-header">
+            {/* Modal Header */}
+
+            <div className="capital-modal-header">
 
               <div>
 
@@ -622,22 +663,26 @@ function Capital() {
               </div>
 
               <button
-                className="modal-close"
+                type="button"
+                className="capital-modal-close"
                 onClick={closeModal}
+                aria-label="إغلاق"
               >
                 ×
               </button>
 
             </div>
 
+            {/* Form */}
+
             <form
-              onSubmit={handleSubmit}
               className="capital-form"
+              onSubmit={handleSubmit}
             >
 
               {/* اسم المنتج */}
 
-              <div className="form-group">
+              <div className="capital-form-group">
 
                 <label>
                   اسم المنتج
@@ -655,7 +700,7 @@ function Capital() {
 
               {/* النوع */}
 
-              <div className="form-group">
+              <div className="capital-form-group">
 
                 <label>
                   النوع
@@ -673,7 +718,7 @@ function Capital() {
 
               {/* القياس */}
 
-              <div className="form-group">
+              <div className="capital-form-group">
 
                 <label>
                   القياس
@@ -691,7 +736,7 @@ function Capital() {
 
               {/* اللون */}
 
-              <div className="form-group">
+              <div className="capital-form-group">
 
                 <label>
                   اللون
@@ -709,9 +754,9 @@ function Capital() {
 
               {/* الأسعار */}
 
-              <div className="form-row">
+              <div className="capital-form-row">
 
-                <div className="form-group">
+                <div className="capital-form-group">
 
                   <label>
                     السعر بالدولار
@@ -729,7 +774,7 @@ function Capital() {
 
                 </div>
 
-                <div className="form-group">
+                <div className="capital-form-group">
 
                   <label>
                     السعر بالليرة
@@ -751,7 +796,7 @@ function Capital() {
 
               {/* الكمية */}
 
-              <div className="form-group">
+              <div className="capital-form-group">
 
                 <label>
                   الكمية
@@ -771,13 +816,13 @@ function Capital() {
 
               </div>
 
-              {/* أزرار */}
+              {/* Buttons */}
 
-              <div className="form-buttons">
+              <div className="capital-form-buttons">
 
                 <button
                   type="button"
-                  className="cancel-btn"
+                  className="capital-cancel-btn"
                   onClick={closeModal}
                   disabled={saving}
                 >
@@ -786,7 +831,7 @@ function Capital() {
 
                 <button
                   type="submit"
-                  className="save-btn"
+                  className="capital-save-btn"
                   disabled={saving}
                 >
                   {saving
