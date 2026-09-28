@@ -2917,3 +2917,494 @@
   }
 
 }
+/* =====================================================
+   RETURN MODAL - المرتجع
+===================================================== */
+
+.return-modal {
+  max-width: 1000px;
+  width: 95%;
+}
+
+/* معلومات الكشف داخل المرتجع */
+.return-info-box {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+  padding: 18px;
+  background: #f8f3ec;
+  border: 1px solid #e5d8ca;
+  border-radius: 14px;
+}
+
+.return-info-box > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.return-info-box strong {
+  color: #6b4f3b;
+  font-size: 13px;
+}
+
+.return-info-box span {
+  color: #3e3027;
+  font-weight: 700;
+  font-size: 15px;
+  word-break: break-word;
+}
+
+
+/* =====================================================
+   تنبيه المرتجع
+===================================================== */
+
+.return-warning {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+
+  background: #fff8e8;
+  border: 1px solid #ead7a5;
+  border-radius: 12px;
+
+  color: #725d2e;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+
+/* =====================================================
+   حاوية مواد المرتجع
+===================================================== */
+
+.return-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+
+/* =====================================================
+   كرت مادة المرتجع
+===================================================== */
+
+.return-item-box {
+  padding: 20px;
+
+  background: #fff;
+  border: 1px solid #e4d7ca;
+  border-radius: 16px;
+
+  box-shadow: 0 4px 14px rgba(62, 48, 39, 0.06);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.return-item-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 20px rgba(62, 48, 39, 0.09);
+}
+
+
+/* =====================================================
+   رأس مادة المرتجع
+===================================================== */
+
+.return-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-bottom: 15px;
+  margin-bottom: 18px;
+
+  border-bottom: 1px solid #eee3d9;
+}
+
+.return-item-header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.return-item-header strong {
+  color: #4b3629;
+  font-size: 17px;
+}
+
+.return-item-header small {
+  color: #8a7566;
+  font-size: 13px;
+}
+
+
+/* =====================================================
+   معلومات المادة
+===================================================== */
+
+.return-item-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.return-info-field {
+  min-width: 0;
+  padding: 12px;
+
+  background: #faf7f3;
+  border: 1px solid #eee4db;
+  border-radius: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.return-info-field span {
+  color: #8a7566;
+  font-size: 12px;
+}
+
+.return-info-field strong {
+  color: #4b3629;
+  font-size: 14px;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+
+/* =====================================================
+   الكمية المتبقية
+===================================================== */
+
+.remaining-field {
+  background: #f4eee7;
+  border-color: #d8c7b6;
+}
+
+.remaining-field strong {
+  color: #6b4f3b;
+  font-size: 16px;
+}
+
+
+/* =====================================================
+   إدخال كمية المرتجع
+===================================================== */
+
+.return-quantity-input {
+  padding: 15px;
+
+  background: #f8f3ed;
+  border-radius: 12px;
+
+  border: 1px solid #e3d6c9;
+}
+
+.return-quantity-input label {
+  display: block;
+  margin-bottom: 8px;
+
+  color: #4b3629;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.return-quantity-input input {
+  width: 100%;
+  height: 46px;
+
+  padding: 0 14px;
+
+  border: 1px solid #d7c7b8;
+  border-radius: 9px;
+
+  background: #fff;
+
+  color: #3e3027;
+  font-size: 16px;
+  font-weight: 700;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.return-quantity-input input:focus {
+  border-color: #8a6a52;
+
+  box-shadow:
+    0 0 0 3px rgba(138, 106, 82, 0.12);
+}
+
+.return-quantity-input input::placeholder {
+  color: #aaa;
+  font-weight: 400;
+}
+
+.return-quantity-input input:disabled {
+  background: #eee9e4;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.return-quantity-input small {
+  display: block;
+  margin-top: 7px;
+
+  color: #9a4d43;
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   ملخص المرتجع
+===================================================== */
+
+.return-summary-box {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+
+  margin-top: 22px;
+  padding: 18px;
+
+  background: #f8f3ed;
+  border: 1px solid #e1d3c5;
+  border-radius: 14px;
+}
+
+.return-summary-box > div {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  padding: 12px;
+
+  background: #fff;
+  border-radius: 10px;
+}
+
+.return-summary-box span {
+  color: #8a7566;
+  font-size: 12px;
+}
+
+.return-summary-box strong {
+  color: #4b3629;
+  font-size: 16px;
+
+  overflow-wrap: anywhere;
+}
+
+.return-summary-box .net-return-result {
+  background: #eee5dc;
+  border: 1px solid #d8c7b6;
+}
+
+.return-summary-box .net-return-result strong {
+  color: #6b4f3b;
+  font-size: 18px;
+}
+
+
+/* =====================================================
+   زر حفظ المرتجع
+===================================================== */
+
+.btn-return {
+  background: #7b5b43 !important;
+  color: #fff !important;
+
+  border: none !important;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-return:hover {
+  background: #624632 !important;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 14px rgba(98, 70, 50, 0.2);
+}
+
+
+/* =====================================================
+   المرتجع ضمن بطاقة الكشف
+===================================================== */
+
+.return-reference {
+  margin: 12px 0;
+  padding: 10px 12px;
+
+  background: #fff8e8;
+  border: 1px solid #ead7a5;
+  border-radius: 9px;
+
+  color: #725d2e;
+  font-size: 13px;
+
+  line-height: 1.7;
+}
+
+.return-reference strong {
+  color: #8a6030;
+}
+
+
+/* =====================================================
+   إجمالي المرتجع في نافذة العرض
+===================================================== */
+
+.return-total-view {
+  background: #fff8e8 !important;
+  border-color: #ead7a5 !important;
+}
+
+.return-total-view strong {
+  color: #8a6030 !important;
+}
+
+
+/* =====================================================
+   كرت المرتجع داخل تفاصيل الكشف
+===================================================== */
+
+.return-view-item {
+  background: #fffaf2 !important;
+  border-color: #ead7a5 !important;
+}
+
+.return-view-item .view-item-header {
+  color: #8a6030;
+}
+
+
+/* =====================================================
+   Responsive - Tablet
+===================================================== */
+
+@media (max-width: 850px) {
+
+  .return-info-box {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .return-item-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .return-summary-box {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+
+/* =====================================================
+   Responsive - Mobile
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .return-modal {
+    width: 96%;
+    max-height: 94vh;
+    overflow-y: auto;
+  }
+
+  .return-info-box {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .return-item-box {
+    padding: 14px;
+    border-radius: 13px;
+  }
+
+  .return-item-header {
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+  }
+
+  .return-item-header strong {
+    font-size: 15px;
+  }
+
+  .return-item-info-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .return-info-field {
+    padding: 10px;
+  }
+
+  .return-info-field span {
+    font-size: 11px;
+  }
+
+  .return-info-field strong {
+    font-size: 13px;
+  }
+
+  .return-quantity-input {
+    padding: 12px;
+  }
+
+  .return-summary-box {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .return-summary-box > div {
+    padding: 11px;
+  }
+
+  .return-warning {
+    font-size: 13px;
+    padding: 11px 12px;
+  }
+
+}
+
+
+/* =====================================================
+   Responsive - Small Mobile
+===================================================== */
+
+@media (max-width: 400px) {
+
+  .return-item-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .return-item-header strong {
+    font-size: 14px;
+  }
+
+  .return-quantity-input input {
+    height: 44px;
+    font-size: 15px;
+  }
+
+}
