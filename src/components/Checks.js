@@ -31,6 +31,10 @@ const getDefaultPaymentStatus = (type) => {
     return "غير مدفوع";
   }
 
+  if (type === "مرتجع" || type === "return") {
+    return "لا ينطبق";
+  }
+
   return "";
 };
 
@@ -48,6 +52,8 @@ const emptyForm = {
   exchangeRate: "",
   type: "شراء",
   paymentStatus: "غير مدفوع",
+  returnForCheckId: "",
+  returnForCheckNumber: "",
   notes: "",
   items: [{ ...emptyItem }],
 };
@@ -182,6 +188,12 @@ const normalizeCheck = (check) => {
         check.paymentStatus ||
         defaultStatus,
 
+      returnForCheckId:
+        check.returnForCheckId || "",
+
+      returnForCheckNumber:
+        check.returnForCheckNumber || "",
+
       items: check.items.map((item) => ({
         productType:
           item.productType || "",
@@ -236,6 +248,12 @@ const normalizeCheck = (check) => {
       check.paymentStatus ||
       defaultStatus,
 
+    returnForCheckId:
+      check.returnForCheckId || "",
+
+    returnForCheckNumber:
+      check.returnForCheckNumber || "",
+
     items: [
       {
         productType:
@@ -258,46 +276,86 @@ const normalizeCheck = (check) => {
 };
 
 // =====================================================
-// إجمالي كل كشوف الزبون بالدولار
+// توحيد نوع الكشف
 // =====================================================
+
+const getCheckTypeValue = (type) => {
+  const value = String(type || "")
+    .trim()
+    .toLowerCase();
+
+  if (
+    value === "شراء" ||
+    value === "purchase"
+  ) {
+    return "شراء";
+  }
+
+  if (
+    value === "بيع" ||
+    value === "sale"
+  ) {
+    return "بيع";
+  }
+
+  if (
+    value === "مرتجع" ||
+    value === "return"
+  ) {
+    return "مرتجع";
+  }
+
+  return type || "";
+};
+
+// =====================================================
+// حساب إشارة الكشف ضمن حساب الزبون
+// البيع والشراء يضافان، والمرتجع يُطرح
+// =====================================================
+
+const getCheckSign = (check) => {
+  return getCheckTypeValue(check?.type) === "مرتجع"
+    ? -1
+    : 1;
+};
 
 const calculateCustomerTotalUsd = (
   customerChecks = []
 ) => {
   return customerChecks.reduce(
     (total, check) => {
-      const normalized =
-        normalizeCheck(check);
+      const normalized = normalizeCheck(check);
 
       const checkTotal =
         calculateTotalUsd(
           normalized.items || []
         );
 
-      return total + checkTotal;
+      return (
+        total +
+        checkTotal * getCheckSign(normalized)
+      );
     },
     0
   );
 };
-
-// =====================================================
-// إجمالي كل كشوف الزبون بالسوري
-// =====================================================
 
 const calculateCustomerTotalSyp = (
   customerChecks = []
 ) => {
   return customerChecks.reduce(
     (total, check) => {
-      const normalized =
-        normalizeCheck(check);
+      const normalized = normalizeCheck(check);
 
       const checkTotal =
         calculateTotalSyp(
           normalized.items || []
         );
 
-      return total + checkTotal;
+      return (
+        total +
+        checkTotal * getCheckSign(normalized)
+      );
     },
     0
   );
@@ -463,13 +521,33 @@ function CheckForm({
               <option value="بيع">
                 بيع
               </option>
+
+              <option value="مرتجع">
+                مرتجع
+              </option>
             </select>
           </div>
+
+          {formData.type === "مرتجع" && (
+            <div className="return-info-box">
+              <strong>مرتجع عن الكشف:</strong>{" "}
+              #{formData.returnForCheckNumber || "-"}
+              <small>
+                قيمة هذا الكشف ستُطرح من حساب الزبون.
+              </small>
+            </div>
+          )}
 
           <div className="form-group payment-status-group">
             <label>حالة الدفع</label>
 
-            {formData.type === "بيع" ? (
+            {formData.type === "مرتجع" ? (
+              <input
+                type="text"
+                value="لا ينطبق"
+                disabled
+              />
+            ) : formData.type === "بيع" ? (
               <select
                 name="paymentStatus"
                 value={formData.paymentStatus}
@@ -857,7 +935,9 @@ function Checks() {
 
         paymentStatus:
           editId
-            ? prev.paymentStatus
+            ? value === "مرتجع"
+              ? "لا ينطبق"
+              : prev.paymentStatus
             : getDefaultPaymentStatus(value),
       }));
 
@@ -1068,6 +1148,9 @@ function Checks() {
           defaultType
         ),
 
+      returnForCheckId: "",
+      returnForCheckNumber: "",
+
       items: [
         { ...emptyItem }
       ],
@@ -1126,6 +1209,70 @@ function Checks() {
   };
 
   // =====================================================
+  // إنشاء مرتجع عن كشف موجود
+  // =====================================================
+
+  const openReturnForm = (originalCheck) => {
+    const normalized = normalizeCheck(originalCheck);
+
+    setSelectedCustomer(
+      normalized.customerName || ""
+    );
+
+    setEditId(null);
+
+    setFormData({
+      ...emptyForm,
+      customerName:
+        normalized.customerName || "",
+      phone:
+        normalized.phone || "",
+      residence:
+        normalized.residence || "",
+      date:
+        new Date()
+          .toISOString()
+          .split("T")[0],
+      checkNumber: "",
+      bookNumber:
+        normalized.bookNumber || "",
+      exchangeRate:
+        normalized.exchangeRate !== ""
+          ? formatNumber(
+              normalized.exchangeRate
+            )
+          : "",
+      type: "مرتجع",
+      paymentStatus: "لا ينطبق",
+      returnForCheckId:
+        String(normalized.id || ""),
+      returnForCheckNumber:
+        normalized.checkNumber || "",
+      notes:
+        `مرتجع عن الكشف رقم #${
+          normalized.checkNumber || "-"
+        }`,
+      items:
+        normalized.items?.length
+          ? normalized.items.map((item) => ({
+              productType:
+                item.productType || "",
+              specifications:
+                item.specifications || "",
+              quantity:
+                formatNumber(item.quantity),
+              priceUsd:
+                formatNumber(item.priceUsd),
+              priceSyp:
+                formatNumber(item.priceSyp),
+            }))
+          : [{ ...emptyItem }],
+    });
+
+    setShowAddForm(true);
+  };
+
+  // =====================================================
   // إضافة كشف
   // =====================================================
 
@@ -1180,6 +1327,12 @@ function Checks() {
           getDefaultPaymentStatus(
             formData.type
           ),
+
+        returnForCheckId:
+          formData.returnForCheckId || "",
+
+        returnForCheckNumber:
+          formData.returnForCheckNumber || "",
 
         totalAmountUsd:
           Number(
@@ -1354,6 +1507,12 @@ function Checks() {
           normalized.type || "شراء"
         ),
 
+      returnForCheckId:
+        normalized.returnForCheckId || "",
+
+      returnForCheckNumber:
+        normalized.returnForCheckNumber || "",
+
       notes:
         normalized.notes || "",
 
@@ -1450,6 +1609,12 @@ function Checks() {
             formData.type
           ),
 
+        returnForCheckId:
+          formData.returnForCheckId || "",
+
+        returnForCheckNumber:
+          formData.returnForCheckNumber || "",
+
         totalAmountUsd:
           Number(
             totalAmountUsd.toFixed(2)
@@ -1530,27 +1695,7 @@ function Checks() {
   // =====================================================
 
   const getCheckType = (type) => {
-
-    const value =
-      String(type || "")
-        .trim()
-        .toLowerCase();
-
-    if (
-      value === "شراء" ||
-      value === "purchase"
-    ) {
-      return "شراء";
-    }
-
-    if (
-      value === "بيع" ||
-      value === "sale"
-    ) {
-      return "بيع";
-    }
-
-    return type || "";
+    return getCheckTypeValue(type);
   };
 
   // =====================================================
@@ -1581,6 +1726,13 @@ function Checks() {
       if (
         filterType === "sale" &&
         checkType === "بيع"
+      ) {
+        return true;
+      }
+
+      if (
+        filterType === "return" &&
+        checkType === "مرتجع"
       ) {
         return true;
       }
@@ -1646,6 +1798,29 @@ function Checks() {
         calculateTotalSyp(normalized.items || [])
       );
     },
+    0
+  );
+
+  const returnChecks = checks.filter(
+    (check) =>
+      getCheckType(check.type) === "مرتجع"
+  );
+
+  const totalReturnsUsd = returnChecks.reduce(
+    (total, check) =>
+      total +
+      calculateTotalUsd(
+        normalizeCheck(check).items || []
+      ),
+    0
+  );
+
+  const totalReturnsSyp = returnChecks.reduce(
+    (total, check) =>
+      total +
+      calculateTotalSyp(
+        normalizeCheck(check).items || []
+      ),
     0
   );
 
@@ -1873,6 +2048,20 @@ function Checks() {
             كشوف الشراء
           </button>
 
+          <button
+            type="button"
+            className={`filter-btn ${
+              filterType === "return"
+                ? "active"
+                : ""
+            }`}
+            onClick={() =>
+              setFilterType("return")
+            }
+          >
+            المرتجعات
+          </button>
+
         </div>
 
         {/* =================================================
@@ -1956,6 +2145,37 @@ function Checks() {
 
             </div>
 
+            <div className="summary-box return-summary">
+              <div className="summary-box-header">
+                <span>↩️</span>
+                <h3>إجمالي المرتجعات</h3>
+              </div>
+
+              <div className="summary-values">
+                <div className="summary-value">
+                  <span>بالدولار</span>
+                  <strong>
+                    $ {formatNumber(
+                      totalReturnsUsd.toFixed(2)
+                    )}
+                  </strong>
+                </div>
+
+                <div className="summary-value">
+                  <span>بالسوري</span>
+                  <strong>
+                    {formatNumber(
+                      totalReturnsSyp.toFixed(0)
+                    )} ل.س
+                  </strong>
+                </div>
+              </div>
+
+              <small>
+                عدد المرتجعات: {returnChecks.length}
+              </small>
+            </div>
+
           </div>
         )}
 
@@ -1989,6 +2209,16 @@ function Checks() {
             {filterType === "purchase" && (
               <>
                 كشوف الشراء:
+                {" "}
+                <strong>
+                  {filteredChecks.length}
+                </strong>
+              </>
+            )}
+
+            {filterType === "return" && (
+              <>
+                المرتجعات:
                 {" "}
                 <strong>
                   {filteredChecks.length}
@@ -2239,10 +2469,10 @@ function Checks() {
 
                                 <span
                                   className={`check-type ${
-                                    getCheckType(
-                                      check.type
-                                    ) === "شراء"
+                                    getCheckType(check.type) === "شراء"
                                       ? "purchase"
+                                      : getCheckType(check.type) === "مرتجع"
+                                      ? "return"
                                       : "sale"
                                   }`}
                                 >
@@ -2255,6 +2485,13 @@ function Checks() {
 
                               </div>
 
+                              {getCheckType(check.type) === "مرتجع" && (
+                                <div className="return-reference">
+                                  ↩️ مرتجع عن الكشف رقم #
+                                  {check.returnForCheckNumber || "-"}
+                                </div>
+                              )}
+
                               {/* حالة الدفع */}
 
                               <div className="payment-status-display">
@@ -2265,18 +2502,22 @@ function Checks() {
 
                                 <strong
                                   className={
-                                    check.paymentStatus ===
-                                      "مقبوض" ||
-                                    check.paymentStatus ===
-                                      "مدفوع"
+                                    getCheckType(check.type) === "مرتجع"
+                                      ? "return-status"
+                                      : check.paymentStatus ===
+                                          "مقبوض" ||
+                                        check.paymentStatus ===
+                                          "مدفوع"
                                       ? "paid"
                                       : "unpaid"
                                   }
                                 >
-                                  {check.paymentStatus ||
-                                    getDefaultPaymentStatus(
-                                      check.type
-                                    )}
+                                  {getCheckType(check.type) === "مرتجع"
+                                    ? "لا ينطبق"
+                                    : check.paymentStatus ||
+                                      getDefaultPaymentStatus(
+                                        check.type
+                                      )}
                                 </strong>
 
                               </div>
@@ -2470,6 +2711,17 @@ function Checks() {
                                 >
                                   👁 عرض
                                 </button>
+
+                                {getCheckType(check.type) !== "مرتجع" && (
+                                  <button
+                                    className="return-btn"
+                                    onClick={() =>
+                                      openReturnForm(check)
+                                    }
+                                  >
+                                    ↩️ مرتجع
+                                  </button>
+                                )}
 
                                 <button
                                   className="edit-btn"
@@ -2715,6 +2967,19 @@ function Checks() {
 
               </div>
 
+              {getCheckType(openedCheck.type) === "مرتجع" && (
+                <div className="view-row return-reference-view">
+                  <span>
+                    مرتجع عن الكشف
+                  </span>
+
+                  <strong>
+                    #
+                    {openedCheck.returnForCheckNumber || "-"}
+                  </strong>
+                </div>
+              )}
+
               <div className="view-row payment-status-view">
 
                 <span>
@@ -2723,20 +2988,22 @@ function Checks() {
 
                 <strong
                   className={
-                    openedCheck.paymentStatus ===
-                      "مقبوض" ||
-                    openedCheck.paymentStatus ===
-                      "مدفوع"
+                    getCheckType(openedCheck.type) === "مرتجع"
+                      ? "return-status"
+                      : openedCheck.paymentStatus ===
+                          "مقبوض" ||
+                        openedCheck.paymentStatus ===
+                          "مدفوع"
                       ? "paid"
                       : "unpaid"
                   }
                 >
-                  {
-                    openedCheck.paymentStatus ||
-                    getDefaultPaymentStatus(
-                      openedCheck.type
-                    )
-                  }
+                  {getCheckType(openedCheck.type) === "مرتجع"
+                    ? "لا ينطبق"
+                    : openedCheck.paymentStatus ||
+                      getDefaultPaymentStatus(
+                        openedCheck.type
+                      )}
                 </strong>
 
               </div>
@@ -2931,6 +3198,19 @@ function Checks() {
             </div>
 
             <div className="view-actions">
+
+              {getCheckType(openedCheck.type) !== "مرتجع" && (
+                <button
+                  className="btn btn-return"
+                  onClick={() => {
+                    const original = openedCheck;
+                    setOpenedCheck(null);
+                    openReturnForm(original);
+                  }}
+                >
+                  ↩️ إنشاء مرتجع
+                </button>
+              )}
 
               <button
                 className="btn btn-edit"

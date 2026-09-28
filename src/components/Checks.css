@@ -2590,4 +2590,330 @@
   .summary-box-header h3 {
     font-size: 15px;
   }
+}/* =====================================================
+   قسم المرتجعات
+===================================================== */
+
+/* كرت إجمالي المرتجعات */
+.return-summary {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #d9c3b5;
+  background: linear-gradient(
+    135deg,
+    #fffaf7,
+    #f8eee8
+  );
+}
+
+.return-summary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 5px;
+  height: 100%;
+  background: #a66a4c;
+}
+
+.return-summary .summary-box-header {
+  color: #8f563d;
+}
+
+.return-summary .summary-box-header span {
+  font-size: 24px;
+}
+
+.return-summary .summary-values strong {
+  color: #8f563d;
+}
+
+.return-summary small {
+  color: #987667;
+}
+
+
+/* =====================================================
+   نوع الكشف - مرتجع
+===================================================== */
+
+.check-type.return {
+  background: #f3e1d8;
+  color: #8f563d;
+  border: 1px solid #d8b9a8;
+}
+
+
+/* =====================================================
+   صندوق "مرتجع عن الكشف"
+===================================================== */
+
+.return-reference {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin: 12px 0;
+  padding: 10px 13px;
+
+  background: #fff6f1;
+  border: 1px solid #dfc1b1;
+  border-right: 4px solid #a66a4c;
+
+  border-radius: 10px;
+
+  color: #80513d;
+  font-size: 13px;
+  font-weight: 600;
+
+  line-height: 1.6;
+}
+
+.return-reference::first-letter {
+  font-size: 16px;
+}
+
+
+/* =====================================================
+   حالة الدفع للمرتجع
+===================================================== */
+
+.return-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 11px;
+
+  background: #eee5df;
+  color: #79584a;
+
+  border: 1px solid #d8c8bf;
+  border-radius: 8px;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+/* =====================================================
+   زر المرتجع
+===================================================== */
+
+.return-btn {
+  flex: 1;
+
+  min-height: 38px;
+  padding: 8px 12px;
+
+  border: 1px solid #b77b5d;
+  border-radius: 9px;
+
+  background: #f4e2d8;
+  color: #8b543c;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.return-btn:hover {
+  background: #a66a4c;
+  color: #fff;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 12px rgba(110, 70, 50, 0.16);
+}
+
+.return-btn:active {
+  transform: translateY(0);
+}
+
+
+/* =====================================================
+   صندوق معلومات المرتجع داخل الفورم
+===================================================== */
+
+.return-info-box {
+  width: 100%;
+
+  margin: 5px 0 16px;
+  padding: 14px 16px;
+
+  background: linear-gradient(
+    135deg,
+    #fff8f4,
+    #f6e9e1
+  );
+
+  border: 1px solid #dcc0b0;
+  border-right: 5px solid #a66a4c;
+
+  border-radius: 12px;
+
+  color: #754a39;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  box-shadow:
+    0 3px 10px rgba(100, 65, 50, 0.06);
+}
+
+.return-info-box small {
+  display: block;
+
+  margin-top: 7px;
+
+  color: #987667;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+
+/* =====================================================
+   تفاصيل المرتجع داخل نافذة العرض
+===================================================== */
+
+.return-reference-view {
+  background: #fff6f1;
+
+  border: 1px solid #dfc1b1;
+  border-right: 4px solid #a66a4c;
+
+  border-radius: 9px;
+
+  padding: 11px 13px;
+}
+
+.return-reference-view span {
+  color: #8b604d;
+}
+
+.return-reference-view strong {
+  color: #8f563d;
+}
+
+
+/* =====================================================
+   كرت المرتجع نفسه
+===================================================== */
+
+.check-card:has(.check-type.return) {
+  border-color: #dbc0b1;
+}
+
+.check-card:has(.check-type.return)::before {
+  background: #a66a4c;
+}
+
+
+/* =====================================================
+   إجمالي المرتجع داخل الكرت
+===================================================== */
+
+.check-card:has(.check-type.return) .check-amount {
+  background: #fff7f3;
+  border-color: #e2cbbf;
+}
+
+.check-card:has(.check-type.return) .check-amount strong {
+  color: #8f563d;
+}
+
+
+/* =====================================================
+   كرت المرتجع عند فتح التفاصيل
+===================================================== */
+
+.check-view-modal
+  .return-reference-view
+  strong {
+  font-weight: 800;
+}
+
+
+/* =====================================================
+   زر إنشاء مرتجع داخل نافذة العرض
+===================================================== */
+
+.btn-return {
+  background: #f0ddd3;
+  color: #8b543c;
+
+  border: 1px solid #c99b84;
+
+  transition:
+    all 0.2s ease;
+}
+
+.btn-return:hover {
+  background: #a66a4c;
+  color: #fff;
+
+  border-color: #a66a4c;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 5px 12px rgba(110, 70, 50, 0.15);
+}
+
+
+/* =====================================================
+   فلتر المرتجعات
+===================================================== */
+
+.checks-filter .filter-btn.active {
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+
+/* =====================================================
+   موبايل
+===================================================== */
+
+@media (max-width: 600px) {
+
+  .return-info-box {
+    padding: 12px 13px;
+    margin-bottom: 14px;
+
+    font-size: 13px;
+  }
+
+  .return-reference {
+    padding: 9px 11px;
+
+    font-size: 12px;
+
+    margin: 10px 0;
+  }
+
+  .return-btn {
+    min-height: 40px;
+    padding: 9px 10px;
+
+    font-size: 12px;
+  }
+
+  .return-status {
+    padding: 4px 9px;
+    font-size: 11px;
+  }
+
 }
