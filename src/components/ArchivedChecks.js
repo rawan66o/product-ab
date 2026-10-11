@@ -158,7 +158,7 @@ function ArchivedChecks() {
         <section style={styles.panel}>
           {loading ? <p>عم يتم تحميل الأرشيف...</p> : error ? <div role="alert" style={{ color: "#a12e25", lineHeight: 1.8 }}>{error}<div style={{ marginTop: 12 }}><button style={styles.button} onClick={fetchArchivedChecks}>إعادة المحاولة</button></div></div> : filteredChecks.length === 0 ? <div style={{ textAlign: "center", padding: "36px 12px" }}><h3 style={{ marginTop: 0 }}>ما في كشوف مؤرشفة مطابقة</h3><p style={styles.muted}>إذا لسه ما نقلتي أي كشف للأرشيف، رح يظهر هون بعد أرشفته.</p></div> : (
             <div style={styles.tableWrap}>
-     ```jsx
+   
 <div className="archived-checks-table-wrap" style={styles.tableWrap}>
   {/* جدول الكمبيوتر */}
   <table className="archived-checks-table" style={styles.table}>
@@ -296,7 +296,7 @@ function ArchivedChecks() {
     })}
   </div>
 </div>
-```
+
             </div>
           )}
         </section>
