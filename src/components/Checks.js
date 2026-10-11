@@ -6,6 +6,7 @@ import "./Checks.css";
 
 const API_URL = "https://abdbac2-10.onrender.com/checks";
 const ARCHIVE_API_URL = "https://abdbac2-10.onrender.com/archivedChecks";
+const DAILY_API_URL = "https://abdbac2-10.onrender.com/daily";
 
 // =====================================================
 // عنصر بضاعة فارغ
@@ -916,6 +917,60 @@ function Checks() {
     getChecks();
   }, []);
 
+  // مزامنة كشف البيع أو الشراء مع اليوميات، دون إنشاء حركة مكررة
+  const syncDailyFromCheck = async (check) => {
+    const checkType = getCheckTypeValue(check?.type);
+    const response = await axios.get(DAILY_API_URL);
+    const dailyRecords = Array.isArray(response.data) ? response.data : [];
+
+    const existingDaily = dailyRecords.find(
+      (item) => String(item.linkedCheckId ?? "") === String(check.id)
+    );
+
+    // المرتجع لا يُسجّل كبيع أو شراء؛ إذا كان للكشف حركة قديمة نحذفها
+    if (checkType !== "بيع" && checkType !== "شراء") {
+      if (existingDaily) {
+        await axios.delete(`${DAILY_API_URL}/${existingDaily.id}`);
+      }
+      return;
+    }
+
+    const dailyData = {
+      customerName: check.customerName || check.recipientName || "",
+      date: check.date || new Date().toISOString().split("T")[0],
+      transactionType: checkType,
+      paymentStatus: check.paymentStatus || getDefaultPaymentStatus(checkType),
+      notes: `مرتبطة بالكشف رقم #${check.checkNumber || "-"}`,
+      linkedCheckId: String(check.id),
+    };
+
+    if (existingDaily) {
+      await axios.put(`${DAILY_API_URL}/${existingDaily.id}`, {
+        ...existingDaily,
+        ...dailyData,
+        id: existingDaily.id,
+      });
+    } else {
+      await axios.post(DAILY_API_URL, {
+        id: `check-${check.id}`,
+        ...dailyData,
+      });
+    }
+  };
+
+  // حذف حركات اليوميات المرتبطة بكشف فقط، مع الحفاظ على الحركات اليدوية
+  const deleteLinkedDaily = async (checkId) => {
+    const response = await axios.get(DAILY_API_URL);
+    const dailyRecords = Array.isArray(response.data) ? response.data : [];
+    const linkedRecords = dailyRecords.filter(
+      (item) => String(item.linkedCheckId ?? "") === String(checkId)
+    );
+
+    await Promise.all(
+      linkedRecords.map((item) => axios.delete(`${DAILY_API_URL}/${item.id}`))
+    );
+  };
+
   // =====================================================
   // تغيير بيانات الفورم
   // =====================================================
@@ -1385,15 +1440,22 @@ function Checks() {
 
       setChecks((prev) => [
         ...prev,
-        normalizeCheck(
-          response.data
-        ),
+        normalizeCheck(response.data),
       ]);
 
-      closeForm();
+      let dailySynced = true;
+      try {
+        await syncDailyFromCheck(response.data);
+      } catch (dailyError) {
+        dailySynced = false;
+        console.error("تعذرت إضافة الحركة إلى اليوميات:", dailyError);
+      }
 
+      closeForm();
       alert(
-        "تمت إضافة الكشف بنجاح"
+        dailySynced
+          ? "تمت إضافة الكشف واليومية بنجاح"
+          : "تمت إضافة الكشف، لكن تعذرت إضافته إلى اليوميات. تحققي من اتصال السيرفر."
       );
 
     } catch (err) {
@@ -1412,20 +1474,17 @@ function Checks() {
 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
-      "سيتم نقل هذا الكشف إلى الأرشيف أولاً، ثم حذفه من الكشوف الحالية. هل تريد المتابعة؟"
+      "سيتم نقل هذا الكشف إلى الأرشيف أولاً، ثم حذفه من الكشوف الحالية واليوميات المرتبطة به. هل تريد المتابعة؟"
     );
-
     if (!confirmDelete) return;
 
     let archivedRecordId = null;
 
     try {
-      // العثور على الكشف المراد أرشفته
       let originalCheck = checks.find(
         (check) => String(check.id) === String(id)
       );
 
-      // في حال لم يكن موجوداً في الحالة المحلية، نجلبه من الباك
       if (!originalCheck) {
         const response = await axios.get(`${API_URL}/${id}`);
         originalCheck = response.data;
@@ -1438,7 +1497,6 @@ function Checks() {
 
       const normalizedCheck = normalizeCheck(originalCheck);
       const { id: originalId, ...checkWithoutId } = normalizedCheck;
-
       const archivedCheck = {
         ...checkWithoutId,
         originalId: String(originalId ?? id),
@@ -1447,20 +1505,12 @@ function Checks() {
         archivedAt: new Date().toISOString(),
       };
 
-      // أولاً: حفظ نسخة كاملة في الأرشيف
-      const archiveResponse = await axios.post(
-        ARCHIVE_API_URL,
-        archivedCheck
-      );
-
+      const archiveResponse = await axios.post(ARCHIVE_API_URL, archivedCheck);
       archivedRecordId = archiveResponse.data?.id;
 
-      // ثانياً: حذف الكشف من القائمة النشطة بعد نجاح الأرشفة
       try {
         await axios.delete(`${API_URL}/${id}`);
       } catch (deleteError) {
-        // إذا فشل الحذف من القائمة النشطة، نحاول إزالة نسخة الأرشيف
-        // حتى لا تظهر نسختان للكشف نفسه.
         if (archivedRecordId !== null && archivedRecordId !== undefined) {
           try {
             await axios.delete(`${ARCHIVE_API_URL}/${archivedRecordId}`);
@@ -1471,26 +1521,31 @@ function Checks() {
         throw deleteError;
       }
 
-      setChecks((prev) =>
-        prev.filter((check) => String(check.id) !== String(id))
-      );
+      setChecks((prev) => prev.filter((check) => String(check.id) !== String(id)));
 
       if (openedCheck && String(openedCheck.id) === String(id)) {
         setOpenedCheck(null);
       }
 
-      alert("تم نقل الكشف إلى الأرشيف وحذفه من الكشوف الحالية بنجاح.");
+      let dailyDeleted = true;
+      try {
+        await deleteLinkedDaily(id);
+      } catch (dailyError) {
+        dailyDeleted = false;
+        console.error("تعذر حذف حركة اليوميات المرتبطة:", dailyError);
+      }
+
+      alert(
+        dailyDeleted
+          ? "تمت أرشفة الكشف وحذفه من الكشوف واليوميات بنجاح."
+          : "تمت أرشفة الكشف وحذفه من الكشوف، لكن تعذر حذف حركته من اليوميات. تحققي من صفحة اليوميات."
+      );
     } catch (err) {
       console.error("خطأ أثناء أرشفة/حذف الكشف:", err);
-
       if (err.response?.status === 404) {
-        alert(
-          "لم يتم العثور على المسار المطلوب في الباك. تأكدي من إضافة archivedChecks إلى db.json على Render ثم إعادة نشر الخدمة."
-        );
+        alert("لم يتم العثور على المسار المطلوب. تأكدي من وجود archivedChecks وdaily في db.json على Render.");
       } else {
-        alert(
-          "لم تكتمل عملية الأرشفة والحذف. لم يتم حذف الكشف من القائمة الحالية إذا فشلت الأرشفة. تحققي من اتصال الباك ثم حاولي مجدداً."
-        );
+        alert("لم تكتمل عملية الأرشفة والحذف. تحققي من اتصال الباك ثم حاولي مجدداً.");
       }
     }
   };
@@ -1704,19 +1759,25 @@ function Checks() {
 
       setChecks((prev) =>
         prev.map((check) =>
-          String(check.id) ===
-          String(editId)
-            ? normalizeCheck(
-                response.data
-              )
+          String(check.id) === String(editId)
+            ? normalizeCheck(response.data)
             : check
         )
       );
 
-      closeForm();
+      let dailySynced = true;
+      try {
+        await syncDailyFromCheck({ ...response.data, id: editId });
+      } catch (dailyError) {
+        dailySynced = false;
+        console.error("تعذر تحديث اليومية:", dailyError);
+      }
 
+      closeForm();
       alert(
-        "تم تعديل الكشف بنجاح"
+        dailySynced
+          ? "تم تعديل الكشف واليومية بنجاح"
+          : "تم تعديل الكشف، لكن تعذر تحديث اليوميات. تحققي من اتصال السيرفر."
       );
 
     } catch (err) {
