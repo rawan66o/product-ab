@@ -1,9 +1,11 @@
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Checks.css";
 
 const API_URL = "https://abdbac2-10.onrender.com/checks";
+const ARCHIVE_API_URL = "https://abdbac2-10.onrender.com/archivedChecks";
 
 // =====================================================
 // عنصر بضاعة فارغ
@@ -18,7 +20,27 @@ const emptyItem = {
 };
 
 // =====================================================
-// فورم الكشف
+// تحديد حالة الدفع الافتراضية حسب نوع الكشف
+// =====================================================
+
+const getDefaultPaymentStatus = (type) => {
+  if (type === "بيع" || type === "sale") {
+    return "غير مقبوض";
+  }
+
+  if (type === "شراء" || type === "purchase") {
+    return "غير مدفوع";
+  }
+
+  if (type === "مرتجع" || type === "return") {
+    return "لا ينطبق";
+  }
+
+  return "";
+};
+
+// =====================================================
+// فورم الكشف الفارغ
 // =====================================================
 
 const emptyForm = {
@@ -31,29 +53,15 @@ const emptyForm = {
   exchangeRate: "",
   type: "شراء",
   paymentStatus: "غير مدفوع",
+  returnForCheckId: "",
+  returnForCheckNumber: "",
   notes: "",
   items: [{ ...emptyItem }],
 };
 
 // =====================================================
-// أدوات الأرقام
+// تنسيق الأرقام
 // =====================================================
-
-const removeCommas = (value) => {
-  return String(value ?? "").replace(/,/g, "");
-};
-
-const toNumber = (value) => {
-  const cleaned = removeCommas(value);
-
-  if (cleaned === "") {
-    return 0;
-  }
-
-  const number = Number(cleaned);
-
-  return Number.isNaN(number) ? 0 : number;
-};
 
 const formatNumber = (value) => {
   if (
@@ -64,7 +72,7 @@ const formatNumber = (value) => {
     return "";
   }
 
-  const cleanValue = removeCommas(value);
+  const cleanValue = String(value).replace(/,/g, "");
 
   if (!/^\d*\.?\d*$/.test(cleanValue)) {
     return String(value);
@@ -74,9 +82,8 @@ const formatNumber = (value) => {
   const integerPart = parts[0] || "0";
   const decimalPart = parts[1];
 
-  const formattedInteger = Number(
-    integerPart
-  ).toLocaleString("en-US");
+  const formattedInteger =
+    Number(integerPart).toLocaleString("en-US");
 
   if (decimalPart !== undefined) {
     return `${formattedInteger}.${decimalPart}`;
@@ -86,99 +93,109 @@ const formatNumber = (value) => {
 };
 
 // =====================================================
-// نوع الكشف
+// إزالة الفواصل
 // =====================================================
 
-const getCheckTypeValue = (type) => {
-  const value = String(type || "")
-    .trim()
-    .toLowerCase();
-
-  if (
-    value === "بيع" ||
-    value === "sale"
-  ) {
-    return "بيع";
-  }
-
-  if (
-    value === "شراء" ||
-    value === "purchase"
-  ) {
-    return "شراء";
-  }
-
-  if (
-    value === "مرتجع" ||
-    value === "return"
-  ) {
-    return "مرتجع";
-  }
-
-  return type || "";
+const removeCommas = (value) => {
+  return String(value || "").replace(/,/g, "");
 };
 
 // =====================================================
-// حالة الدفع
+// تحويل إلى رقم
 // =====================================================
 
-const getDefaultPaymentStatus = (type) => {
-  const normalizedType =
-    getCheckTypeValue(type);
+const toNumber = (value) => {
+  const cleaned = removeCommas(value);
 
-  if (normalizedType === "بيع") {
-    return "غير مقبوض";
+  if (cleaned === "") {
+    return 0;
   }
 
-  if (normalizedType === "شراء") {
-    return "غير مدفوع";
-  }
+  const number = Number(cleaned);
 
-  return "";
+  return isNaN(number) ? 0 : number;
 };
 
 // =====================================================
-// حساب إجمالي المواد
+// حساب إجمالي كشف واحد بالدولار
 // =====================================================
 
 const calculateTotalUsd = (items = []) => {
   return items.reduce((total, item) => {
-    return (
-      total +
-      toNumber(item.quantity) *
-        toNumber(item.priceUsd)
-    );
-  }, 0);
-};
+    const quantity = toNumber(item.quantity);
+    const priceUsd = toNumber(item.priceUsd);
 
-const calculateTotalSyp = (items = []) => {
-  return items.reduce((total, item) => {
-    return (
-      total +
-      toNumber(item.quantity) *
-        toNumber(item.priceSyp)
-    );
+    return total + quantity * priceUsd;
   }, 0);
 };
 
 // =====================================================
-// تطبيع الكشف
+// حساب إجمالي كشف واحد بالسوري
+// =====================================================
+
+const calculateTotalSyp = (items = []) => {
+  return items.reduce((total, item) => {
+    const quantity = toNumber(item.quantity);
+    const priceSyp = toNumber(item.priceSyp);
+
+    return total + quantity * priceSyp;
+  }, 0);
+};
+
+// =====================================================
+// تحويل البيانات القديمة إلى الشكل الجديد
 // =====================================================
 
 const normalizeCheck = (check) => {
   if (!check) {
-    return null;
+    return check;
   }
 
-  const type = getCheckTypeValue(
+  const defaultStatus = getDefaultPaymentStatus(
     check.type
   );
 
-  let normalizedItems = [];
+  // ===================================================
+  // إذا كان الكشف جديد ويحتوي على items
+  // ===================================================
 
   if (Array.isArray(check.items)) {
-    normalizedItems = check.items.map(
-      (item) => ({
+    return {
+      ...check,
+
+      customerName:
+        check.customerName ||
+        check.recipientName ||
+        "",
+
+      phone: check.phone || "",
+
+      residence:
+        check.residence || "",
+
+      checkNumber:
+        check.checkNumber || "",
+
+      bookNumber:
+        check.bookNumber || "",
+
+      exchangeRate:
+        check.exchangeRate ??
+        check.dollarRate ??
+        check.usdRate ??
+        "",
+
+      paymentStatus:
+        check.paymentStatus ||
+        defaultStatus,
+
+      returnForCheckId:
+        check.returnForCheckId || "",
+
+      returnForCheckNumber:
+        check.returnForCheckNumber || "",
+
+      items: check.items.map((item) => ({
         productType:
           item.productType || "",
 
@@ -195,11 +212,50 @@ const normalizeCheck = (check) => {
 
         priceSyp:
           item.priceSyp ?? "",
-      })
-    );
-  } else {
-    // دعم البيانات القديمة
-    normalizedItems = [
+      })),
+    };
+  }
+
+  // ===================================================
+  // تحويل الكشف القديم
+  // ===================================================
+
+  return {
+    ...check,
+
+    customerName:
+      check.customerName ||
+      check.recipientName ||
+      "",
+
+    phone: check.phone || "",
+
+    residence:
+      check.residence || "",
+
+    checkNumber:
+      check.checkNumber || "",
+
+    bookNumber:
+      check.bookNumber || "",
+
+    exchangeRate:
+      check.exchangeRate ??
+      check.dollarRate ??
+      check.usdRate ??
+      "",
+
+    paymentStatus:
+      check.paymentStatus ||
+      defaultStatus,
+
+    returnForCheckId:
+      check.returnForCheckId || "",
+
+    returnForCheckNumber:
+      check.returnForCheckNumber || "",
+
+    items: [
       {
         productType:
           check.productType || "",
@@ -211,220 +267,103 @@ const normalizeCheck = (check) => {
           check.quantity ?? "",
 
         priceUsd:
-          check.price ??
-          check.priceUsd ??
-          "",
+          check.price ?? "",
 
         priceSyp:
           check.priceSyp ?? "",
       },
-    ];
-  }
-
-  return {
-    ...check,
-
-    customerName:
-      check.customerName ||
-      check.recipientName ||
-      "",
-
-    phone:
-      check.phone || "",
-
-    residence:
-      check.residence || "",
-
-    date:
-      check.date || "",
-
-    checkNumber:
-      check.checkNumber || "",
-
-    bookNumber:
-      check.bookNumber ||
-      check.دفترNumber ||
-      check.دفنر ||
-      "",
-
-    exchangeRate:
-      check.exchangeRate ??
-      check.dollarRate ??
-      check.usdRate ??
-      "",
-
-    type,
-
-    paymentStatus:
-      check.paymentStatus ||
-      getDefaultPaymentStatus(type),
-
-    items:
-      normalizedItems,
-
-    // -------------------------------------------------
-    // المرتجعات الموجودة داخل نفس الكشف
-    // -------------------------------------------------
-
-    returnItems:
-      Array.isArray(check.returnItems)
-        ? check.returnItems.map(
-            (item) => ({
-              productType:
-                item.productType || "",
-
-              specifications:
-                item.specifications || "",
-
-              quantity:
-                item.quantity ?? "",
-
-              priceUsd:
-                item.priceUsd ?? "",
-
-              priceSyp:
-                item.priceSyp ?? "",
-            })
-          )
-        : [],
-
-    returnNotes:
-      check.returnNotes || "",
-
-    notes:
-      check.notes || "",
+    ],
   };
 };
 
 // =====================================================
-// إجمالي المرتجع
+// توحيد نوع الكشف
 // =====================================================
 
-const calculateReturnTotalUsd = (check) => {
-  return calculateTotalUsd(
-    check?.returnItems || []
-  );
-};
+const getCheckTypeValue = (type) => {
+  const value = String(type || "")
+    .trim()
+    .toLowerCase();
 
-const calculateReturnTotalSyp = (check) => {
-  return calculateTotalSyp(
-    check?.returnItems || []
-  );
-};
-
-// =====================================================
-// الصافي
-// =====================================================
-
-const calculateNetTotalUsd = (check) => {
-  const original =
-    calculateTotalUsd(
-      check?.items || []
-    );
-
-  const returned =
-    calculateReturnTotalUsd(check);
-
-  return Math.max(
-    0,
-    original - returned
-  );
-};
-
-const calculateNetTotalSyp = (check) => {
-  const original =
-    calculateTotalSyp(
-      check?.items || []
-    );
-
-  const returned =
-    calculateReturnTotalSyp(check);
-
-  return Math.max(
-    0,
-    original - returned
-  );
-};
-
-// =====================================================
-// حساب الكمية المرتجعة سابقًا لمادة معينة
-//
-// المطابقة تكون حسب:
-// نوع المادة + المواصفات + السعر
-// =====================================================
-
-const getReturnedQuantityForItem = (
-  check,
-  originalItem
-) => {
   if (
-    !check ||
-    !Array.isArray(check.returnItems)
+    value === "شراء" ||
+    value === "purchase"
   ) {
-    return 0;
+    return "شراء";
   }
 
-  return check.returnItems.reduce(
-    (total, returnItem) => {
+  if (
+    value === "بيع" ||
+    value === "sale"
+  ) {
+    return "بيع";
+  }
 
-      const sameProduct =
-        String(
-          returnItem.productType || ""
-        ).trim() ===
-        String(
-          originalItem.productType || ""
-        ).trim();
+  if (
+    value === "مرتجع" ||
+    value === "return"
+  ) {
+    return "مرتجع";
+  }
 
-      const sameSpecifications =
-        String(
-          returnItem.specifications || ""
-        ).trim() ===
-        String(
-          originalItem.specifications || ""
-        ).trim();
+  return type || "";
+};
 
-      const samePriceUsd =
-        Math.abs(
-          toNumber(
-            returnItem.priceUsd
-          ) -
-            toNumber(
-              originalItem.priceUsd
-            )
-        ) < 0.000001;
+// =====================================================
+// حساب إشارة الكشف ضمن حساب الزبون
+// البيع والشراء يضافان، والمرتجع يُطرح
+// =====================================================
 
-      const samePriceSyp =
-        Math.abs(
-          toNumber(
-            returnItem.priceSyp
-          ) -
-            toNumber(
-              originalItem.priceSyp
-            )
-        ) < 0.000001;
+const getCheckSign = (check) => {
+  return getCheckTypeValue(check?.type) === "مرتجع"
+    ? -1
+    : 1;
+};
 
-      if (
-        sameProduct &&
-        sameSpecifications &&
-        samePriceUsd &&
-        samePriceSyp
-      ) {
-        return (
-          total +
-          toNumber(
-            returnItem.quantity
-          )
+const calculateCustomerTotalUsd = (
+  customerChecks = []
+) => {
+  return customerChecks.reduce(
+    (total, check) => {
+      const normalized = normalizeCheck(check);
+
+      const checkTotal =
+        calculateTotalUsd(
+          normalized.items || []
         );
-      }
 
-      return total;
+      return (
+        total +
+        checkTotal * getCheckSign(normalized)
+      );
+    },
+    0
+  );
+};
+
+const calculateCustomerTotalSyp = (
+  customerChecks = []
+) => {
+  return customerChecks.reduce(
+    (total, check) => {
+      const normalized = normalizeCheck(check);
+
+      const checkTotal =
+        calculateTotalSyp(
+          normalized.items || []
+        );
+
+      return (
+        total +
+        checkTotal * getCheckSign(normalized)
+      );
     },
     0
   );
 };
 
 // =====================================================
-// فورم تعديل / إضافة كشف
+// فورم الكشف
 // =====================================================
 
 function CheckForm({
@@ -439,22 +378,16 @@ function CheckForm({
   selectedCustomer,
 }) {
   const totalUsd =
-    calculateTotalUsd(
-      formData.items
-    );
+    calculateTotalUsd(formData.items);
 
   const totalSyp =
-    calculateTotalSyp(
-      formData.items
-    );
+    calculateTotalSyp(formData.items);
 
   return (
     <div className="modal-overlay">
-
       <div className="modal check-form-modal">
 
         <div className="modal-header">
-
           <div>
             <h2>
               {editMode
@@ -464,10 +397,10 @@ function CheckForm({
                 : "إضافة كشف جديد"}
             </h2>
 
-            {selectedCustomer &&
-              !editMode && (
+            {!editMode &&
+              selectedCustomer && (
                 <small>
-                  إضافة كشف جديد لنفس الزبون
+                  يمكنك إنشاء كشف جديد لنفس الزبون
                 </small>
               )}
           </div>
@@ -479,7 +412,6 @@ function CheckForm({
           >
             ×
           </button>
-
         </div>
 
         <form
@@ -487,26 +419,17 @@ function CheckForm({
           onSubmit={handleSubmit}
         >
 
-          {/* =========================================
-              بيانات الزبون
-          ========================================= */}
-
           <div className="form-section-title">
             بيانات الزبون
           </div>
 
           <div className="form-group">
-
-            <label>
-              اسم الزبون
-            </label>
+            <label>اسم الزبون</label>
 
             <input
               type="text"
               name="customerName"
-              value={
-                formData.customerName
-              }
+              value={formData.customerName}
               onChange={handleChange}
               placeholder="أدخل اسم الزبون"
               required
@@ -515,122 +438,83 @@ function CheckForm({
                 !editMode
               }
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>
-              رقم التليفون
-            </label>
+            <label>رقم التليفون</label>
 
             <input
               type="tel"
               name="phone"
-              value={
-                formData.phone || ""
-              }
+              value={formData.phone || ""}
               onChange={handleChange}
               placeholder="أدخل رقم التليفون"
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>
-              مكان الإقامة
-            </label>
+            <label>مكان الإقامة</label>
 
             <input
               type="text"
               name="residence"
-              value={
-                formData.residence
-              }
+              value={formData.residence}
               onChange={handleChange}
-              placeholder="مثال: حلب - السريان القديمة"
+              placeholder="مثال: حلب - الحمدانية"
               required
             />
-
           </div>
-
-          {/* =========================================
-              بيانات الكشف
-          ========================================= */}
 
           <div className="form-section-title">
             بيانات الكشف
           </div>
 
           <div className="form-group">
-
-            <label>
-              رقم الكشف
-            </label>
+            <label>رقم الكشف</label>
 
             <input
               type="text"
               name="checkNumber"
-              value={
-                formData.checkNumber
-              }
+              value={formData.checkNumber}
               onChange={handleChange}
+              placeholder="أدخل رقم الكشف"
               required
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>
-              رقم الدفتر
-            </label>
+            <label>رقم الدفتر</label>
 
             <input
               type="text"
               name="bookNumber"
-              value={
-                formData.bookNumber
-              }
+              value={formData.bookNumber}
               onChange={handleChange}
+              placeholder="أدخل رقم الدفتر"
               required
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>
-              التاريخ
-            </label>
+            <label>التاريخ</label>
 
             <input
               type="date"
               name="date"
-              value={
-                formData.date
-              }
+              value={formData.date}
               onChange={handleChange}
               required
             />
-
           </div>
 
           <div className="form-group">
-
-            <label>
-              نوع الكشف
-            </label>
+            <label>نوع الكشف</label>
 
             <select
               name="type"
-              value={
-                formData.type
-              }
+              value={formData.type}
               onChange={handleChange}
             >
-
               <option value="شراء">
                 شراء
               </option>
@@ -639,26 +523,37 @@ function CheckForm({
                 بيع
               </option>
 
+              <option value="مرتجع">
+                مرتجع
+              </option>
             </select>
-
           </div>
 
-          <div className="form-group">
+          {formData.type === "مرتجع" && (
+            <div className="return-info-box">
+              <strong>مرتجع عن الكشف:</strong>{" "}
+              #{formData.returnForCheckNumber || "-"}
+              <small>
+                قيمة هذا الكشف ستُطرح من حساب الزبون.
+              </small>
+            </div>
+          )}
 
-            <label>
-              حالة الدفع
-            </label>
+          <div className="form-group payment-status-group">
+            <label>حالة الدفع</label>
 
-            {formData.type === "بيع" ? (
-
+            {formData.type === "مرتجع" ? (
+              <input
+                type="text"
+                value="لا ينطبق"
+                disabled
+              />
+            ) : formData.type === "بيع" ? (
               <select
                 name="paymentStatus"
-                value={
-                  formData.paymentStatus
-                }
+                value={formData.paymentStatus}
                 onChange={handleChange}
               >
-
                 <option value="غير مقبوض">
                   غير مقبوض
                 </option>
@@ -666,19 +561,13 @@ function CheckForm({
                 <option value="مقبوض">
                   مقبوض
                 </option>
-
               </select>
-
             ) : (
-
               <select
                 name="paymentStatus"
-                value={
-                  formData.paymentStatus
-                }
+                value={formData.paymentStatus}
                 onChange={handleChange}
               >
-
                 <option value="غير مدفوع">
                   غير مدفوع
                 </option>
@@ -686,15 +575,11 @@ function CheckForm({
                 <option value="مدفوع">
                   مدفوع
                 </option>
-
               </select>
-
             )}
-
           </div>
 
-          <div className="form-group">
-
+          <div className="form-group exchange-rate-group">
             <label>
               سعر الدولار وقت إنشاء الكشف
             </label>
@@ -703,61 +588,57 @@ function CheckForm({
               type="text"
               inputMode="decimal"
               name="exchangeRate"
-              value={
-                formData.exchangeRate
-              }
+              value={formData.exchangeRate}
               onChange={handleChange}
               placeholder="مثال: 13,333"
               required
             />
 
+            <small>
+              يتم حفظ سعر الدولار مع هذا الكشف
+            </small>
           </div>
 
-          {/* =========================================
-              المواد
-          ========================================= */}
+          <div className="form-section-title items-title">
+            <span>مواد الكشف</span>
 
-          <div className="form-section-title">
-            مواد الكشف
+            <button
+              type="button"
+              className="add-item-btn"
+              onClick={addItem}
+            >
+              + إضافة مادة
+            </button>
           </div>
 
           <div className="items-container">
-
             {formData.items.map(
               (item, index) => (
-
                 <div
                   className="item-box"
                   key={index}
                 >
-
                   <div className="item-box-header">
-
                     <strong>
                       المادة {index + 1}
                     </strong>
 
-                    {formData.items.length >
-                      1 && (
+                    {formData.items.length > 1 && (
                       <button
                         type="button"
                         className="remove-item-btn"
                         onClick={() =>
-                          removeItem(
-                            index
-                          )
+                          removeItem(index)
                         }
                       >
                         حذف المادة
                       </button>
                     )}
-
                   </div>
 
                   <div className="item-grid">
 
                     <div className="form-group">
-
                       <label>
                         نوع البضاعة
                       </label>
@@ -774,13 +655,12 @@ function CheckForm({
                             e.target.value
                           )
                         }
+                        placeholder="مثال: أكياس شيال"
                         required
                       />
-
                     </div>
 
                     <div className="form-group">
-
                       <label>
                         المواصفات
                       </label>
@@ -797,12 +677,11 @@ function CheckForm({
                             e.target.value
                           )
                         }
+                        placeholder="النوع - القياس - اللون"
                       />
-
                     </div>
 
                     <div className="form-group">
-
                       <label>
                         العدد
                       </label>
@@ -820,13 +699,12 @@ function CheckForm({
                             e.target.value
                           )
                         }
+                        placeholder="مثال: 1,000"
                         required
                       />
-
                     </div>
 
                     <div className="form-group">
-
                       <label>
                         السعر بالدولار
                       </label>
@@ -844,13 +722,12 @@ function CheckForm({
                             e.target.value
                           )
                         }
+                        placeholder="مثال: 1.7"
                         required
                       />
-
                     </div>
 
                     <div className="form-group">
-
                       <label>
                         السعر بالسوري
                       </label>
@@ -868,38 +745,22 @@ function CheckForm({
                             e.target.value
                           )
                         }
+                        placeholder="مثال: 13,333"
                         required
                       />
-
                     </div>
 
                   </div>
-
                 </div>
-
               )
             )}
-
-            <button
-              type="button"
-              className="add-item-btn"
-              onClick={addItem}
-            >
-              + إضافة مادة
-            </button>
-
           </div>
-
-          {/* =========================================
-              الإجمالي
-          ========================================= */}
 
           <div className="total-preview">
 
             <div>
-
               <span>
-                الإجمالي بالدولار
+                القيمة الإجمالية بالدولار
               </span>
 
               <strong>
@@ -909,13 +770,11 @@ function CheckForm({
                   totalUsd.toFixed(2)
                 )}
               </strong>
-
             </div>
 
             <div>
-
               <span>
-                الإجمالي بالسوري
+                القيمة الإجمالية بالسوري
               </span>
 
               <strong>
@@ -925,30 +784,23 @@ function CheckForm({
                 {" "}
                 ل.س
               </strong>
-
             </div>
 
           </div>
-
-          {/* =========================================
-              ملاحظات
-          ========================================= */}
 
           <div className="form-section-title">
             ملاحظات
           </div>
 
           <div className="form-group full-width">
+            <label>الملاحظات</label>
 
             <textarea
               name="notes"
-              value={
-                formData.notes
-              }
+              value={formData.notes}
               onChange={handleChange}
               placeholder="أدخل الملاحظات..."
             />
-
           </div>
 
           <div className="form-actions">
@@ -973,15 +825,13 @@ function CheckForm({
           </div>
 
         </form>
-
       </div>
-
     </div>
   );
 }
 
 // =====================================================
-// الصفحة
+// الصفحة الرئيسية
 // =====================================================
 
 function Checks() {
@@ -994,6 +844,13 @@ function Checks() {
 
   const [error, setError] =
     useState("");
+
+  // ===================================================
+  // فلتر الكشوف
+  // all = الكل
+  // sale = البيع
+  // purchase = الشراء
+  // ===================================================
 
   const [filterType, setFilterType] =
     useState("all");
@@ -1013,46 +870,26 @@ function Checks() {
   const [openedCheck, setOpenedCheck] =
     useState(null);
 
-  // ===================================================
-  // المرتجع
-  // ===================================================
-
-  const [returnCheck, setReturnCheck] =
-    useState(null);
-
-  const [returnItems, setReturnItems] =
-    useState([]);
-
-  const [returnNotes, setReturnNotes] =
-    useState("");
-
-  // ===================================================
-  // جلب البيانات
-  // ===================================================
+  // =====================================================
+  // جلب الكشوف
+  // =====================================================
 
   const getChecks = async () => {
-
     try {
-
       setLoading(true);
       setError("");
 
       const response =
-        await axios.get(
-          API_URL
-        );
+        await axios.get(API_URL);
 
-      if (
-        Array.isArray(
-          response.data
-        )
-      ) {
+      if (Array.isArray(response.data)) {
 
-        setChecks(
+        const normalized =
           response.data.map(
             normalizeCheck
-          )
-        );
+          );
+
+        setChecks(normalized);
 
       } else {
 
@@ -1079,9 +916,9 @@ function Checks() {
     getChecks();
   }, []);
 
-  // ===================================================
-  // تغيير بيانات الكشف
-  // ===================================================
+  // =====================================================
+  // تغيير بيانات الفورم
+  // =====================================================
 
   const handleChange = (e) => {
 
@@ -1090,93 +927,73 @@ function Checks() {
       value,
     } = e.target;
 
+    // تغيير نوع الكشف
     if (name === "type") {
 
-      setFormData(
-        (prev) => ({
-          ...prev,
+      setFormData((prev) => ({
+        ...prev,
+        type: value,
 
-          type: value,
-
-          paymentStatus:
-            getDefaultPaymentStatus(
-              value
-            ),
-        })
-      );
-
-      return;
-    }
-
-    if (
-      name ===
-      "paymentStatus"
-    ) {
-
-      setFormData(
-        (prev) => ({
-          ...prev,
-
-          paymentStatus:
-            value,
-        })
-      );
+        paymentStatus:
+          editId
+            ? value === "مرتجع"
+              ? "لا ينطبق"
+              : prev.paymentStatus
+            : getDefaultPaymentStatus(value),
+      }));
 
       return;
     }
 
-    if (
-      name ===
-      "exchangeRate"
-    ) {
+    // حالة الدفع
+    if (name === "paymentStatus") {
+
+      setFormData((prev) => ({
+        ...prev,
+        paymentStatus: value,
+      }));
+
+      return;
+    }
+
+    // سعر الدولار
+    if (name === "exchangeRate") {
 
       let cleanValue =
-        value.replace(
-          /[^\d.]/g,
-          ""
-        );
+        value.replace(/[^\d.]/g, "");
 
       const parts =
         cleanValue.split(".");
 
-      if (
-        parts.length > 2
-      ) {
-
+      if (parts.length > 2) {
         cleanValue =
           parts[0] +
           "." +
-          parts
-            .slice(1)
-            .join("");
-
+          parts.slice(1).join("");
       }
 
-      setFormData(
-        (prev) => ({
-          ...prev,
+      cleanValue =
+        formatNumber(cleanValue);
 
-          exchangeRate:
-            formatNumber(
-              cleanValue
-            ),
-        })
-      );
+      setFormData((prev) => ({
+        ...prev,
+        exchangeRate:
+          cleanValue,
+      }));
 
       return;
     }
 
-    setFormData(
-      (prev) => ({
-        ...prev,
-        [name]: value,
-      })
-    );
+    // باقي الحقول
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  // ===================================================
-  // تغيير مادة الكشف
-  // ===================================================
+  // =====================================================
+  // تغيير مادة
+  // =====================================================
 
   const handleItemChange = (
     index,
@@ -1191,121 +1008,97 @@ function Checks() {
     ];
 
     if (
-      numberFields.includes(
-        field
-      )
+      numberFields.includes(field)
     ) {
 
       let cleanValue =
-        value.replace(
-          /[^\d.]/g,
-          ""
-        );
+        value.replace(/[^\d.]/g, "");
 
       const parts =
         cleanValue.split(".");
 
-      if (
-        parts.length > 2
-      ) {
-
+      if (parts.length > 2) {
         cleanValue =
           parts[0] +
           "." +
-          parts
-            .slice(1)
-            .join("");
-
+          parts.slice(1).join("");
       }
 
       cleanValue =
-        formatNumber(
-          cleanValue
-        );
+        formatNumber(cleanValue);
 
-      setFormData(
-        (prev) => {
+      setFormData((prev) => {
 
-          const items =
-            [...prev.items];
-
-          items[index] = {
-            ...items[index],
-            [field]:
-              cleanValue,
-          };
-
-          return {
-            ...prev,
-            items,
-          };
-        }
-      );
-
-      return;
-    }
-
-    setFormData(
-      (prev) => {
-
-        const items =
+        const newItems =
           [...prev.items];
 
-        items[index] = {
-          ...items[index],
-          [field]: value,
+        newItems[index] = {
+          ...newItems[index],
+          [field]: cleanValue,
         };
 
         return {
           ...prev,
-          items,
+          items: newItems,
         };
-      }
-    );
+      });
+
+      return;
+    }
+
+    setFormData((prev) => {
+
+      const newItems =
+        [...prev.items];
+
+      newItems[index] = {
+        ...newItems[index],
+        [field]: value,
+      };
+
+      return {
+        ...prev,
+        items: newItems,
+      };
+    });
   };
 
-  // ===================================================
+  // =====================================================
   // إضافة مادة
-  // ===================================================
+  // =====================================================
 
   const addItem = () => {
 
-    setFormData(
-      (prev) => ({
-        ...prev,
+    setFormData((prev) => ({
+      ...prev,
 
-        items: [
-          ...prev.items,
-          { ...emptyItem },
-        ],
-      })
-    );
+      items: [
+        ...prev.items,
+        { ...emptyItem },
+      ],
+    }));
+
   };
 
-  // ===================================================
+  // =====================================================
   // حذف مادة
-  // ===================================================
+  // =====================================================
 
-  const removeItem = (
-    index
-  ) => {
+  const removeItem = (index) => {
 
-    setFormData(
-      (prev) => ({
-        ...prev,
+    setFormData((prev) => ({
+      ...prev,
 
-        items:
-          prev.items.filter(
-            (_, i) =>
-              i !== index
-          ),
-      })
-    );
+      items: prev.items.filter(
+        (_, i) => i !== index
+      ),
+    }));
+
   };
 
-  // ===================================================
-  // فتح إضافة كشف
-  // ===================================================
+  // =====================================================
+  // فتح فورم الإضافة
+  // =====================================================
 
   const openAddForm = (
     customerName = "",
@@ -1316,43 +1109,51 @@ function Checks() {
       customerName
     );
 
-    const previousCheck =
+    const previousCustomerCheck =
       checks.find(
         (check) =>
           String(
-            check.customerName ||
-              ""
+            check.customerName || ""
           ).trim() ===
-            String(
-              customerName ||
-                ""
-            ).trim() &&
+          String(
+            customerName || ""
+          ).trim() &&
           check.phone
       );
 
+    const defaultType = "شراء";
+
     setFormData({
+
       ...emptyForm,
 
-      customerName,
+      customerName:
+        customerName,
 
       phone:
-        previousCheck?.phone ||
-        "",
+        previousCustomerCheck?.phone || "",
 
-      residence,
+      residence:
+        residence,
 
       date:
         new Date()
           .toISOString()
           .split("T")[0],
 
-      type: "شراء",
+      type:
+        defaultType,
 
       paymentStatus:
-        "غير مدفوع",
+        getDefaultPaymentStatus(
+          defaultType
+        ),
+
+      returnForCheckId: "",
+      returnForCheckNumber: "",
 
       items: [
-        { ...emptyItem },
+        { ...emptyItem }
       ],
     });
 
@@ -1361,9 +1162,9 @@ function Checks() {
     setShowAddForm(true);
   };
 
-  // ===================================================
-  // إغلاق فورم الكشف
-  // ===================================================
+  // =====================================================
+  // إغلاق الفورم
+  // =====================================================
 
   const closeForm = () => {
 
@@ -1376,14 +1177,14 @@ function Checks() {
     setFormData({
       ...emptyForm,
       items: [
-        { ...emptyItem },
+        { ...emptyItem }
       ],
     });
   };
 
-  // ===================================================
+  // =====================================================
   // توليد ID
-  // ===================================================
+  // =====================================================
 
   const generateId = () => {
 
@@ -1393,20 +1194,14 @@ function Checks() {
           Number(check.id)
         )
         .filter(
-          (id) =>
-            !Number.isNaN(id)
+          (id) => !isNaN(id)
         );
 
-    if (
-      numericIds.length > 0
-    ) {
+    if (numericIds.length > 0) {
 
       return String(
-        Math.max(
-          ...numericIds
-        ) + 1
+        Math.max(...numericIds) + 1
       );
-
     }
 
     return String(
@@ -1414,13 +1209,75 @@ function Checks() {
     );
   };
 
-  // ===================================================
-  // إضافة كشف
-  // ===================================================
+  // =====================================================
+  // إنشاء مرتجع عن كشف موجود
+  // =====================================================
 
-  const handleAdd = async (
-    e
-  ) => {
+  const openReturnForm = (originalCheck) => {
+    const normalized = normalizeCheck(originalCheck);
+
+    setSelectedCustomer(
+      normalized.customerName || ""
+    );
+
+    setEditId(null);
+
+    setFormData({
+      ...emptyForm,
+      customerName:
+        normalized.customerName || "",
+      phone:
+        normalized.phone || "",
+      residence:
+        normalized.residence || "",
+      date:
+        new Date()
+          .toISOString()
+          .split("T")[0],
+      checkNumber: "",
+      bookNumber:
+        normalized.bookNumber || "",
+      exchangeRate:
+        normalized.exchangeRate !== ""
+          ? formatNumber(
+              normalized.exchangeRate
+            )
+          : "",
+      type: "مرتجع",
+      paymentStatus: "لا ينطبق",
+      returnForCheckId:
+        String(normalized.id || ""),
+      returnForCheckNumber:
+        normalized.checkNumber || "",
+      notes:
+        `مرتجع عن الكشف رقم #${
+          normalized.checkNumber || "-"
+        }`,
+      items:
+        normalized.items?.length
+          ? normalized.items.map((item) => ({
+              productType:
+                item.productType || "",
+              specifications:
+                item.specifications || "",
+              quantity:
+                formatNumber(item.quantity),
+              priceUsd:
+                formatNumber(item.priceUsd),
+              priceSyp:
+                formatNumber(item.priceSyp),
+            }))
+          : [{ ...emptyItem }],
+    });
+
+    setShowAddForm(true);
+  };
+
+  // =====================================================
+  // إضافة كشف
+  // =====================================================
+
+  const handleAdd = async (e) => {
 
     e.preventDefault();
 
@@ -1438,17 +1295,13 @@ function Checks() {
 
       const newCheck = {
 
-        id:
-          generateId(),
+        id: generateId(),
 
         customerName:
           formData.customerName.trim(),
 
         phone:
-          (
-            formData.phone ||
-            ""
-          ).trim(),
+          (formData.phone || "").trim(),
 
         residence:
           formData.residence.trim(),
@@ -1476,6 +1329,12 @@ function Checks() {
             formData.type
           ),
 
+        returnForCheckId:
+          formData.returnForCheckId || "",
+
+        returnForCheckNumber:
+          formData.returnForCheckNumber || "",
+
         totalAmountUsd:
           Number(
             totalAmountUsd.toFixed(2)
@@ -1489,6 +1348,7 @@ function Checks() {
         items:
           formData.items.map(
             (item) => ({
+
               productType:
                 item.productType.trim(),
 
@@ -1509,13 +1369,9 @@ function Checks() {
                 toNumber(
                   item.priceSyp
                 ),
+
             })
           ),
-
-        // المرتجع داخل نفس الكشف
-        returnItems: [],
-
-        returnNotes: "",
 
         notes:
           formData.notes.trim(),
@@ -1527,17 +1383,12 @@ function Checks() {
           newCheck
         );
 
-      const normalized =
+      setChecks((prev) => [
+        ...prev,
         normalizeCheck(
           response.data
-        );
-
-      setChecks(
-        (prev) => [
-          ...prev,
-          normalized,
-        ]
-      );
+        ),
+      ]);
 
       closeForm();
 
@@ -1555,185 +1406,203 @@ function Checks() {
     }
   };
 
-  // ===================================================
+  // =====================================================
   // حذف كشف
-  // ===================================================
+  // =====================================================
 
-  const handleDelete = async (
-    id
-  ) => {
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "سيتم نقل هذا الكشف إلى الأرشيف أولاً، ثم حذفه من الكشوف الحالية. هل تريد المتابعة؟"
+    );
 
-    const confirmed =
-      window.confirm(
-        "هل أنت متأكد من حذف هذا الكشف؟"
-      );
+    if (!confirmDelete) return;
 
-    if (!confirmed) {
-      return;
-    }
+    let archivedRecordId = null;
 
     try {
-
-      await axios.delete(
-        `${API_URL}/${id}`
+      // العثور على الكشف المراد أرشفته
+      let originalCheck = checks.find(
+        (check) => String(check.id) === String(id)
       );
 
-      setChecks(
-        (prev) =>
-          prev.filter(
-            (check) =>
-              String(
-                check.id
-              ) !==
-              String(id)
-          )
+      // في حال لم يكن موجوداً في الحالة المحلية، نجلبه من الباك
+      if (!originalCheck) {
+        const response = await axios.get(`${API_URL}/${id}`);
+        originalCheck = response.data;
+      }
+
+      if (!originalCheck) {
+        alert("لم يتم العثور على الكشف المطلوب.");
+        return;
+      }
+
+      const normalizedCheck = normalizeCheck(originalCheck);
+      const { id: originalId, ...checkWithoutId } = normalizedCheck;
+
+      const archivedCheck = {
+        ...checkWithoutId,
+        originalId: String(originalId ?? id),
+        archived: true,
+        archivedYear: new Date().getFullYear(),
+        archivedAt: new Date().toISOString(),
+      };
+
+      // أولاً: حفظ نسخة كاملة في الأرشيف
+      const archiveResponse = await axios.post(
+        ARCHIVE_API_URL,
+        archivedCheck
       );
 
-      if (
-        openedCheck &&
-        String(
-          openedCheck.id
-        ) === String(id)
-      ) {
+      archivedRecordId = archiveResponse.data?.id;
+
+      // ثانياً: حذف الكشف من القائمة النشطة بعد نجاح الأرشفة
+      try {
+        await axios.delete(`${API_URL}/${id}`);
+      } catch (deleteError) {
+        // إذا فشل الحذف من القائمة النشطة، نحاول إزالة نسخة الأرشيف
+        // حتى لا تظهر نسختان للكشف نفسه.
+        if (archivedRecordId !== null && archivedRecordId !== undefined) {
+          try {
+            await axios.delete(`${ARCHIVE_API_URL}/${archivedRecordId}`);
+          } catch (rollbackError) {
+            console.error("تعذر التراجع عن الأرشفة:", rollbackError);
+          }
+        }
+        throw deleteError;
+      }
+
+      setChecks((prev) =>
+        prev.filter((check) => String(check.id) !== String(id))
+      );
+
+      if (openedCheck && String(openedCheck.id) === String(id)) {
         setOpenedCheck(null);
       }
 
-      alert(
-        "تم حذف الكشف بنجاح"
-      );
-
+      alert("تم نقل الكشف إلى الأرشيف وحذفه من الكشوف الحالية بنجاح.");
     } catch (err) {
+      console.error("خطأ أثناء أرشفة/حذف الكشف:", err);
 
-      console.error(err);
-
-      alert(
-        "حدث خطأ أثناء حذف الكشف"
-      );
+      if (err.response?.status === 404) {
+        alert(
+          "لم يتم العثور على المسار المطلوب في الباك. تأكدي من إضافة archivedChecks إلى db.json على Render ثم إعادة نشر الخدمة."
+        );
+      } else {
+        alert(
+          "لم تكتمل عملية الأرشفة والحذف. لم يتم حذف الكشف من القائمة الحالية إذا فشلت الأرشفة. تحققي من اتصال الباك ثم حاولي مجدداً."
+        );
+      }
     }
   };
 
-  // ===================================================
-  // تعديل كشف
-  // ===================================================
+  // =====================================================
+  // فتح التعديل
+  // =====================================================
 
-  const handleEdit = (
-    check
-  ) => {
+  const handleEdit = (check) => {
 
     const normalized =
       normalizeCheck(check);
 
-    setEditId(
-      check.id
-    );
+    setEditId(check.id);
 
     setSelectedCustomer(
-      normalized.customerName
+      normalized.customerName || ""
     );
 
     setFormData({
 
       customerName:
-        normalized.customerName,
+        normalized.customerName || "",
 
       phone:
-        normalized.phone,
+        normalized.phone || "",
 
       residence:
-        normalized.residence,
+        normalized.residence || "",
 
       date:
-        normalized.date,
+        normalized.date || "",
 
       checkNumber:
-        normalized.checkNumber,
+        normalized.checkNumber || "",
 
       bookNumber:
-        normalized.bookNumber,
+        normalized.bookNumber || "",
 
       exchangeRate:
-        normalized.exchangeRate !==
-        ""
+        normalized.exchangeRate !== ""
           ? formatNumber(
               normalized.exchangeRate
             )
           : "",
 
       type:
-        normalized.type ===
-        "مرتجع"
-          ? "شراء"
-          : normalized.type,
+        normalized.type || "شراء",
 
       paymentStatus:
         normalized.paymentStatus ||
         getDefaultPaymentStatus(
-          normalized.type ===
-            "مرتجع"
-            ? "شراء"
-            : normalized.type
+          normalized.type || "شراء"
         ),
+
+      returnForCheckId:
+        normalized.returnForCheckId || "",
+
+      returnForCheckNumber:
+        normalized.returnForCheckNumber || "",
 
       notes:
-        normalized.notes,
+        normalized.notes || "",
 
       items:
-        normalized.items.map(
-          (item) => ({
-            productType:
-              item.productType,
+        normalized.items &&
+        normalized.items.length
+          ? normalized.items.map(
+              (item) => ({
 
-            specifications:
-              item.specifications,
+                productType:
+                  item.productType || "",
 
-            quantity:
-              formatNumber(
-                item.quantity
-              ),
+                specifications:
+                  item.specifications || "",
 
-            priceUsd:
-              formatNumber(
-                item.priceUsd
-              ),
+                quantity:
+                  formatNumber(
+                    item.quantity
+                  ),
 
-            priceSyp:
-              formatNumber(
-                item.priceSyp
-              ),
-          })
-        ),
+                priceUsd:
+                  formatNumber(
+                    item.priceUsd
+                  ),
+
+                priceSyp:
+                  formatNumber(
+                    item.priceSyp
+                  ),
+
+              })
+            )
+          : [
+              {
+                ...emptyItem,
+              },
+            ],
     });
 
-    setShowAddForm(
-      true
-    );
+    setShowAddForm(true);
   };
 
-  // ===================================================
-  // تحديث كشف
-  // ===================================================
+  // =====================================================
+  // تعديل كشف
+  // =====================================================
 
-  const handleUpdate = async (
-    e
-  ) => {
+  const handleUpdate = async (e) => {
 
     e.preventDefault();
 
     try {
-
-      const currentCheck =
-        checks.find(
-          (check) =>
-            String(
-              check.id
-            ) ===
-            String(editId)
-        );
-
-      const normalized =
-        normalizeCheck(
-          currentCheck
-        );
 
       const totalAmountUsd =
         calculateTotalUsd(
@@ -1747,16 +1616,11 @@ function Checks() {
 
       const updatedCheck = {
 
-        ...normalized,
-
         customerName:
           formData.customerName.trim(),
 
         phone:
-          (
-            formData.phone ||
-            ""
-          ).trim(),
+          (formData.phone || "").trim(),
 
         residence:
           formData.residence.trim(),
@@ -1784,6 +1648,12 @@ function Checks() {
             formData.type
           ),
 
+        returnForCheckId:
+          formData.returnForCheckId || "",
+
+        returnForCheckNumber:
+          formData.returnForCheckNumber || "",
+
         totalAmountUsd:
           Number(
             totalAmountUsd.toFixed(2)
@@ -1797,6 +1667,7 @@ function Checks() {
         items:
           formData.items.map(
             (item) => ({
+
               productType:
                 item.productType.trim(),
 
@@ -1817,36 +1688,8 @@ function Checks() {
                 toNumber(
                   item.priceSyp
                 ),
+
             })
-          ),
-
-        // المحافظة على المرتجع
-        returnItems:
-          normalized.returnItems ||
-          [],
-
-        returnNotes:
-          normalized.returnNotes ||
-          "",
-
-        netTotalUsd:
-          Number(
-            (
-              totalAmountUsd -
-              calculateReturnTotalUsd(
-                normalized
-              )
-            ).toFixed(2)
-          ),
-
-        netTotalSyp:
-          Number(
-            (
-              totalAmountSyp -
-              calculateReturnTotalSyp(
-                normalized
-              )
-            ).toFixed(0)
           ),
 
         notes:
@@ -1859,22 +1702,15 @@ function Checks() {
           updatedCheck
         );
 
-      const normalizedResponse =
-        normalizeCheck(
-          response.data
-        );
-
-      setChecks(
-        (prev) =>
-          prev.map(
-            (check) =>
-              String(
-                check.id
-              ) ===
-              String(editId)
-                ? normalizedResponse
-                : check
-          )
+      setChecks((prev) =>
+        prev.map((check) =>
+          String(check.id) ===
+          String(editId)
+            ? normalizeCheck(
+                response.data
+              )
+            : check
+        )
       );
 
       closeForm();
@@ -1893,672 +1729,158 @@ function Checks() {
     }
   };
 
-  // ===================================================
-  // فتح المرتجع
-  //
-  // هون أهم تعديل:
-  // المواد تنجلب تلقائيًا من الكشف الأصلي
-  // ===================================================
+  // =====================================================
+  // تحديد نوع الكشف
+  // =====================================================
 
-  const openReturnForm = (
-    check
-  ) => {
-
-    const normalized =
-      normalizeCheck(check);
-
-    const preparedItems =
-      normalized.items.map(
-        (item) => {
-
-          const originalQuantity =
-            toNumber(
-              item.quantity
-            );
-
-          const returnedQuantity =
-            getReturnedQuantityForItem(
-              normalized,
-              item
-            );
-
-          const remainingQuantity =
-            Math.max(
-              0,
-              originalQuantity -
-                returnedQuantity
-            );
-
-          return {
-
-            // المعلومات تنجلب تلقائيًا
-            productType:
-              item.productType,
-
-            specifications:
-              item.specifications,
-
-            priceUsd:
-              item.priceUsd,
-
-            priceSyp:
-              item.priceSyp,
-
-            // نخلي كمية المرتجع صفر
-            // والمستخدم يدخلها
-            quantity: "",
-
-            // معلومات إضافية للعرض
-            originalQuantity,
-
-            returnedQuantity,
-
-            remainingQuantity,
-          };
-        }
-      );
-
-    setReturnCheck(
-      normalized
-    );
-
-    setReturnItems(
-      preparedItems
-    );
-
-    setReturnNotes("");
-
+  const getCheckType = (type) => {
+    return getCheckTypeValue(type);
   };
 
-  // ===================================================
-  // تغيير كمية المرتجع
-  // ===================================================
+  // =====================================================
+  // الفلترة
+  // =====================================================
 
-  const handleReturnQuantityChange = (
-    index,
-    value
-  ) => {
+  const filteredChecks = checks.filter(
+    (check) => {
 
-    let cleanValue =
-      value.replace(
-        /[^\d.]/g,
-        ""
-      );
-
-    const parts =
-      cleanValue.split(".");
-
-    if (
-      parts.length > 2
-    ) {
-
-      cleanValue =
-        parts[0] +
-        "." +
-        parts
-          .slice(1)
-          .join("");
-    }
-
-    cleanValue =
-      formatNumber(
-        cleanValue
-      );
-
-    setReturnItems(
-      (prev) => {
-
-        const items =
-          [...prev];
-
-        const item =
-          items[index];
-
-        const maxQuantity =
-          toNumber(
-            item.remainingQuantity
-          );
-
-        const enteredQuantity =
-          toNumber(
-            cleanValue
-          );
-
-        if (
-          enteredQuantity >
-          maxQuantity
-        ) {
-
-          alert(
-            `الكمية المتبقية من هذه المادة هي ${formatNumber(
-              maxQuantity
-            )}`
-          );
-
-          items[index] = {
-            ...item,
-            quantity:
-              maxQuantity > 0
-                ? formatNumber(
-                    maxQuantity
-                  )
-                : "",
-          };
-
-          return items;
-        }
-
-        items[index] = {
-          ...item,
-          quantity:
-            cleanValue,
-        };
-
-        return items;
+      // إذا اختار الكل
+      if (filterType === "all") {
+        return true;
       }
-    );
-  };
 
-  // ===================================================
-  // إغلاق المرتجع
-  // ===================================================
+      // نوع الكشف بعد توحيده
+      const checkType =
+        getCheckType(check.type);
 
-  const closeReturnForm = () => {
+      // فلترة شراء
+      if (
+        filterType === "purchase" &&
+        checkType === "شراء"
+      ) {
+        return true;
+      }
 
-    setReturnCheck(null);
-
-    setReturnItems([]);
-
-    setReturnNotes("");
-  };
-
-  // ===================================================
-  // حفظ المرتجع
-  // ===================================================
-
-  const handleReturnSubmit = async (
-    e
-  ) => {
-
-    e.preventDefault();
-
-    if (!returnCheck) {
-      return;
-    }
-
-    try {
-
-      const normalized =
-        normalizeCheck(
-          returnCheck
-        );
-
-      // -----------------------------------------------
-      // المواد التي فعلاً عليها كمية مرتجعة
-      // -----------------------------------------------
-
-      const selectedReturnItems =
-        returnItems
-          .filter(
-            (item) =>
-              toNumber(
-                item.quantity
-              ) > 0
-          );
+      // فلترة بيع
+      if (
+        filterType === "sale" &&
+        checkType === "بيع"
+      ) {
+        return true;
+      }
 
       if (
-        selectedReturnItems.length ===
-        0
+        filterType === "return" &&
+        checkType === "مرتجع"
       ) {
-
-        alert(
-          "حددي كمية مرتجعة لمادة واحدة على الأقل."
-        );
-
-        return;
+        return true;
       }
 
-      // -----------------------------------------------
-      // تحقق نهائي من الكميات
-      // -----------------------------------------------
-
-      for (
-        const item of selectedReturnItems
-      ) {
-
-        const quantity =
-          toNumber(
-            item.quantity
-          );
-
-        const remaining =
-          toNumber(
-            item.remainingQuantity
-          );
-
-        if (
-          quantity >
-          remaining
-        ) {
-
-          alert(
-            `الكمية المرتجعة للمادة "${item.productType}" أكبر من الكمية المتبقية.`
-          );
-
-          return;
-        }
-      }
-
-      // -----------------------------------------------
-      // تحويل المواد لصيغة التخزين
-      // -----------------------------------------------
-
-      const newReturnItems =
-        selectedReturnItems.map(
-          (item) => ({
-            productType:
-              item.productType,
-
-            specifications:
-              item.specifications,
-
-            quantity:
-              toNumber(
-                item.quantity
-              ),
-
-            priceUsd:
-              toNumber(
-                item.priceUsd
-              ),
-
-            priceSyp:
-              toNumber(
-                item.priceSyp
-              ),
-          })
-        );
-
-      // -----------------------------------------------
-      // إضافة المرتجع الجديد إلى المرتجعات السابقة
-      // -----------------------------------------------
-
-      const updatedReturnItems = [
-        ...(normalized.returnItems ||
-          []),
-        ...newReturnItems,
-      ];
-
-      const originalTotalUsd =
-        calculateTotalUsd(
-          normalized.items
-        );
-
-      const originalTotalSyp =
-        calculateTotalSyp(
-          normalized.items
-        );
-
-      const totalReturnUsd =
-        calculateTotalUsd(
-          updatedReturnItems
-        );
-
-      const totalReturnSyp =
-        calculateTotalSyp(
-          updatedReturnItems
-        );
-
-      const netTotalUsd =
-        Math.max(
-          0,
-          originalTotalUsd -
-            totalReturnUsd
-        );
-
-      const netTotalSyp =
-        Math.max(
-          0,
-          originalTotalSyp -
-            totalReturnSyp
-        );
-
-      // -----------------------------------------------
-      // تحديث نفس الكشف
-      // -----------------------------------------------
-
-      const updatedCheck = {
-
-        ...normalized,
-
-        // النوع يبقى شراء أو بيع
-        type:
-          normalized.type ===
-          "مرتجع"
-            ? "شراء"
-            : normalized.type,
-
-        totalAmountUsd:
-          Number(
-            originalTotalUsd.toFixed(2)
-          ),
-
-        totalAmountSyp:
-          Number(
-            originalTotalSyp.toFixed(0)
-          ),
-
-        returnItems:
-          updatedReturnItems,
-
-        returnNotes:
-          returnNotes.trim(),
-
-        netTotalUsd:
-          Number(
-            netTotalUsd.toFixed(2)
-          ),
-
-        netTotalSyp:
-          Number(
-            netTotalSyp.toFixed(0)
-          ),
-      };
-
-      // -----------------------------------------------
-      // PUT لنفس ID
-      // -----------------------------------------------
-
-      const response =
-        await axios.put(
-          `${API_URL}/${normalized.id}`,
-          updatedCheck
-        );
-
-      const updated =
-        normalizeCheck(
-          response.data
-        );
-
-      // تحديث القائمة
-      setChecks(
-        (prev) =>
-          prev.map(
-            (check) =>
-              String(
-                check.id
-              ) ===
-              String(normalized.id)
-                ? updated
-                : check
-          )
-      );
-
-      // تحديث نافذة التفاصيل
-      setOpenedCheck(
-        updated
-      );
-
-      closeReturnForm();
-
-      alert(
-        "تم حفظ المرتجع داخل نفس الكشف بنجاح ✅"
-      );
-
-    } catch (err) {
-
-      console.error(err);
-
-      alert(
-        "حدث خطأ أثناء حفظ المرتجع"
-      );
+      return false;
     }
-  };
+  );
 
-  // ===================================================
-  // حذف المرتجعات
-  // ===================================================
+  // =====================================================
+  // الإجماليات العامة لكشوف البيع والشراء
+  // =====================================================
 
-  const deleteReturns = async (
-    check
-  ) => {
+  const saleChecks = checks.filter(
+    (check) => getCheckType(check.type) === "بيع"
+  );
 
-    const confirmed =
-      window.confirm(
-        "هل أنت متأكد من حذف جميع المرتجعات من هذا الكشف؟"
+  const purchaseChecks = checks.filter(
+    (check) => getCheckType(check.type) === "شراء"
+  );
+
+  const totalSalesUsd = saleChecks.reduce(
+    (total, check) => {
+      const normalized = normalizeCheck(check);
+
+      return (
+        total +
+        calculateTotalUsd(normalized.items || [])
       );
+    },
+    0
+  );
 
-    if (!confirmed) {
-      return;
-    }
+  const totalSalesSyp = saleChecks.reduce(
+    (total, check) => {
+      const normalized = normalizeCheck(check);
 
-    try {
-
-      const normalized =
-        normalizeCheck(check);
-
-      const originalTotalUsd =
-        calculateTotalUsd(
-          normalized.items
-        );
-
-      const originalTotalSyp =
-        calculateTotalSyp(
-          normalized.items
-        );
-
-      const updatedCheck = {
-
-        ...normalized,
-
-        returnItems: [],
-
-        returnNotes: "",
-
-        netTotalUsd:
-          Number(
-            originalTotalUsd.toFixed(2)
-          ),
-
-        netTotalSyp:
-          Number(
-            originalTotalSyp.toFixed(0)
-          ),
-      };
-
-      const response =
-        await axios.put(
-          `${API_URL}/${normalized.id}`,
-          updatedCheck
-        );
-
-      const updated =
-        normalizeCheck(
-          response.data
-        );
-
-      setChecks(
-        (prev) =>
-          prev.map(
-            (item) =>
-              String(
-                item.id
-              ) ===
-              String(normalized.id)
-                ? updated
-                : item
-          )
+      return (
+        total +
+        calculateTotalSyp(normalized.items || [])
       );
+    },
+    0
+  );
 
-      setOpenedCheck(
-        updated
+  const totalPurchasesUsd = purchaseChecks.reduce(
+    (total, check) => {
+      const normalized = normalizeCheck(check);
+
+      return (
+        total +
+        calculateTotalUsd(normalized.items || [])
       );
+    },
+    0
+  );
 
-      alert(
-        "تم حذف المرتجعات بنجاح"
+  const totalPurchasesSyp = purchaseChecks.reduce(
+    (total, check) => {
+      const normalized = normalizeCheck(check);
+
+      return (
+        total +
+        calculateTotalSyp(normalized.items || [])
       );
+    },
+    0
+  );
 
-    } catch (err) {
+  const returnChecks = checks.filter(
+    (check) =>
+      getCheckType(check.type) === "مرتجع"
+  );
 
-      console.error(err);
+  const totalReturnsUsd = returnChecks.reduce(
+    (total, check) =>
+      total +
+      calculateTotalUsd(
+        normalizeCheck(check).items || []
+      ),
+    0
+  );
 
-      alert(
-        "حدث خطأ أثناء حذف المرتجعات"
-      );
-    }
-  };
+  const totalReturnsSyp = returnChecks.reduce(
+    (total, check) =>
+      total +
+      calculateTotalSyp(
+        normalizeCheck(check).items || []
+      ),
+    0
+  );
 
-  // ===================================================
-  // الفلترة
-  // ===================================================
+  // =====================================================
+  // تجميع الزبائن حسب الفلتر
+  // =====================================================
 
-  const filteredChecks =
-    checks.filter(
-      (check) => {
+  const customers = Array.from(
+    new Set(
+      filteredChecks
+        .map(
+          (check) =>
+            check.customerName?.trim()
+        )
+        .filter(Boolean)
+    )
+  );
 
-        const type =
-          getCheckTypeValue(
-            check.type
-          );
-
-        if (
-          filterType ===
-          "all"
-        ) {
-          return true;
-        }
-
-        if (
-          filterType ===
-            "sale" &&
-          type === "بيع"
-        ) {
-          return true;
-        }
-
-        if (
-          filterType ===
-            "purchase" &&
-          type === "شراء"
-        ) {
-          return true;
-        }
-
-        return false;
-      }
-    );
-
-  // ===================================================
-  // الكشوف حسب النوع
-  // ===================================================
-
-  const saleChecks =
-    checks.filter(
-      (check) =>
-        getCheckTypeValue(
-          check.type
-        ) === "بيع"
-    );
-
-  const purchaseChecks =
-    checks.filter(
-      (check) =>
-        getCheckTypeValue(
-          check.type
-        ) === "شراء"
-    );
-
-  // ===================================================
-  // إجمالي البيع الصافي
-  // ===================================================
-
-  const totalSalesUsd =
-    saleChecks.reduce(
-      (total, check) =>
-        total +
-        calculateNetTotalUsd(
-          normalizeCheck(check)
-        ),
-      0
-    );
-
-  const totalSalesSyp =
-    saleChecks.reduce(
-      (total, check) =>
-        total +
-        calculateNetTotalSyp(
-          normalizeCheck(check)
-        ),
-      0
-    );
-
-  // ===================================================
-  // إجمالي الشراء الصافي
-  // ===================================================
-
-  const totalPurchasesUsd =
-    purchaseChecks.reduce(
-      (total, check) =>
-        total +
-        calculateNetTotalUsd(
-          normalizeCheck(check)
-        ),
-      0
-    );
-
-  const totalPurchasesSyp =
-    purchaseChecks.reduce(
-      (total, check) =>
-        total +
-        calculateNetTotalSyp(
-          normalizeCheck(check)
-        ),
-      0
-    );
-
-  // ===================================================
-  // إجمالي المرتجعات
-  // ===================================================
-
-  const totalReturnsUsd =
-    checks.reduce(
-      (total, check) =>
-        total +
-        calculateReturnTotalUsd(
-          normalizeCheck(check)
-        ),
-      0
-    );
-
-  const totalReturnsSyp =
-    checks.reduce(
-      (total, check) =>
-        total +
-        calculateReturnTotalSyp(
-          normalizeCheck(check)
-        ),
-      0
-    );
-
-  // ===================================================
-  // الزبائن
-  // ===================================================
-
-  const customers =
-    Array.from(
-      new Set(
-        filteredChecks
-          .map(
-            (check) =>
-              check.customerName?.trim()
-          )
-          .filter(Boolean)
-      )
-    );
-
-  // ===================================================
+  // =====================================================
   // كشوف الزبون
-  // ===================================================
+  // =====================================================
 
   const getCustomerChecks = (
     customerName
@@ -2567,8 +1889,7 @@ function Checks() {
     return filteredChecks.filter(
       (check) =>
         String(
-          check.customerName ||
-            ""
+          check.customerName || ""
         ).trim() ===
         String(
           customerName
@@ -2576,82 +1897,76 @@ function Checks() {
     );
   };
 
-  // ===================================================
-  // إقامة الزبون
-  // ===================================================
+  // =====================================================
+  // مكان إقامة الزبون
+  // =====================================================
 
   const getCustomerResidence = (
     customerName
   ) => {
 
-    const check =
+    const customerCheck =
       checks.find(
-        (item) =>
+        (check) =>
           String(
-            item.customerName ||
-              ""
+            check.customerName || ""
           ).trim() ===
-            String(
-              customerName
-            ).trim()
+          String(
+            customerName
+          ).trim()
       );
 
     return (
-      check?.residence ||
+      customerCheck?.residence ||
       ""
     );
   };
 
-  // ===================================================
-  // هاتف الزبون
-  // ===================================================
+  // =====================================================
+  // رقم تليفون الزبون
+  // =====================================================
 
   const getCustomerPhone = (
     customerName
   ) => {
 
-    const check =
+    const customerCheck =
       checks.find(
-        (item) =>
+        (check) =>
           String(
-            item.customerName ||
-              ""
+            check.customerName || ""
           ).trim() ===
-            String(
-              customerName
-            ).trim() &&
-          item.phone
+          String(
+            customerName
+          ).trim() &&
+          check.phone
       );
 
     return (
-      check?.phone ||
+      customerCheck?.phone ||
       ""
     );
   };
 
-  // ===================================================
-  // فتح كشف
-  // ===================================================
+  // =====================================================
+  // فتح التفاصيل
+  // =====================================================
 
-  const openCheck = (
-    check
-  ) => {
+  const openCheck = (check) => {
 
     setOpenedCheck(
       normalizeCheck(check)
     );
   };
 
-  // ===================================================
+  // =====================================================
   // JSX
-  // ===================================================
+  // =====================================================
 
   return (
     <div className="checks-page">
 
-      {/* =================================================
-          NAVBAR
-      ================================================= */}
+      {/* Navbar */}
 
       <nav className="store-navbar">
 
@@ -2677,18 +1992,15 @@ function Checks() {
 
       </nav>
 
-      {/* =================================================
-          MAIN
-      ================================================= */}
+      {/* Main */}
 
       <main className="checks-container">
 
-        {/* HEADER */}
+        {/* Header */}
 
         <div className="checks-header">
 
           <div>
-
             <h1>
               كشوف الزبائن
             </h1>
@@ -2696,7 +2008,6 @@ function Checks() {
             <p>
               يمكن للزبون الواحد امتلاك عدة كشوف
             </p>
-
           </div>
 
           <button
@@ -2710,7 +2021,7 @@ function Checks() {
 
         </div>
 
-        {/* ERROR */}
+        {/* Error */}
 
         {error && (
           <div className="error-message">
@@ -2718,7 +2029,9 @@ function Checks() {
           </div>
         )}
 
-        {/* FILTER */}
+        {/* =================================================
+            FILTER
+        ================================================= */}
 
         <div className="checks-filter">
 
@@ -2726,289 +2039,228 @@ function Checks() {
             فلترة الكشوف:
           </span>
 
+          {/* الكل */}
+
           <button
+            type="button"
             className={`filter-btn ${
-              filterType ===
-              "all"
+              filterType === "all"
                 ? "active"
                 : ""
             }`}
             onClick={() =>
-              setFilterType(
-                "all"
-              )
+              setFilterType("all")
             }
           >
             الكل
           </button>
 
+          {/* البيع */}
+
           <button
+            type="button"
             className={`filter-btn ${
-              filterType ===
-              "sale"
+              filterType === "sale"
                 ? "active"
                 : ""
             }`}
             onClick={() =>
-              setFilterType(
-                "sale"
-              )
+              setFilterType("sale")
             }
           >
             كشوف البيع
           </button>
 
+          {/* الشراء */}
+
           <button
+            type="button"
             className={`filter-btn ${
-              filterType ===
-              "purchase"
+              filterType === "purchase"
                 ? "active"
                 : ""
             }`}
             onClick={() =>
-              setFilterType(
-                "purchase"
-              )
+              setFilterType("purchase")
             }
           >
             كشوف الشراء
           </button>
 
+          <button
+            type="button"
+            className={`filter-btn ${
+              filterType === "return"
+                ? "active"
+                : ""
+            }`}
+            onClick={() =>
+              setFilterType("return")
+            }
+          >
+            المرتجعات
+          </button>
+
         </div>
 
-        {/* SUMMARY */}
+        {/* =================================================
+            الإجماليات العامة للبيع والشراء
+        ================================================= */}
 
         {!loading && (
           <div className="checks-total-summary">
 
-            {/* البيع */}
-
             <div className="summary-box sale-summary">
 
               <div className="summary-box-header">
-
-                <span>
-                  💰
-                </span>
-
-                <h3>
-                  إجمالي كشوف البيع
-                </h3>
-
+                <span>💰</span>
+                <h3>إجمالي كشوف البيع</h3>
               </div>
 
               <div className="summary-values">
 
                 <div className="summary-value">
-
-                  <span>
-                    الصافي بالدولار
-                  </span>
+                  <span>بالدولار</span>
 
                   <strong>
-                    $
-                    {" "}
-                    {formatNumber(
-                      totalSalesUsd.toFixed(
-                        2
-                      )
+                    $ {formatNumber(
+                      totalSalesUsd.toFixed(2)
                     )}
                   </strong>
-
                 </div>
 
                 <div className="summary-value">
-
-                  <span>
-                    الصافي بالسوري
-                  </span>
+                  <span>بالسوري</span>
 
                   <strong>
                     {formatNumber(
-                      totalSalesSyp.toFixed(
-                        0
-                      )
-                    )}
-                    {" "}
-                    ل.س
+                      totalSalesSyp.toFixed(0)
+                    )} ل.س
                   </strong>
-
                 </div>
 
               </div>
 
               <small>
-                عدد الكشوف:{" "}
-                {saleChecks.length}
+                عدد الكشوف: {saleChecks.length}
               </small>
 
             </div>
-
-            {/* الشراء */}
 
             <div className="summary-box purchase-summary">
 
               <div className="summary-box-header">
-
-                <span>
-                  🛒
-                </span>
-
-                <h3>
-                  إجمالي كشوف الشراء
-                </h3>
-
+                <span>🛒</span>
+                <h3>إجمالي كشوف الشراء</h3>
               </div>
 
               <div className="summary-values">
 
                 <div className="summary-value">
-
-                  <span>
-                    الصافي بالدولار
-                  </span>
+                  <span>بالدولار</span>
 
                   <strong>
-                    $
-                    {" "}
-                    {formatNumber(
-                      totalPurchasesUsd.toFixed(
-                        2
-                      )
+                    $ {formatNumber(
+                      totalPurchasesUsd.toFixed(2)
                     )}
                   </strong>
-
                 </div>
 
                 <div className="summary-value">
-
-                  <span>
-                    الصافي بالسوري
-                  </span>
+                  <span>بالسوري</span>
 
                   <strong>
                     {formatNumber(
-                      totalPurchasesSyp.toFixed(
-                        0
-                      )
-                    )}
-                    {" "}
-                    ل.س
+                      totalPurchasesSyp.toFixed(0)
+                    )} ل.س
                   </strong>
-
                 </div>
 
               </div>
 
               <small>
-                عدد الكشوف:{" "}
-                {purchaseChecks.length}
+                عدد الكشوف: {purchaseChecks.length}
               </small>
 
             </div>
 
-            {/* المرتجعات */}
-
             <div className="summary-box return-summary">
-
               <div className="summary-box-header">
-
-                <span>
-                  ↩️
-                </span>
-
-                <h3>
-                  إجمالي المرتجعات
-                </h3>
-
+                <span>↩️</span>
+                <h3>إجمالي المرتجعات</h3>
               </div>
 
               <div className="summary-values">
-
                 <div className="summary-value">
-
-                  <span>
-                    بالدولار
-                  </span>
-
+                  <span>بالدولار</span>
                   <strong>
-                    $
-                    {" "}
-                    {formatNumber(
-                      totalReturnsUsd.toFixed(
-                        2
-                      )
+                    $ {formatNumber(
+                      totalReturnsUsd.toFixed(2)
                     )}
                   </strong>
-
                 </div>
 
                 <div className="summary-value">
-
-                  <span>
-                    بالسوري
-                  </span>
-
+                  <span>بالسوري</span>
                   <strong>
                     {formatNumber(
-                      totalReturnsSyp.toFixed(
-                        0
-                      )
-                    )}
-                    {" "}
-                    ل.س
+                      totalReturnsSyp.toFixed(0)
+                    )} ل.س
                   </strong>
-
                 </div>
-
               </div>
 
               <small>
-                المرتجعات ضمن الكشوف
+                عدد المرتجعات: {returnChecks.length}
               </small>
-
             </div>
 
           </div>
         )}
 
-        {/* RESULT */}
+        {/* =================================================
+            عدد الكشوف حسب الفلتر
+        ================================================= */}
 
         {!loading && (
           <div className="filter-result-info">
 
-            {filterType ===
-              "all" && (
+            {filterType === "all" && (
               <>
-                جميع الكشوف:{" "}
+                جميع الكشوف:
+                {" "}
                 <strong>
-                  {
-                    filteredChecks.length
-                  }
+                  {filteredChecks.length}
                 </strong>
               </>
             )}
 
-            {filterType ===
-              "sale" && (
+            {filterType === "sale" && (
               <>
-                كشوف البيع:{" "}
+                كشوف البيع:
+                {" "}
                 <strong>
-                  {
-                    filteredChecks.length
-                  }
+                  {filteredChecks.length}
                 </strong>
               </>
             )}
 
-            {filterType ===
-              "purchase" && (
+            {filterType === "purchase" && (
               <>
-                كشوف الشراء:{" "}
+                كشوف الشراء:
+                {" "}
                 <strong>
-                  {
-                    filteredChecks.length
-                  }
+                  {filteredChecks.length}
+                </strong>
+              </>
+            )}
+
+            {filterType === "return" && (
+              <>
+                المرتجعات:
+                {" "}
+                <strong>
+                  {filteredChecks.length}
                 </strong>
               </>
             )}
@@ -3016,7 +2268,7 @@ function Checks() {
           </div>
         )}
 
-        {/* LOADING */}
+        {/* Loading */}
 
         {loading ? (
 
@@ -3024,8 +2276,7 @@ function Checks() {
             جاري تحميل الكشوف...
           </div>
 
-        ) : customers.length ===
-          0 ? (
+        ) : customers.length === 0 ? (
 
           <div className="empty-state">
 
@@ -3040,6 +2291,17 @@ function Checks() {
             <p>
               لا يوجد كشوف ضمن الفلترة المحددة
             </p>
+
+            {filterType !== "all" && (
+              <button
+                className="btn btn-add"
+                onClick={() =>
+                  setFilterType("all")
+                }
+              >
+                عرض كل الكشوف
+              </button>
+            )}
 
           </div>
 
@@ -3065,28 +2327,18 @@ function Checks() {
                     customerName
                   );
 
+                // مهم:
+                // الإجمالي هون محسوب فقط للكشوف
+                // الموجودة ضمن الفلتر الحالي
+
                 const customerTotalUsd =
-                  customerChecks.reduce(
-                    (total, check) =>
-                      total +
-                      calculateNetTotalUsd(
-                        normalizeCheck(
-                          check
-                        )
-                      ),
-                    0
+                  calculateCustomerTotalUsd(
+                    customerChecks
                   );
 
                 const customerTotalSyp =
-                  customerChecks.reduce(
-                    (total, check) =>
-                      total +
-                      calculateNetTotalSyp(
-                        normalizeCheck(
-                          check
-                        )
-                      ),
-                    0
+                  calculateCustomerTotalSyp(
+                    customerChecks
                   );
 
                 return (
@@ -3096,7 +2348,7 @@ function Checks() {
                     key={customerName}
                   >
 
-                    {/* CUSTOMER HEADER */}
+                    {/* Customer Header */}
 
                     <div className="customer-section-header">
 
@@ -3114,23 +2366,18 @@ function Checks() {
 
                           {residence && (
                             <p className="customer-residence">
-                              📍{" "}
-                              {residence}
+                              📍 {residence}
                             </p>
                           )}
 
                           {phone && (
                             <p className="customer-residence">
-                              📞{" "}
-                              {phone}
+                              📞 {phone}
                             </p>
                           )}
 
                           <span>
-                            {
-                              customerChecks.length
-                            }{" "}
-                            كشف
+                            {customerChecks.length} كشف
                           </span>
 
                         </div>
@@ -3145,18 +2392,25 @@ function Checks() {
                             residence
                           )
                         }
+                        title="إضافة كشف جديد لهذا الزبون"
                       >
                         +
                       </button>
 
                     </div>
 
-                    {/* CUSTOMER TOTAL */}
+                    {/* إجمالي الزبون حسب الفلتر */}
 
                     <div className="customer-total-box">
 
                       <div className="customer-total-title">
-                        صافي إجمالي كشوف الزبون
+
+                        {filterType === "all"
+                          ? "إجمالي جميع كشوف الزبون"
+                          : filterType === "sale"
+                          ? "إجمالي كشوف البيع"
+                          : "إجمالي كشوف الشراء"}
+
                       </div>
 
                       <div className="customer-total-values">
@@ -3164,16 +2418,14 @@ function Checks() {
                         <div className="customer-total-item usd-total">
 
                           <span>
-                            بالدولار
+                            الإجمالي بالدولار
                           </span>
 
                           <strong>
                             $
                             {" "}
                             {formatNumber(
-                              customerTotalUsd.toFixed(
-                                2
-                              )
+                              customerTotalUsd.toFixed(2)
                             )}
                           </strong>
 
@@ -3182,14 +2434,12 @@ function Checks() {
                         <div className="customer-total-item syp-total">
 
                           <span>
-                            بالسوري
+                            الإجمالي بالسوري
                           </span>
 
                           <strong>
                             {formatNumber(
-                              customerTotalSyp.toFixed(
-                                0
-                              )
+                              customerTotalSyp.toFixed(0)
                             )}
                             {" "}
                             ل.س
@@ -3201,7 +2451,7 @@ function Checks() {
 
                     </div>
 
-                    {/* CHECKS */}
+                    {/* كشوف الزبون */}
 
                     <div className="customer-checks-grid">
 
@@ -3209,48 +2459,26 @@ function Checks() {
                         (check) => {
 
                           const normalized =
-                            normalizeCheck(
-                              check
-                            );
+                            normalizeCheck(check);
 
                           const totalUsd =
                             calculateTotalUsd(
-                              normalized.items
+                              normalized.items || []
                             );
 
                           const totalSyp =
                             calculateTotalSyp(
-                              normalized.items
-                            );
-
-                          const returnUsd =
-                            calculateReturnTotalUsd(
-                              normalized
-                            );
-
-                          const returnSyp =
-                            calculateReturnTotalSyp(
-                              normalized
-                            );
-
-                          const netUsd =
-                            calculateNetTotalUsd(
-                              normalized
-                            );
-
-                          const netSyp =
-                            calculateNetTotalSyp(
-                              normalized
+                              normalized.items || []
                             );
 
                           return (
 
                             <div
                               className="check-card"
-                              key={
-                                check.id
-                              }
+                              key={check.id}
                             >
+
+                              {/* أعلى الكرت */}
 
                               <div className="check-card-top">
 
@@ -3280,16 +2508,15 @@ function Checks() {
 
                                 <span
                                   className={`check-type ${
-                                    getCheckTypeValue(
-                                      check.type
-                                    ) ===
-                                    "شراء"
+                                    getCheckType(check.type) === "شراء"
                                       ? "purchase"
+                                      : getCheckType(check.type) === "مرتجع"
+                                      ? "return"
                                       : "sale"
                                   }`}
                                 >
                                   {
-                                    getCheckTypeValue(
+                                    getCheckType(
                                       check.type
                                     )
                                   }
@@ -3297,7 +2524,14 @@ function Checks() {
 
                               </div>
 
-                              {/* PAYMENT */}
+                              {getCheckType(check.type) === "مرتجع" && (
+                                <div className="return-reference">
+                                  ↩️ مرتجع عن الكشف رقم #
+                                  {check.returnForCheckNumber || "-"}
+                                </div>
+                              )}
+
+                              {/* حالة الدفع */}
 
                               <div className="payment-status-display">
 
@@ -3307,25 +2541,27 @@ function Checks() {
 
                                 <strong
                                   className={
-                                    check.paymentStatus ===
-                                      "مقبوض" ||
-                                    check.paymentStatus ===
-                                      "مدفوع"
+                                    getCheckType(check.type) === "مرتجع"
+                                      ? "return-status"
+                                      : check.paymentStatus ===
+                                          "مقبوض" ||
+                                        check.paymentStatus ===
+                                          "مدفوع"
                                       ? "paid"
                                       : "unpaid"
                                   }
                                 >
-                                  {
-                                    check.paymentStatus ||
-                                    getDefaultPaymentStatus(
-                                      check.type
-                                    )
-                                  }
+                                  {getCheckType(check.type) === "مرتجع"
+                                    ? "لا ينطبق"
+                                    : check.paymentStatus ||
+                                      getDefaultPaymentStatus(
+                                        check.type
+                                      )}
                                 </strong>
 
                               </div>
 
-                              {/* DATE */}
+                              {/* التاريخ وسعر الدولار */}
 
                               <div className="check-card-extra">
 
@@ -3351,151 +2587,103 @@ function Checks() {
                                   </span>
 
                                   <strong>
+
+                                    {check.exchangeRate
+                                      ? formatNumber(
+                                          check.exchangeRate
+                                        )
+                                      : "-"}
+
+                                    {" "}
+                                    ل.س
+
+                                  </strong>
+
+                                </div>
+
+                              </div>
+
+                              {/* القيمة الإجمالية */}
+
+                              <div className="check-amount">
+
+                                <div>
+
+                                  <span>
+                                    الإجمالي بالدولار
+                                  </span>
+
+                                  <strong>
+                                    $
+                                    {" "}
+                                    {formatNumber(
+                                      totalUsd.toFixed(2)
+                                    )}
+                                  </strong>
+
+                                </div>
+
+                                <div>
+
+                                  <span>
+                                    الإجمالي بالسوري
+                                  </span>
+
+                                  <strong>
+                                    {formatNumber(
+                                      totalSyp.toFixed(0)
+                                    )}
+                                    {" "}
+                                    ل.س
+                                  </strong>
+
+                                </div>
+
+                              </div>
+
+                              {/* عدد المواد */}
+
+                              <div className="check-details">
+
+                                <div>
+
+                                  <span>
+                                    عدد المواد
+                                  </span>
+
+                                  <strong>
                                     {
-                                      check.exchangeRate
-                                        ? formatNumber(
-                                            check.exchangeRate
-                                          )
-                                        : "-"
+                                      normalized.items
+                                        ?.length ||
+                                      0
                                     }
-                                    {" "}
-                                    ل.س
+                                  </strong>
+
+                                </div>
+
+                                <div>
+
+                                  <span>
+                                    مكان الإقامة
+                                  </span>
+
+                                  <strong>
+                                    {
+                                      check.residence ||
+                                      "-"
+                                    }
                                   </strong>
 
                                 </div>
 
                               </div>
 
-                              {/* ORIGINAL TOTAL */}
-
-                              <div className="check-amount">
-
-                                <div>
-
-                                  <span>
-                                    إجمالي الكشف
-                                  </span>
-
-                                  <strong>
-                                    $
-                                    {" "}
-                                    {formatNumber(
-                                      totalUsd.toFixed(
-                                        2
-                                      )
-                                    )}
-                                  </strong>
-
-                                </div>
-
-                                <div>
-
-                                  <span>
-                                    بالسوري
-                                  </span>
-
-                                  <strong>
-                                    {formatNumber(
-                                      totalSyp.toFixed(
-                                        0
-                                      )
-                                    )}
-                                    {" "}
-                                    ل.س
-                                  </strong>
-
-                                </div>
-
-                              </div>
-
-                              {/* RETURN */}
-
-                              {returnUsd >
-                                0 && (
-
-                                <div className="return-reference">
-
-                                  ↩️ المرتجع ضمن الكشف:
-
-                                  <strong>
-                                    {" "}
-                                    $
-                                    {" "}
-                                    {formatNumber(
-                                      returnUsd.toFixed(
-                                        2
-                                      )
-                                    )}
-                                  </strong>
-
-                                  {" "}
-                                  /{" "}
-
-                                  <strong>
-                                    {formatNumber(
-                                      returnSyp.toFixed(
-                                        0
-                                      )
-                                    )}
-                                    {" "}
-                                    ل.س
-                                  </strong>
-
-                                </div>
-
-                              )}
-
-                              {/* NET */}
-
-                              <div className="check-amount">
-
-                                <div>
-
-                                  <span>
-                                    صافي الكشف
-                                  </span>
-
-                                  <strong>
-                                    $
-                                    {" "}
-                                    {formatNumber(
-                                      netUsd.toFixed(
-                                        2
-                                      )
-                                    )}
-                                  </strong>
-
-                                </div>
-
-                                <div>
-
-                                  <span>
-                                    الصافي بالسوري
-                                  </span>
-
-                                  <strong>
-                                    {formatNumber(
-                                      netSyp.toFixed(
-                                        0
-                                      )
-                                    )}
-                                    {" "}
-                                    ل.س
-                                  </strong>
-
-                                </div>
-
-                              </div>
-
-                              {/* ITEMS */}
+                              {/* المواد */}
 
                               <div className="card-products">
 
                                 {normalized.items
-                                  ?.slice(
-                                    0,
-                                    2
-                                  )
+                                  ?.slice(0, 2)
                                   .map(
                                     (
                                       item,
@@ -3504,9 +2692,7 @@ function Checks() {
 
                                       <div
                                         className="card-product-row"
-                                        key={
-                                          index
-                                        }
+                                        key={index}
                                       >
 
                                         <strong>
@@ -3550,7 +2736,7 @@ function Checks() {
 
                               </div>
 
-                              {/* ACTIONS */}
+                              {/* الأزرار */}
 
                               <div className="check-card-actions">
 
@@ -3565,16 +2751,16 @@ function Checks() {
                                   👁 عرض
                                 </button>
 
-                                <button
-                                  className="return-btn"
-                                  onClick={() =>
-                                    openReturnForm(
-                                      check
-                                    )
-                                  }
-                                >
-                                  ↩️ مرتجع
-                                </button>
+                                {getCheckType(check.type) !== "مرتجع" && (
+                                  <button
+                                    className="return-btn"
+                                    onClick={() =>
+                                      openReturnForm(check)
+                                    }
+                                  >
+                                    ↩️ مرتجع
+                                  </button>
+                                )}
 
                                 <button
                                   className="edit-btn"
@@ -3606,7 +2792,7 @@ function Checks() {
                         }
                       )}
 
-                      {/* NEW CHECK */}
+                      {/* كرت كشف جديد */}
 
                       <button
                         className="new-check-card"
@@ -3646,552 +2832,33 @@ function Checks() {
 
       </main>
 
-      {/* =================================================
-          ADD / EDIT MODAL
-      ================================================= */}
+      {/* Add / Edit Modal */}
 
       {showAddForm && (
+
         <CheckForm
-          formData={
-            formData
-          }
-          handleChange={
-            handleChange
-          }
+          formData={formData}
+          handleChange={handleChange}
           handleItemChange={
             handleItemChange
           }
-          addItem={
-            addItem
-          }
-          removeItem={
-            removeItem
-          }
+          addItem={addItem}
+          removeItem={removeItem}
           handleSubmit={
             editId
               ? handleUpdate
               : handleAdd
           }
-          closeForm={
-            closeForm
-          }
-          editMode={
-            !!editId
-          }
+          closeForm={closeForm}
+          editMode={!!editId}
           selectedCustomer={
             selectedCustomer
           }
         />
-      )}
-
-      {/* =================================================
-          RETURN MODAL
-      ================================================= */}
-
-      {returnCheck && (
-
-        <div className="modal-overlay">
-
-          <div className="modal check-form-modal return-modal">
-
-            {/* HEADER */}
-
-            <div className="modal-header">
-
-              <div>
-
-                <h2>
-                  ↩️ مرتجع من الكشف #
-                  {
-                    returnCheck.checkNumber ||
-                    "-"
-                  }
-                </h2>
-
-                <small>
-                  المرتجع سيُحفظ داخل نفس الكشف
-                </small>
-
-              </div>
-
-              <button
-                type="button"
-                className="close-modal"
-                onClick={
-                  closeReturnForm
-                }
-              >
-                ×
-              </button>
-
-            </div>
-
-            <form
-              className="check-form"
-              onSubmit={
-                handleReturnSubmit
-              }
-            >
-
-              {/* INFO */}
-
-              <div className="return-info-box">
-
-                <div>
-
-                  <strong>
-                    الزبون:
-                  </strong>
-
-                  <span>
-                    {
-                      returnCheck.customerName ||
-                      "-"
-                    }
-                  </span>
-
-                </div>
-
-                <div>
-
-                  <strong>
-                    رقم الكشف:
-                  </strong>
-
-                  <span>
-                    #
-                    {
-                      returnCheck.checkNumber ||
-                      "-"
-                    }
-                  </span>
-
-                </div>
-
-                <div>
-
-                  <strong>
-                    نوع الكشف:
-                  </strong>
-
-                  <span>
-                    {
-                      getCheckTypeValue(
-                        returnCheck.type
-                      )
-                    }
-                  </span>
-
-                </div>
-
-              </div>
-
-              {/* ========================================
-                  MATERIALS
-              ======================================== */}
-
-              <div className="form-section-title">
-                مواد الكشف
-              </div>
-
-              <div className="return-warning">
-                ⚠️ المواد والمواصفات والأسعار جلبناها تلقائيًا من الكشف الأصلي. حددي فقط الكمية المرتجعة.
-              </div>
-
-              <div className="return-items-container">
-
-                {returnItems.map(
-                  (
-                    item,
-                    index
-                  ) => (
-
-                    <div
-                      className="return-item-box"
-                      key={index}
-                    >
-
-                      {/* عنوان */}
-
-                      <div className="return-item-header">
-
-                        <div>
-
-                          <strong>
-                            {index + 1}.{" "}
-                            {
-                              item.productType
-                            }
-                          </strong>
-
-                          <small>
-                            {
-                              item.specifications ||
-                              "بدون مواصفات"
-                            }
-                          </small>
-
-                        </div>
-
-                      </div>
-
-                      {/* المعلومات */}
-
-                      <div className="return-item-info-grid">
-
-                        <div className="return-info-field">
-
-                          <span>
-                            نوع المادة
-                          </span>
-
-                          <strong>
-                            {
-                              item.productType ||
-                              "-"
-                            }
-                          </strong>
-
-                        </div>
-
-                        <div className="return-info-field">
-
-                          <span>
-                            المواصفات
-                          </span>
-
-                          <strong>
-                            {
-                              item.specifications ||
-                              "-"
-                            }
-                          </strong>
-
-                        </div>
-
-                        <div className="return-info-field">
-
-                          <span>
-                            السعر بالدولار
-                          </span>
-
-                          <strong>
-                            $
-                            {" "}
-                            {formatNumber(
-                              item.priceUsd
-                            )}
-                          </strong>
-
-                        </div>
-
-                        <div className="return-info-field">
-
-                          <span>
-                            السعر بالسوري
-                          </span>
-
-                          <strong>
-                            {formatNumber(
-                              item.priceSyp
-                            )}
-                            {" "}
-                            ل.س
-                          </strong>
-
-                        </div>
-
-                        <div className="return-info-field">
-
-                          <span>
-                            الكمية الأصلية
-                          </span>
-
-                          <strong>
-                            {formatNumber(
-                              item.originalQuantity
-                            )}
-                          </strong>
-
-                        </div>
-
-                        <div className="return-info-field">
-
-                          <span>
-                            المرتجع سابقًا
-                          </span>
-
-                          <strong>
-                            {formatNumber(
-                              item.returnedQuantity
-                            )}
-                          </strong>
-
-                        </div>
-
-                        <div className="return-info-field remaining-field">
-
-                          <span>
-                            الكمية المتبقية
-                          </span>
-
-                          <strong>
-                            {formatNumber(
-                              item.remainingQuantity
-                            )}
-                          </strong>
-
-                        </div>
-
-                      </div>
-
-                      {/* الكمية المرتجعة */}
-
-                      <div className="return-quantity-input">
-
-                        <label>
-                          الكمية التي تريدين إرجاعها
-                        </label>
-
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={
-                            item.quantity
-                          }
-                          onChange={(e) =>
-                            handleReturnQuantityChange(
-                              index,
-                              e.target.value
-                            )
-                          }
-                          placeholder={
-                            item.remainingQuantity >
-                            0
-                              ? `حد أقصى ${formatNumber(
-                                  item.remainingQuantity
-                                )}`
-                              : "لا توجد كمية متبقية"
-                          }
-                          disabled={
-                            item.remainingQuantity <=
-                            0
-                          }
-                        />
-
-                        {item.remainingQuantity <=
-                          0 && (
-                          <small>
-                            تم إرجاع كامل كمية هذه المادة
-                          </small>
-                        )}
-
-                      </div>
-
-                    </div>
-
-                  )
-                )}
-
-              </div>
-
-              {/* ========================================
-                  TOTALS
-              ======================================== */}
-
-              <div className="customer-total-box">
-
-                <div className="customer-total-title">
-                  قيمة المرتجع الحالي
-                </div>
-
-                <div className="customer-total-values">
-
-                  <div className="customer-total-item usd-total">
-
-                    <span>
-                      بالدولار
-                    </span>
-
-                    <strong>
-                      $
-                      {" "}
-                      {formatNumber(
-                        calculateTotalUsd(
-                          returnItems
-                        ).toFixed(2)
-                      )}
-                    </strong>
-
-                  </div>
-
-                  <div className="customer-total-item syp-total">
-
-                    <span>
-                      بالسوري
-                    </span>
-
-                    <strong>
-                      {formatNumber(
-                        calculateTotalSyp(
-                          returnItems
-                        ).toFixed(0)
-                      )}
-                      {" "}
-                      ل.س
-                    </strong>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* ========================================
-                  ORIGINAL / PREVIOUS / NET
-              ======================================== */}
-
-              <div className="return-summary-box">
-
-                <div>
-
-                  <span>
-                    إجمالي الكشف الأصلي
-                  </span>
-
-                  <strong>
-                    $
-                    {" "}
-                    {formatNumber(
-                      calculateTotalUsd(
-                        returnCheck.items
-                      ).toFixed(2)
-                    )}
-                  </strong>
-
-                </div>
-
-                <div>
-
-                  <span>
-                    المرتجع السابق
-                  </span>
-
-                  <strong>
-                    $
-                    {" "}
-                    {formatNumber(
-                      calculateReturnTotalUsd(
-                        returnCheck
-                      ).toFixed(2)
-                    )}
-                  </strong>
-
-                </div>
-
-                <div>
-
-                  <span>
-                    المرتجع الحالي
-                  </span>
-
-                  <strong>
-                    $
-                    {" "}
-                    {formatNumber(
-                      calculateTotalUsd(
-                        returnItems
-                      ).toFixed(2)
-                    )}
-                  </strong>
-
-                </div>
-
-                <div className="net-return-result">
-
-                  <span>
-                    الصافي بعد المرتجع
-                  </span>
-
-                  <strong>
-                    $
-                    {" "}
-                    {formatNumber(
-                      Math.max(
-                        0,
-                        calculateTotalUsd(
-                          returnCheck.items
-                        ) -
-                          calculateReturnTotalUsd(
-                            returnCheck
-                          ) -
-                          calculateTotalUsd(
-                            returnItems
-                          )
-                      ).toFixed(2)
-                    )}
-                  </strong>
-
-                </div>
-
-              </div>
-
-              {/* NOTES */}
-
-              <div className="form-section-title">
-                ملاحظات المرتجع
-              </div>
-
-              <div className="form-group full-width">
-
-                <textarea
-                  value={
-                    returnNotes
-                  }
-                  onChange={(e) =>
-                    setReturnNotes(
-                      e.target.value
-                    )
-                  }
-                  placeholder="أدخل ملاحظات المرتجع..."
-                />
-
-              </div>
-
-              {/* ACTIONS */}
-
-              <div className="form-actions">
-
-                <button
-                  type="submit"
-                  className="btn btn-return"
-                >
-                  ↩️ حفظ المرتجع
-                </button>
-
-                <button
-                  type="button"
-                  className="btn btn-cancel"
-                  onClick={
-                    closeReturnForm
-                  }
-                >
-                  إلغاء
-                </button>
-
-              </div>
-
-            </form>
-
-          </div>
-
-        </div>
 
       )}
 
-      {/* =================================================
-          VIEW MODAL
-      ================================================= */}
+      {/* View Check Modal */}
 
       {openedCheck && (
 
@@ -4213,7 +2880,7 @@ function Checks() {
 
                 <span>
                   {
-                    getCheckTypeValue(
+                    getCheckType(
                       openedCheck.type
                     )
                   }
@@ -4225,9 +2892,7 @@ function Checks() {
                 type="button"
                 className="close-modal"
                 onClick={() =>
-                  setOpenedCheck(
-                    null
-                  )
+                  setOpenedCheck(null)
                 }
               >
                 ×
@@ -4237,10 +2902,7 @@ function Checks() {
 
             <div className="check-view">
 
-              {/* المعلومات */}
-
               <div className="view-row">
-
                 <span>
                   اسم الزبون
                 </span>
@@ -4251,7 +2913,6 @@ function Checks() {
                     "-"
                   }
                 </strong>
-
               </div>
 
               <div className="view-row">
@@ -4337,7 +2998,7 @@ function Checks() {
 
                 <strong>
                   {
-                    getCheckTypeValue(
+                    getCheckType(
                       openedCheck.type
                     )
                   }
@@ -4345,44 +3006,67 @@ function Checks() {
 
               </div>
 
-              <div className="view-row">
+              {getCheckType(openedCheck.type) === "مرتجع" && (
+                <div className="view-row return-reference-view">
+                  <span>
+                    مرتجع عن الكشف
+                  </span>
+
+                  <strong>
+                    #
+                    {openedCheck.returnForCheckNumber || "-"}
+                  </strong>
+                </div>
+              )}
+
+              <div className="view-row payment-status-view">
 
                 <span>
-                  حالة الدفع
+                  حالة الدفع :
                 </span>
 
-                <strong>
-                  {
-                    openedCheck.paymentStatus ||
-                    "-"
+                <strong
+                  className={
+                    getCheckType(openedCheck.type) === "مرتجع"
+                      ? "return-status"
+                      : openedCheck.paymentStatus ===
+                          "مقبوض" ||
+                        openedCheck.paymentStatus ===
+                          "مدفوع"
+                      ? "paid"
+                      : "unpaid"
                   }
+                >
+                  {getCheckType(openedCheck.type) === "مرتجع"
+                    ? "لا ينطبق"
+                    : openedCheck.paymentStatus ||
+                      getDefaultPaymentStatus(
+                        openedCheck.type
+                      )}
                 </strong>
 
               </div>
 
-              <div className="view-row">
+              <div className="view-row exchange-rate-view">
 
                 <span>
-                  سعر الدولار
+                  سعر الدولار وقت إنشاء الكشف
                 </span>
 
                 <strong>
-                  {
-                    openedCheck.exchangeRate
-                      ? formatNumber(
-                          openedCheck.exchangeRate
-                        )
-                      : "-"
-                  }
+
+                  {openedCheck.exchangeRate
+                    ? formatNumber(
+                        openedCheck.exchangeRate
+                      )
+                    : "-"}
+
                   {" "}
                   ل.س
+
                 </strong>
 
               </div>
-
-              {/* ========================================
-                  المواد الأصلية
-              ======================================== */}
 
               <div className="view-items">
 
@@ -4390,11 +3074,8 @@ function Checks() {
                   مواد الكشف
                 </h3>
 
-                {openedCheck.items.map(
-                  (
-                    item,
-                    index
-                  ) => (
+                {openedCheck.items?.map(
+                  (item, index) => (
 
                     <div
                       className="view-item"
@@ -4441,9 +3122,12 @@ function Checks() {
                           </span>
 
                           <strong>
-                            {formatNumber(
-                              item.quantity
-                            )}
+                            {
+                              formatNumber(
+                                item.quantity
+                              ) ||
+                              "-"
+                            }
                           </strong>
 
                         </div>
@@ -4457,9 +3141,12 @@ function Checks() {
                           <strong>
                             $
                             {" "}
-                            {formatNumber(
-                              item.priceUsd
-                            )}
+                            {
+                              formatNumber(
+                                item.priceUsd
+                              ) ||
+                              "-"
+                            }
                           </strong>
 
                         </div>
@@ -4471,9 +3158,12 @@ function Checks() {
                           </span>
 
                           <strong>
-                            {formatNumber(
-                              item.priceSyp
-                            )}
+                            {
+                              formatNumber(
+                                item.priceSyp
+                              ) ||
+                              "-"
+                            }
                             {" "}
                             ل.س
                           </strong>
@@ -4489,144 +3179,12 @@ function Checks() {
 
               </div>
 
-              {/* ========================================
-                  المرتجعات
-              ======================================== */}
-
-              {openedCheck.returnItems?.length >
-                0 && (
-
-                <div className="view-items">
-
-                  <h3>
-                    ↩️ المواد المرتجعة
-                  </h3>
-
-                  {openedCheck.returnItems.map(
-                    (
-                      item,
-                      index
-                    ) => (
-
-                      <div
-                        className="view-item return-view-item"
-                        key={index}
-                      >
-
-                        <div className="view-item-header">
-
-                          <strong>
-                            مرتجع{" "}
-                            {index + 1}
-                          </strong>
-
-                          <span>
-                            {
-                              item.productType ||
-                              "-"
-                            }
-                          </span>
-
-                        </div>
-
-                        <div className="view-item-grid">
-
-                          <div>
-
-                            <span>
-                              المواصفات
-                            </span>
-
-                            <strong>
-                              {
-                                item.specifications ||
-                                "-"
-                              }
-                            </strong>
-
-                          </div>
-
-                          <div>
-
-                            <span>
-                              الكمية المرتجعة
-                            </span>
-
-                            <strong>
-                              {formatNumber(
-                                item.quantity
-                              )}
-                            </strong>
-
-                          </div>
-
-                          <div>
-
-                            <span>
-                              قيمة المرتجع بالدولار
-                            </span>
-
-                            <strong>
-                              $
-                              {" "}
-                              {formatNumber(
-                                (
-                                  toNumber(
-                                    item.quantity
-                                  ) *
-                                  toNumber(
-                                    item.priceUsd
-                                  )
-                                ).toFixed(2)
-                              )}
-                            </strong>
-
-                          </div>
-
-                          <div>
-
-                            <span>
-                              قيمة المرتجع بالسوري
-                            </span>
-
-                            <strong>
-                              {formatNumber(
-                                (
-                                  toNumber(
-                                    item.quantity
-                                  ) *
-                                  toNumber(
-                                    item.priceSyp
-                                  )
-                                ).toFixed(0)
-                              )}
-                              {" "}
-                              ل.س
-                            </strong>
-
-                          </div>
-
-                        </div>
-
-                      </div>
-
-                    )
-                  )}
-
-                </div>
-
-              )}
-
-              {/* ========================================
-                  TOTALS
-              ======================================== */}
-
               <div className="view-total">
 
                 <div>
 
                   <span>
-                    إجمالي الكشف الأصلي
+                    القيمة الإجمالية بالدولار
                   </span>
 
                   <strong>
@@ -4634,7 +3192,7 @@ function Checks() {
                     {" "}
                     {formatNumber(
                       calculateTotalUsd(
-                        openedCheck.items
+                        openedCheck.items || []
                       ).toFixed(2)
                     )}
                   </strong>
@@ -4644,13 +3202,13 @@ function Checks() {
                 <div>
 
                   <span>
-                    بالسوري
+                    القيمة الإجمالية بالسوري
                   </span>
 
                   <strong>
                     {formatNumber(
                       calculateTotalSyp(
-                        openedCheck.items
+                        openedCheck.items || []
                       ).toFixed(0)
                     )}
                     {" "}
@@ -4660,107 +3218,6 @@ function Checks() {
                 </div>
 
               </div>
-
-              {openedCheck.returnItems?.length >
-                0 && (
-
-                <div className="view-total return-total-view">
-
-                  <div>
-
-                    <span>
-                      إجمالي المرتجع
-                    </span>
-
-                    <strong>
-                      $
-                      {" "}
-                      {formatNumber(
-                        calculateReturnTotalUsd(
-                          openedCheck
-                        ).toFixed(2)
-                      )}
-                    </strong>
-
-                  </div>
-
-                  <div>
-
-                    <span>
-                      إجمالي المرتجع بالسوري
-                    </span>
-
-                    <strong>
-                      {formatNumber(
-                        calculateReturnTotalSyp(
-                          openedCheck
-                        ).toFixed(0)
-                      )}
-                      {" "}
-                      ل.س
-                    </strong>
-
-                  </div>
-
-                </div>
-
-              )}
-
-              <div className="view-total">
-
-                <div>
-
-                  <span>
-                    الصافي بعد المرتجع
-                  </span>
-
-                  <strong>
-                    $
-                    {" "}
-                    {formatNumber(
-                      calculateNetTotalUsd(
-                        openedCheck
-                      ).toFixed(2)
-                    )}
-                  </strong>
-
-                </div>
-
-                <div>
-
-                  <span>
-                    الصافي بالسوري
-                  </span>
-
-                  <strong>
-                    {formatNumber(
-                      calculateNetTotalSyp(
-                        openedCheck
-                      ).toFixed(0)
-                    )}
-                    {" "}
-                    ل.س
-                  </strong>
-
-                </div>
-
-              </div>
-
-              {openedCheck.returnNotes && (
-                <div className="view-row">
-
-                  <span>
-                    ملاحظات المرتجع
-                  </span>
-
-                  <strong>
-                    {
-                      openedCheck.returnNotes
-                    }
-                  </strong>
-
-                </div>
-              )}
 
               <div className="view-row notes-row">
 
@@ -4779,35 +3236,19 @@ function Checks() {
 
             </div>
 
-            {/* ACTIONS */}
-
             <div className="view-actions">
 
-              <button
-                className="btn btn-return"
-                onClick={() =>
-                  openReturnForm(
-                    openedCheck
-                  )
-                }
-              >
-                ↩️ إضافة مرتجع
-              </button>
-
-              {openedCheck.returnItems?.length >
-                0 && (
-
+              {getCheckType(openedCheck.type) !== "مرتجع" && (
                 <button
-                  className="btn btn-cancel"
-                  onClick={() =>
-                    deleteReturns(
-                      openedCheck
-                    )
-                  }
+                  className="btn btn-return"
+                  onClick={() => {
+                    const original = openedCheck;
+                    setOpenedCheck(null);
+                    openReturnForm(original);
+                  }}
                 >
-                  🗑 حذف المرتجعات
+                  ↩️ إنشاء مرتجع
                 </button>
-
               )}
 
               <button
@@ -4830,9 +3271,7 @@ function Checks() {
               <button
                 className="btn btn-cancel"
                 onClick={() =>
-                  setOpenedCheck(
-                    null
-                  )
+                  setOpenedCheck(null)
                 }
               >
                 إغلاق
@@ -4851,3 +3290,4 @@ function Checks() {
 }
 
 export default Checks;
+
