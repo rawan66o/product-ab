@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-
+import "./ArchivedChecks.css";
 const ARCHIVE_API_URL = "https://abdbac2-10.onrender.com/archivedChecks";
 
 const numberValue = (value) => {
@@ -158,23 +158,145 @@ function ArchivedChecks() {
         <section style={styles.panel}>
           {loading ? <p>عم يتم تحميل الأرشيف...</p> : error ? <div role="alert" style={{ color: "#a12e25", lineHeight: 1.8 }}>{error}<div style={{ marginTop: 12 }}><button style={styles.button} onClick={fetchArchivedChecks}>إعادة المحاولة</button></div></div> : filteredChecks.length === 0 ? <div style={{ textAlign: "center", padding: "36px 12px" }}><h3 style={{ marginTop: 0 }}>ما في كشوف مؤرشفة مطابقة</h3><p style={styles.muted}>إذا لسه ما نقلتي أي كشف للأرشيف، رح يظهر هون بعد أرشفته.</p></div> : (
             <div style={styles.tableWrap}>
-              <table style={styles.table}>
-                <thead><tr><th style={styles.th}>رقم الكشف</th><th style={styles.th}>اسم الزبون</th><th style={styles.th}>النوع</th><th style={styles.th}>تاريخ الكشف</th><th style={styles.th}>رقم الدفتر</th><th style={styles.th}>الإجمالي بالدولار</th><th style={styles.th}>الإجمالي بالسوري</th><th style={styles.th}>سنة الأرشفة</th><th style={styles.th}>التفاصيل</th></tr></thead>
-                <tbody>{filteredChecks.map((check) => {
-                  const archivedYear = check.archivedYear || (check.archivedAt ? new Date(check.archivedAt).getFullYear() : null) || (check.date ? new Date(check.date).getFullYear() : "-");
-                  return <tr key={check.id ?? `${check.checkNumber}-${check.archivedAt}`}>
-                    <td style={styles.td}>#{check.checkNumber || check.originalId || check.id || "-"}</td>
-                    <td style={styles.td}><strong>{check.customerName || check.recipientName || "-"}</strong><div style={styles.muted}>{check.phone || ""}</div></td>
-                    <td style={styles.td}><span style={styles.badge}>{check.type || "-"}</span></td>
-                    <td style={styles.td}>{check.date || "-"}</td>
-                    <td style={styles.td}>{check.bookNumber || "-"}</td>
-                    <td style={styles.td}>${money(totalUsd(check))}</td>
-                    <td style={styles.td}>{money(totalSyp(check), 0)} ل.س</td>
-                    <td style={styles.td}>{archivedYear}</td>
-                    <td style={styles.td}><button type="button" style={styles.secondaryButton} onClick={() => setSelectedCheck(check)}>عرض التفاصيل</button></td>
-                  </tr>;
-                })}</tbody>
-              </table>
+     ```jsx
+<div className="archived-checks-table-wrap" style={styles.tableWrap}>
+  {/* جدول الكمبيوتر */}
+  <table className="archived-checks-table" style={styles.table}>
+    <thead>
+      <tr>
+        <th style={styles.th}>رقم الكشف</th>
+        <th style={styles.th}>اسم الزبون</th>
+        <th style={styles.th}>النوع</th>
+        <th style={styles.th}>تاريخ الكشف</th>
+        <th style={styles.th}>رقم الدفتر</th>
+        <th style={styles.th}>الإجمالي بالدولار</th>
+        <th style={styles.th}>الإجمالي بالسوري</th>
+        <th style={styles.th}>سنة الأرشفة</th>
+        <th style={styles.th}>التفاصيل</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {filteredChecks.map((check) => {
+        const archivedYear =
+          check.archivedYear ||
+          (check.archivedAt
+            ? new Date(check.archivedAt).getFullYear()
+            : null) ||
+          (check.date ? new Date(check.date).getFullYear() : "-");
+
+        return (
+          <tr key={check.id ?? `${check.checkNumber}-${check.archivedAt}`}>
+            <td style={styles.td}>
+              #{check.checkNumber || check.originalId || check.id || "-"}
+            </td>
+            <td style={styles.td}>
+              <strong>
+                {check.customerName || check.recipientName || "-"}
+              </strong>
+              <div style={styles.muted}>{check.phone || ""}</div>
+            </td>
+            <td style={styles.td}>
+              <span style={styles.badge}>{check.type || "-"}</span>
+            </td>
+            <td style={styles.td}>{check.date || "-"}</td>
+            <td style={styles.td}>{check.bookNumber || "-"}</td>
+            <td style={styles.td}>${money(totalUsd(check))}</td>
+            <td style={styles.td}>
+              {money(totalSyp(check), 0)} ل.س
+            </td>
+            <td style={styles.td}>{archivedYear}</td>
+            <td style={styles.td}>
+              <button
+                type="button"
+                style={styles.secondaryButton}
+                onClick={() => setSelectedCheck(check)}
+              >
+                عرض التفاصيل
+              </button>
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+
+  {/* كاردات الموبايل */}
+  <div className="archived-checks-cards">
+    {filteredChecks.map((check) => {
+      const archivedYear =
+        check.archivedYear ||
+        (check.archivedAt
+          ? new Date(check.archivedAt).getFullYear()
+          : null) ||
+        (check.date ? new Date(check.date).getFullYear() : "-");
+
+      return (
+        <article
+          className="archived-check-card"
+          key={`card-${check.id ?? check.checkNumber}`}
+        >
+          <div className="archived-check-card-header">
+            <strong>
+              كشف #{check.checkNumber || check.originalId || check.id || "-"}
+            </strong>
+            <span className="archived-check-type">
+              {check.type || "-"}
+            </span>
+          </div>
+
+          <div className="archived-check-card-body">
+            <div>
+              <span>اسم الزبون</span>
+              <strong>
+                {check.customerName || check.recipientName || "-"}
+              </strong>
+            </div>
+
+            <div>
+              <span>رقم الهاتف</span>
+              <strong>{check.phone || "-"}</strong>
+            </div>
+
+            <div>
+              <span>تاريخ الكشف</span>
+              <strong>{check.date || "-"}</strong>
+            </div>
+
+            <div>
+              <span>رقم الدفتر</span>
+              <strong>{check.bookNumber || "-"}</strong>
+            </div>
+
+            <div>
+              <span>الإجمالي بالدولار</span>
+              <strong>${money(totalUsd(check))}</strong>
+            </div>
+
+            <div>
+              <span>الإجمالي بالسوري</span>
+              <strong>{money(totalSyp(check), 0)} ل.س</strong>
+            </div>
+
+            <div>
+              <span>سنة الأرشفة</span>
+              <strong>{archivedYear}</strong>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="archived-check-card-button"
+            onClick={() => setSelectedCheck(check)}
+          >
+            عرض تفاصيل الكشف
+          </button>
+        </article>
+      );
+    })}
+  </div>
+</div>
+```
             </div>
           )}
         </section>
