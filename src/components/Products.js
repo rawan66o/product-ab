@@ -1,8 +1,10 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"; 
 import "./Products.css";
+// import "./ProductsOffers.css";
+import offerBanner from "./images/eee.jpg"; // استبدل "offer-banner.jpg" باسم ملف الصورة الفعلي
 
 function Products() {
   // =====================================================
@@ -612,6 +614,28 @@ function Products() {
       ================================================= */}
 
       <main className="store-content">
+
+        {/* قسم العروض - يظهر أعلى صفحة المنتجات */}
+        <section className="offers-section" aria-label="العروض الحالية">
+          <div className="offers-section-heading">
+            <span className="offers-eyebrow">عرض لفترة محدودة</span>
+            <h2>عروض غنى المميزة</h2>
+            <p>اغتنم العرض واحصل على طرد مجاني أو اشترِ بسعر منخفض</p>
+          </div>
+          <a
+            className="offers-banner-link"
+            href="https://wa.me/963967227179"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="تواصل معنا على واتساب للاستفادة من العرض"
+          >
+            <img
+              className="offers-banner-image"
+              src={offerBanner}
+              alt="عرض غنى: مع كل 200 كيلو من أكياس القمامة، احصل على طرد مجاني أو اشترِ بسعر منخفض"
+            />
+          </a>
+        </section>
 
         {/* =================================================
             TITLE

@@ -2698,6 +2698,86 @@ input {
     font-size: 13px;
   }
 }
+/* قسم العروض أعلى صفحة المنتجات */
+.offers-section {
+  width: 100%;
+  margin: 0 auto 30px;
+  padding: 22px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #fffbea 0%, #fff 48%, #eef6ff 100%);
+  border: 1px solid rgba(13, 53, 100, 0.10);
+  box-shadow: 0 10px 28px rgba(15, 42, 75, 0.09);
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.offers-section-heading {
+  margin-bottom: 16px;
+}
+
+.offers-eyebrow {
+  display: inline-block;
+  margin-bottom: 7px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  color: #0b315c;
+  background: #ffdf24;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.offers-section-heading h2 {
+  margin: 0 0 8px;
+  color: #082f5b;
+  font-size: clamp(23px, 3vw, 34px);
+  font-weight: 900;
+}
+
+.offers-section-heading p {
+  margin: 0;
+  color: #34445a;
+  font-size: clamp(14px, 1.8vw, 17px);
+  line-height: 1.8;
+}
+
+.offers-banner-link {
+  display: block;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 16px;
+  line-height: 0;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.offers-banner-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(8, 47, 91, 0.18);
+}
+
+.offers-banner-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 600px) {
+  .offers-section {
+    margin-bottom: 22px;
+    padding: 12px;
+    border-radius: 15px;
+  }
+
+  .offers-section-heading {
+    margin-bottom: 12px;
+  }
+
+  .offers-banner-link {
+    border-radius: 10px;
+  }
+}
 
 
 /* =========================================================
@@ -2758,4 +2838,17 @@ input {
     flex-basis: 100%;
     order: 3;
   }
+}.offer-banner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.offer-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
