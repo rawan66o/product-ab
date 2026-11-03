@@ -617,7 +617,7 @@ function Products() {
       <main className="store-content">
 
         {/* قسم العروض - يظهر أعلى صفحة المنتجات */}
-        <section className="offers-section" aria-label="العروض الحالية">
+        {/* <section className="offers-section" aria-label="العروض الحالية">
           <div className="offers-section-heading">
             <span className="offers-eyebrow">عرض لفترة محدودة</span>
             <h2>عروض غنى المميزة</h2>
@@ -637,8 +637,8 @@ function Products() {
             />
           </a>
           
-        </section>
-             <section className="offers-section" aria-label="العروض الحالية">
+        </section> */}
+             {/* <section className="offers-section" aria-label="العروض الحالية">
           <div className="offers-section-heading">
             <span className="offers-eyebrow">عرض لفترة محدودة</span>
             <h2>عروض خساره المميزة</h2>
@@ -658,7 +658,7 @@ function Products() {
             />
           </a>
           
-        </section>
+        </section> */}
 
         {/* =================================================
             TITLE
