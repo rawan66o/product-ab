@@ -1,8 +1,8 @@
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./Customers.css";
 import { Link } from "react-router-dom";
+
 const API = "https://abdbac2-10.onrender.com";
 
 function Customers() {
@@ -11,105 +11,190 @@ function Customers() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // توحيد الأسماء وتجاهل الفروق الشائعة في الكتابة العربية
+  const normalizeName = (value) =>
+    String(value || "")
+      .trim()
+      .replace(/\s+/g, " ")
+      .replace(/ـ/g, "")
+      .replace(/[\u064B-\u065F\u0670]/g, "")
+      .replace(/[أإآ]/g, "ا")
+      .replace(/ة/g, "ه")
+      .replace(/ى/g, "ي")
+      .toLowerCase();
+
+  // توحيد أرقام الشيكات
+  const normalizeNumber = (value) =>
+    String(value ?? "").trim();
+
+  // جلب البيانات
+  const fetchData = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const [checksRes, debtsRes] = await Promise.all([
+        axios.get(`${API}/checks`),
+        axios.get(`${API}/debts`)
+      ]);
+
+      const checksData = Array.isArray(checksRes.data)
+        ? checksRes.data
+        : [];
+
+      const debtsData = Array.isArray(debtsRes.data)
+        ? debtsRes.data
+        : [];
+
+      setChecks(checksData);
+      setDebts(debtsData);
+
+      console.log("CHECKS DATA:", checksData);
+      console.log("DEBTS DATA:", debtsData);
+    } catch (err) {
+      console.error("Error loading customers:", err);
+      setError("حدث خطأ أثناء تحميل بيانات الزبائن");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [checksRes, debtsRes] = await Promise.all([
-          axios.get(`${API}/checks`),
-          axios.get(`${API}/debts`)
-        ]);
-
-        setChecks(
-          Array.isArray(checksRes.data) ? checksRes.data : []
-        );
-
-        setDebts(
-          Array.isArray(debtsRes.data) ? debtsRes.data : []
-        );
-
-        console.log("CHECKS DATA:", checksRes.data);
-        console.log("DEBTS DATA:", debtsRes.data);
-
-      } catch (error) {
-        console.error("Error loading customers:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, []);
 
-  // توحيد الاسم
-  const normalizeName = (name) =>
-    String(name || "")
-      .trim()
-      .replace(/\s+/g, " ")
-      .toLowerCase();
+  // التحقق هل الدين يخص زبوناً
+  const isValidCustomerDebtType = (debt) => {
+    const type = normalizeName(debt.debtType);
+    return !type || ["customer", "زبون", "عميل", "بيع"].includes(type);
+  };
 
-  // جمع الزبائن من الكشوف والديون
+  // البحث عن الكشف المرتبط بالدين
+  const getRelatedCheck = (debt) => {
+    return checks.find((check) => {
+      const debtCheckId = String(
+        debt.checkId ||
+        debt.returnForCheckId ||
+        ""
+      );
+
+      const debtCheckNumber = normalizeNumber(
+        debt.checkNumber ||
+        debt.returnForCheckNumber
+      );
+
+      const sameId =
+        debtCheckId &&
+        (
+          String(check.id) === debtCheckId ||
+          String(check.returnForCheckId || "") === debtCheckId
+        );
+
+      const sameNumber =
+        debtCheckNumber &&
+        (
+          normalizeNumber(check.checkNumber) === debtCheckNumber ||
+          normalizeNumber(check.returnForCheckNumber) === debtCheckNumber
+        );
+
+      return Boolean(sameId || sameNumber);
+    });
+  };
+
+  // استخراج اسم الزبون بإعطاء الأولوية للاسم المباشر في سجل الدين
+  const getCustomerNameForDebt = (debt) => {
+    const directName =
+      debt.customerName ||
+      debt.personName ||
+      debt.name;
+
+    if (directName && String(directName).trim()) {
+      return directName;
+    }
+
+    const relatedCheck = getRelatedCheck(debt);
+    return relatedCheck?.customerName || "";
+  };
+
+  // إنشاء قائمة الزبائن من الكشوف والديون الخاصة بالزبائن
   const allCustomers = [
-    ...checks.map(check => ({
+    ...checks.map((check) => ({
       name: check.customerName,
       phone: check.phone,
       residence: check.residence
     })),
 
-    ...debts.map(debt => ({
-      name: debt.personName || debt.customerName || debt.name,
-      phone: debt.phone,
-      residence: debt.residence
-    }))
+    ...debts
+      .filter(isValidCustomerDebtType)
+      .map((debt) => {
+        const relatedCheck = getRelatedCheck(debt);
+
+        return {
+          name: getCustomerNameForDebt(debt),
+          phone: debt.phone || relatedCheck?.phone || "",
+          residence: debt.residence || relatedCheck?.residence || ""
+        };
+      })
   ];
 
-  // إزالة التكرار
+  // إزالة التكرار والبحث حسب الاسم الموحد
   const customers = [
     ...new Map(
       allCustomers
-        .filter(customer => customer.name?.trim())
-        .map(customer => [
+        .filter((customer) => customer.name?.trim())
+        .map((customer) => [
           normalizeName(customer.name),
           customer
         ])
     ).values()
-  ].filter(customer =>
-    customer.name.toLowerCase().includes(search.toLowerCase())
+  ].filter((customer) =>
+    normalizeName(customer.name).includes(
+      normalizeName(search)
+    )
   );
 
-  // كشوف الزبون
-  const customerChecks = checks.filter(check =>
-    normalizeName(check.customerName) ===
-    normalizeName(selectedCustomer?.name)
-  );
+  // كشوف الزبون المحدد
+  const customerChecks = selectedCustomer
+    ? checks.filter(
+        (check) =>
+          normalizeName(check.customerName) ===
+          normalizeName(selectedCustomer.name)
+      )
+    : [];
 
-  // ديون الزبون
-  const customerDebts = debts.filter(debt => {
-    const debtName = normalizeName(
-      debt.personName || debt.customerName || debt.name
-    );
+  // تحديد الديون التابعة للزبون المحدد
+  const isCustomerDebt = (debt) => {
+    if (!isValidCustomerDebtType(debt)) return false;
 
     const selectedName = normalizeName(selectedCustomer?.name);
+    const debtName = normalizeName(getCustomerNameForDebt(debt));
 
-    const type = normalizeName(debt.debtType || "customer");
+    if (!selectedName || !debtName) return false;
 
     return (
-      debtName === selectedName &&
-      (type === "customer" || type === "")
+      debtName === selectedName ||
+      (selectedName.length >= 4 && debtName.includes(selectedName)) ||
+      (debtName.length >= 4 && selectedName.includes(debtName))
     );
-  });
+  };
 
-  // حساب الإجماليات حسب نوع الكشف
+  const customerDebts = selectedCustomer
+    ? debts.filter(isCustomerDebt)
+    : [];
+
+  // إجمالي الكشوف حسب النوع
   const total = (key, type) =>
     customerChecks
-      .filter(check => check.type === type)
+      .filter((check) => check.type === type)
       .reduce(
         (sum, check) => sum + Number(check[key] || 0),
         0
       );
 
   // تنسيق الأرقام
-  const format = value =>
+  const format = (value) =>
     Number(value || 0).toLocaleString("en-US");
 
   // إجمالي الديون
@@ -124,20 +209,21 @@ function Customers() {
   );
 
   if (loading) {
-    return <h3>جاري تحميل الزبائن...</h3>;
+    return (
+      <div className="customers-loading">
+        جاري تحميل الزبائن...
+      </div>
+    );
   }
 
   return (
     <div className="customers-page" dir="rtl">
-
       <nav className="store-navbar">
-
         <div className="store-logo">
           متجري
         </div>
 
         <div className="store-links">
-
           <Link to="/products">
             المنتجات
           </Link>
@@ -149,11 +235,9 @@ function Customers() {
           <Link to="/dashboard">
             الداشبورد
           </Link>
-
         </div>
-
       </nav>
-      {/* العنوان */}
+
       <div className="customers-header">
         <h2>حسابات الزبائن</h2>
 
@@ -167,19 +251,26 @@ function Customers() {
         )}
       </div>
 
+      {error && (
+        <div className="customers-error">
+          {error}
+          <button onClick={fetchData}>
+            إعادة المحاولة
+          </button>
+        </div>
+      )}
+
       {!selectedCustomer ? (
         <>
-          {/* البحث */}
           <input
             className="customer-search"
             placeholder="ابحث عن زبون..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
 
-          {/* قائمة الزبائن */}
           <div className="customers-grid">
-            {customers.map(customer => (
+            {customers.map((customer) => (
               <div
                 className="customer-card"
                 key={normalizeName(customer.name)}
@@ -187,22 +278,27 @@ function Customers() {
               >
                 <h3>{customer.name}</h3>
 
-                <p>📞 {customer.phone || "غير مسجل"}</p>
+                <p>
+                  📞 {customer.phone || "غير مسجل"}
+                </p>
 
-                <p>📍 {customer.residence || "غير مسجل"}</p>
+                <p>
+                  📍 {customer.residence || "غير مسجل"}
+                </p>
 
                 <span>عرض الحساب ←</span>
               </div>
             ))}
 
             {customers.length === 0 && (
-              <p>لا يوجد زبائن</p>
+              <p className="empty-account">
+                لا يوجد زبائن
+              </p>
             )}
           </div>
         </>
       ) : (
         <>
-          {/* معلومات الزبون */}
           <div className="customer-profile">
             <h2>{selectedCustomer.name}</h2>
 
@@ -215,18 +311,16 @@ function Customers() {
             </p>
           </div>
 
-          {/* ملخص الحساب */}
-          <h3>ملخص الحساب</h3>
+          <h3 className="section-title">
+            ملخص الحساب
+          </h3>
 
           <div className="customer-stats">
-
             <div className="customer-stat">
               <span>إجمالي البيع</span>
-
               <strong>
                 {format(total("totalAmountUsd", "بيع"))} $
               </strong>
-
               <strong>
                 {format(total("totalAmountSyp", "بيع"))} ل.س
               </strong>
@@ -234,11 +328,9 @@ function Customers() {
 
             <div className="customer-stat">
               <span>إجمالي الشراء</span>
-
               <strong>
                 {format(total("totalAmountUsd", "شراء"))} $
               </strong>
-
               <strong>
                 {format(total("totalAmountSyp", "شراء"))} ل.س
               </strong>
@@ -246,32 +338,28 @@ function Customers() {
 
             <div className="customer-stat">
               <span>المرتجعات</span>
-
               <strong>
                 {format(total("totalAmountUsd", "مرتجع"))} $
               </strong>
-
               <strong>
                 {format(total("totalAmountSyp", "مرتجع"))} ل.س
               </strong>
             </div>
 
-            <div className="customer-stat">
+            <div className="customer-stat debt-total">
               <span>الديون المسجلة</span>
-
               <strong>
                 {format(totalDebtUsd)} $
               </strong>
-
               <strong>
                 {format(totalDebtSyp)} ل.س
               </strong>
             </div>
-
           </div>
 
-          {/* الكشوف والمرتجعات */}
-          <h3>الكشوف والمرتجعات</h3>
+          <h3 className="section-title">
+            الكشوف والمرتجعات
+          </h3>
 
           {/* جدول الكمبيوتر */}
           <div className="customer-table-container desktop-table">
@@ -289,28 +377,23 @@ function Customers() {
 
               <tbody>
                 {customerChecks.length > 0 ? (
-                  customerChecks.map(check => (
+                  customerChecks.map((check) => (
                     <tr key={check.id}>
                       <td>{check.date || "—"}</td>
-
                       <td>{check.checkNumber || "—"}</td>
-
                       <td>{check.type || "—"}</td>
-
                       <td>
                         {format(
                           check.netTotalUsd ??
                           check.totalAmountUsd
                         )} $
                       </td>
-
                       <td>
                         {format(
                           check.netTotalSyp ??
                           check.totalAmountSyp
                         )} ل.س
                       </td>
-
                       <td>{check.paymentStatus || "—"}</td>
                     </tr>
                   ))
@@ -326,17 +409,20 @@ function Customers() {
           {/* كروت الموبايل للكشوف */}
           <div className="mobile-cards">
             {customerChecks.length > 0 ? (
-              customerChecks.map(check => (
+              customerChecks.map((check) => (
                 <div className="account-card" key={check.id}>
-
                   <div className="account-card-header">
                     <strong>
                       كشف رقم {check.checkNumber || "—"}
                     </strong>
 
-                    <span className={`type-badge ${
-                      check.type === "مرتجع" ? "return-badge" : ""
-                    }`}>
+                    <span
+                      className={`type-badge ${
+                        check.type === "مرتجع"
+                          ? "return-badge"
+                          : ""
+                      }`}
+                    >
                       {check.type || "—"}
                     </span>
                   </div>
@@ -350,7 +436,8 @@ function Customers() {
                     <span>المبلغ بالدولار</span>
                     <strong>
                       {format(
-                        check.netTotalUsd ?? check.totalAmountUsd
+                        check.netTotalUsd ??
+                        check.totalAmountUsd
                       )} $
                     </strong>
                   </div>
@@ -359,16 +446,18 @@ function Customers() {
                     <span>المبلغ بالليرة</span>
                     <strong>
                       {format(
-                        check.netTotalSyp ?? check.totalAmountSyp
+                        check.netTotalSyp ??
+                        check.totalAmountSyp
                       )} ل.س
                     </strong>
                   </div>
 
                   <div className="account-card-row">
                     <span>حالة الدفع</span>
-                    <strong>{check.paymentStatus || "—"}</strong>
+                    <strong>
+                      {check.paymentStatus || "—"}
+                    </strong>
                   </div>
-
                 </div>
               ))
             ) : (
@@ -376,8 +465,7 @@ function Customers() {
             )}
           </div>
 
-          {/* الديون */}
-          <h3>الديون</h3>
+          <h3 className="section-title">الديون</h3>
 
           {/* جدول الكمبيوتر */}
           <div className="customer-table-container desktop-table">
@@ -393,14 +481,11 @@ function Customers() {
 
               <tbody>
                 {customerDebts.length > 0 ? (
-                  customerDebts.map(debt => (
+                  customerDebts.map((debt) => (
                     <tr key={debt.id}>
                       <td>{debt.date || "—"}</td>
-
                       <td>{debt.checkNumber || "—"}</td>
-
                       <td>{format(debt.amountUsd)} $</td>
-
                       <td>{format(debt.amountSyp)} ل.س</td>
                     </tr>
                   ))
@@ -418,12 +503,11 @@ function Customers() {
           {/* كروت الموبايل للديون */}
           <div className="mobile-cards">
             {customerDebts.length > 0 ? (
-              customerDebts.map(debt => (
+              customerDebts.map((debt) => (
                 <div
                   className="account-card debt-card"
                   key={debt.id}
                 >
-
                   <div className="account-card-header">
                     <strong>
                       دين رقم {debt.checkNumber || "—"}
@@ -452,7 +536,6 @@ function Customers() {
                       {format(debt.amountSyp)} ل.س
                     </strong>
                   </div>
-
                 </div>
               ))
             ) : (
@@ -461,7 +544,6 @@ function Customers() {
               </p>
             )}
           </div>
-
         </>
       )}
     </div>
