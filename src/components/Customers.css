@@ -1,0 +1,277 @@
+
+.customers-page {
+  padding: 25px;
+  direction: rtl;
+}
+
+.customers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.customer-search {
+  width: 100%;
+  max-width: 450px;
+  padding: 13px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.customers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.customer-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.customer-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px #0001;
+}
+
+.customer-card span {
+  color: #2563a6;
+  font-weight: bold;
+}
+
+.customer-profile {
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+}
+
+.customer-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 15px;
+}
+
+.customer-stat {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid #eee;
+}
+
+.customer-stat strong {
+  color: #2563a6;
+}
+
+.customer-table-container {
+  overflow-x: auto;
+  background: white;
+  border-radius: 10px;
+  margin-bottom: 25px;
+}
+
+.customer-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.customer-table-container th,
+.customer-table-container td {
+  padding: 13px;
+  text-align: right;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+}
+
+.customer-table-container th {
+  background: #f5f7fa;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: white;
+  color: #334155;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.back-btn:hover {
+  background: #334155;
+  color: white;
+  border-color: #334155;
+}
+
+/* كروت الموبايل مخفية على الكمبيوتر */
+.mobile-cards {
+  display: none;
+}
+
+/* شارات أنواع العمليات */
+.type-badge {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.return-badge {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.debt-badge {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* تصميم الكروت */
+.account-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 17px;
+  margin-bottom: 14px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+.account-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 13px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.account-card-header > strong {
+  color: #1e293b;
+  font-size: 15px;
+}
+
+.account-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.account-card-row:last-child {
+  border-bottom: none;
+}
+
+.account-card-row span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.account-card-row strong {
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.empty-account {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  color: #64748b;
+}
+
+/* إعدادات الموبايل */
+@media (max-width: 768px) {
+  .customers-page {
+    padding: 12px;
+  }
+
+  .customers-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .customers-header h2 {
+    font-size: 21px;
+  }
+
+  .customer-search {
+    max-width: 100%;
+  }
+
+  .customers-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .customer-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .customer-stat {
+    padding: 13px;
+    min-width: 0;
+  }
+
+  .customer-stat span {
+    font-size: 13px;
+  }
+
+  .customer-stat strong {
+    font-size: 14px;
+  }
+
+  .customer-profile {
+    padding: 16px;
+  }
+
+  /* إخفاء الجداول */
+  .desktop-table {
+    display: none;
+  }
+
+  /* إظهار الكروت */
+  .mobile-cards {
+    display: block;
+  }
+
+  .back-btn {
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+}
+
+/* الشاشات الصغيرة جداً */
+@media (max-width: 380px) {
+  .customer-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .account-card {
+    padding: 13px;
+  }
+
+  .account-card-row strong {
+    font-size: 13px;
+  }
+}

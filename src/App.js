@@ -15,7 +15,7 @@ import Daily from "./components/Daily";
 import Debts from "./components/Debts";
 import Capital from "./components/Capital";
 import ArchivedChecks from "./components/ArchivedChecks";
-
+import Customers from "./components/Customers";
 // =========================================
 // Protected Route
 // =========================================
@@ -115,6 +115,7 @@ function Dashboard() {
   >
     📊 الكشوف المؤرشفة
   </Link>
+  <Link     className="sidebar-link" to="/customers">👋الزبائن</Link>
 </nav>
 
         <button
@@ -330,6 +331,14 @@ function App() {
           <Route
   path="/archived-checks"
   element={<ArchivedChecks />}
+/>
+<Route
+  path="/customers"
+  element={
+    <ProtectedRoute>
+      <Customers />
+    </ProtectedRoute>
+  }
 />
 
         </Routes>
